@@ -10,7 +10,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend deployed at https://fire-calendar.onrender.com and verified on labeled mocks; live NRT awaits Render key configuration; real archives await P2/P3. |
-| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; an incomplete last month is labeled "month to date" from P3's diagnostics; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
+| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports and cold-start handling verified end to end on mocks; the live overlay shows the backend's reason while FIRMS returns 502 (P4/P1); next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
@@ -58,6 +58,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] CSV export buttons, NRT overlay, "Launch Tactical Containment Sandbox" trigger
 - [x] Calibration panel under the calendar: 12 monthly factors with ±1 CV, Terra-only / NOAA-20 / NOAA-21 factors, fallback and not-measured flags (all from `calibration.json`)
 - [x] "Month to date" label on an incomplete last month (cards, heatmap cell, tooltip), from `calibration.json` `diagnostics.last_month_complete` / `last_data_date` (P3 request)
+- [x] Integration with P4's finished backend: production build points at the Render URL, the page paints from the bundle while the backend wakes and then reloads from the API, drawn-area calendar and both CSV exports verified end to end against https://fire-calendar.onrender.com, mock exports labeled in the file name
 
 ## P6: Tactical Containment Sandbox
 - [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
@@ -84,7 +85,7 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - [x] from P4 to P1: add h3>=4.0 and shapely>=2.1 to the root backend group and refresh uv.lock. The human explicitly authorized this dependency-only change; applied and locked.
 
-- [ ] from P4 to P1/P5: backend deployment is verified at https://fire-calendar.onrender.com. Set FIRMS_MAP_KEY securely in Render and recheck NRT (currently 503; health reports key unconfigured); coordinate the frontend CORS origin and VITE_API_URL with P5. Real regional archives remain pending P2/P3.
+- [ ] from P4 to P1/P5: backend deployment is verified at https://fire-calendar.onrender.com. Set FIRMS_MAP_KEY securely in Render and recheck NRT (currently 503; health reports key unconfigured); coordinate the frontend CORS origin and VITE_API_URL with P5. Real regional archives remain pending P2/P3. → **P5 part done** (`feat/p5-backend-integration`): `frontend/.env.production` sets `VITE_API_URL=https://fire-calendar.onrender.com` for production builds (a `VITE_API_URL` set in the Vercel dashboard overrides it). Still open for P1: the FIRMS key / NRT 502, and, only if `CORS_ORIGINS` is ever narrowed from `*`, adding the Vercel origin.
 
 - P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render deployment is now verified on mocks; live NRT configuration and real-data verification remain pending.
 
@@ -95,3 +96,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - P4 NRT diagnostics PR: https://github.com/neamturazvan/fire-calendar/pull/11 (feat/p4-nrt-errors); 100 Python tests and Ruff passed. Live 502 cause awaits deployment.
 
 - [ ] from P2 to P3/P4: Rio Negro tables are ready locally; coordinate cross-laptop transfer (no data committed). See `pipeline/ingest/RIO_NEGRO_STATUS.md` for sizes and counts. S-NPP SP stops 2026-07-31; NOAA-20/21 and MODIS include NRT through November 13. Read per-satellite provenance from points.parquet; NOAA-21 retained NRT starts May 6.
+
+- [ ] from P5 to P4/P1: FYI, no change needed. `POST /api/export/calendar` for the whole region box is a polygon aggregation, not P3's regional `calendar.json` (on mocks the totals differ: about 137 vs 19,067 cell-days for `rio_negro`). So the frontend calls that endpoint only for a drawn area; with no area drawn, "Export calendar (CSV)" writes the regional calendar that is on screen, same columns. Say if you would rather serve the regional file from the endpoint when the polygon equals the region box.
