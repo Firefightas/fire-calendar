@@ -51,4 +51,9 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - A "month in progress" chip is shown when the latest month is the current UTC month by the browser clock. Why: the contract has no partial-month flag, and a part-month count against a full-month median reads falsely low.
 - Anomaly wording bands (±0.5, ±1.5) are display text only; the score always comes from `anomaly_z`. Why: readers need a plain-language reading next to the number.
 - The validation tile is flagged "whole-region calibration" when a drawn area is shown. Why: `test_mae` is regional and in cell-days, so it does not describe a small polygon.
+- Basemap = OpenFreeMap "dark" vector style (no token); if it cannot be fetched the map falls back to a blank style that still shows region boxes, the drawn area and hex layers. Why: free, and the demo must survive without internet tiles.
+- terra-draw is only the pen: a finished shape is validated (every vertex inside the region bbox), stored as one GeoJSON polygon in app state and drawn by our own MapLibre layer. One area at a time. Why: one source of truth for the area shared by calendar, exports and sandbox; the 26-year archive only exists inside the three regions.
+- The map's `H3HexagonLayer` shows (a) `burn_count` from the region's sandbox grid and (b) live NRT hotspots binned to H3 res-7 in the browser, loaded on demand for the current map view via `GET /api/nrt?bbox=`. Why: no contract endpoint returns per-hex archive values; NRT by view bbox keeps the overlay global (TEAM_PLAN §0.1).
+- MapLibre 6 gets its worker through `setWorkerUrl()` with a Vite `?url` asset import. Why: it resolves the worker relative to its own module at runtime, which breaks once Vite bundles it.
+- When an area calendar comes back identical to the whole-region series, the UI says so. Why: the interim `POST /api/calendar` ignores the polygon, and region totals must not be presented as a drawn area's numbers.
 

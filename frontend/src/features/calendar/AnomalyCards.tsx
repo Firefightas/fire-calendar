@@ -104,7 +104,7 @@ export function AnomalyCards({ calendar, calibration, selected, isArea }: Props)
   const latest = latestMonth(calendar)
   const peak = peakAnomaly(calendar.months)
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2">
       {latest && <AnomalyTile label="Latest month vs. historical median" m={latest} calendar={calendar} />}
       {selected ? (
         <AnomalyTile label="Selected month" m={selected} calendar={calendar} />

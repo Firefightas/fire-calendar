@@ -46,6 +46,21 @@ export function sharedMax(months: CalendarMonth[]): number {
   return max
 }
 
+/** True when two calendars carry the same values for the same months (e.g. an area query that was not aggregated). */
+export function sameSeries(a: Calendar, b: Calendar): boolean {
+  if (a.months.length !== b.months.length) return false
+  return a.months.every((m, i) => {
+    const o = b.months[i]
+    return (
+      m.year === o.year &&
+      m.month === o.month &&
+      m.harmonized === o.harmonized &&
+      m.modis_raw === o.modis_raw &&
+      m.viirs_raw === o.viirs_raw
+    )
+  })
+}
+
 export interface GridRow {
   /** Row label: "2015", or "2015/16" when rows are July→June fire seasons. */
   label: string
