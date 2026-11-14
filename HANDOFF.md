@@ -41,3 +41,13 @@ Gotchas: preserve contracts unchanged. Area statistics use full baseline before 
 Validation: uv sync --all-groups --locked; uv run pytest (87 passed, no skips); uv run ruff check .; frontend build/lint and 35 frontend tests passed.
 
 P4 publishing note: resolved after the human added bwradu as a collaborator; the feature branch is pushed and the PR is open. Main was never pushed. PR: https://github.com/neamturazvan/fire-calendar/pull/9
+
+## P4 NRT follow-up - 14 November 2026 - Codex
+Done: Render health now reports FIRMS key configured; live region/bbox one-day and seven-day requests were checked and returned 502. Added safe per-source diagnostics and environment-whitespace trimming on feat/p4-nrt-errors, with regression tests for key/quota/status/transport/CSV failures and credential redaction.
+In progress: diagnostics implementation complete and verified with 100 Python tests and Ruff; publishing the PR. PR #10 separately records the healthy mock-backed deployment.
+Known issue: the live upstream cause remains unknown until this diagnostics update is deployed; no successful live NRT response has been observed.
+Next 3 steps:
+1. Review/merge/deploy the diagnostics PR with P1.
+2. Recheck https://fire-calendar.onrender.com/api/nrt?region_id=rio_negro&days=1 and the seven-day variant, then resolve the reported category.
+3. Recheck global bbox, caching and P5's overlay once NRT is successful.
+Gotchas: keep credentials out of Git, logs and chat; response details must never echo upstream error bodies or URLs. All historical regions still use mocks.

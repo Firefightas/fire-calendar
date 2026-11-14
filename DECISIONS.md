@@ -79,3 +79,5 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - NRT fetches NOAA-20/21 and MODIS concurrently, splits 6-7 days into NASA's <=5-day forward-date windows, caches complete successes for 15 minutes and returns a sanitized 502 on any source failure. Why: frontend latency, rate limits, honest coverage and no MAP_KEY leaks in errors.
 
 - Area calendars follow P1's approved month-to-date rule when regional diagnostics identify an incomplete last month: only that row's baseline median/IQR/score use the same acquisition-day cutoff across baseline years; factors remain fitted on full fit-year months and observed counts stay unchanged. Why: partial-month observations must be compared with partial-month history.
+
+- NRT failures expose only predefined per-source categories and numeric HTTP statuses; warning logs omit raw bodies, URLs and credentials. Why: the first live configured-key requests returned opaque 502 errors, which did not distinguish key/quota problems from transport or CSV failures. Health's configured flag means presence, not successful NASA authentication.
