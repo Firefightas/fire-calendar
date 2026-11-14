@@ -41,3 +41,13 @@ Gotchas: preserve contracts unchanged. Area statistics use full baseline before 
 Validation: uv sync --all-groups --locked; uv run pytest (87 passed, no skips); uv run ruff check .; frontend build/lint and 35 frontend tests passed.
 
 P4 publishing note: resolved after the human added bwradu as a collaborator; the feature branch is pushed and the PR is open. Main was never pushed. PR: https://github.com/neamturazvan/fire-calendar/pull/9
+
+## P2 - 14 November 2026 - Codex
+Done: verified all 54 annual Rio Negro CSVs, downloaded three requested NRT windows, normalized and validated 317,938 points / 149,205 hex-days; code fixes and detailed evidence in pipeline/ingest/RIO_NEGRO_STATUS.md.
+In progress: California's 54-year/source queue runs from the fire-calendar-p2-status worktree (PowerShell PID 16732); progress/error logs and runner under data/raw/california-download.*; MODIS 2000 complete, 2001 running at handoff.
+Known issues: S-NPP SP ends July 31, 2026, so its November shutdown is not observable in these files. Outputs are local, not on Drive. Original fire-calendar checkout has an unrelated unfinished merge; it was preserved.
+Next 3 steps:
+1. Review/merge feat/p2-rio-negro-status and transfer local Parquet files to P3/P4.
+2. Monitor California's log; retry only failed years, then download its NRT tail and normalize.
+3. Start Romania and prepare sandbox inputs against P3 history.
+Gotchas: data/raw in the P2 worktree is a junction to the original checkout; do not delete either tree while downloads run. Python env is in the P2 worktree. For tests set PYTEST_DEBUG_TEMPROOT to its .venv/test-temp directory. No data or secrets were committed.

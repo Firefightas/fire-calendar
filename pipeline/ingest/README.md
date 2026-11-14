@@ -21,6 +21,17 @@ Coverage: MODIS from 1 Nov 2000; VIIRS S-NPP 20 Jan 2012 → 2 Nov 2026 (ended);
 
 Country files cover whole countries: `normalize.py` clips them to the region bbox.
 
+For 2026 requests, use `--end 2026-11-13` for this data snapshot. An annual
+filename records the requested window, not guaranteed observation coverage;
+check the CSV dates as well. Download the recent tail separately with
+`MODIS_NRT`, `VIIRS_NOAA20_NRT` and `VIIRS_NOAA21_NRT`, from `2026-05-01` to
+`2026-11-13`. An SP-only S-NPP file may end months before its delivery shutdown.
+
+The downloader validates response columns, retries failures without logging
+secret-bearing URLs or response bodies, and publishes a CSV only after all
+windows succeed. A valid header-only CSV represents no detections; a failed
+request must not be treated as zero fire activity.
+
 ## 2. Normalize
 
 ```bash
@@ -29,6 +40,9 @@ uv run pytest pipeline/ingest
 ```
 
 What it does: detects MODIS vs VIIRS by columns, maps satellite codes (`T/A/N/N20/N21`...) to `terra/aqua/snpp/noaa20/noaa21`, converts confidence to `low/nominal/high` (MODIS <30 / 30–79 / ≥80), keeps `type` 0 or missing (drops volcanoes, gas flares, offshore), drops low confidence, clips to bbox, removes NRT rows where standard data exists, adds H3 res 7, writes both Parquet files, prints counts per year × satellite.
+
+The CLI expands CSV wildcards itself, including on Windows PowerShell, and
+reads each matching path once even if arguments overlap.
 
 **Sanity check the printout:** S-NPP should start in 2012, Aqua mid-2002, NOAA-20 2018, and VIIRS counts should be several times MODIS. If a satellite code is unknown, it stops and tells you; pass `--satellite`.
 

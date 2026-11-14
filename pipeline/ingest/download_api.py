@@ -34,12 +34,24 @@ SOURCES = {"MODIS_SP", "MODIS_NRT", "VIIRS_SNPP_SP", "VIIRS_SNPP_NRT", "VIIRS_NO
 def fetch(key: str, source: str, bbox: list[float], day: date, days: int) -> pd.DataFrame:
     area = ",".join(str(v) for v in bbox)
     url = f"{BASE}/{key}/{source}/{area}/{days}/{day.isoformat()}"
+    failure = "no response"
     for attempt in range(4):
-        r = requests.get(url, timeout=120)
-        if r.status_code == 200 and not r.text.lower().startswith("invalid"):
-            return pd.read_csv(io.StringIO(r.text)) if r.text.strip() else pd.DataFrame()
-        time.sleep(5 * (attempt + 1))
-    raise RuntimeError(f"FIRMS request failed ({r.status_code}): {r.text[:200]}")
+        try:
+            r = requests.get(url, timeout=120)
+            failure = f"HTTP {r.status_code}"
+            if r.status_code == 200:
+                df = pd.read_csv(io.StringIO(r.text))
+                if {"latitude", "longitude", "acq_date", "satellite"} <= set(df.columns):
+                    return df
+                failure = "unexpected CSV columns"
+        except requests.RequestException:
+            # Request exception messages include the URL, which contains the key.
+            failure = "network error"
+        except (pd.errors.ParserError, pd.errors.EmptyDataError):
+            failure = "invalid CSV response"
+        if attempt < 3:
+            time.sleep(5 * (attempt + 1))
+    raise RuntimeError(f"FIRMS {source} {day}: {failure}") from None
 
 
 def main() -> None:
@@ -49,11 +61,13 @@ def main() -> None:
     ap.add_argument("--start", required=True, type=date.fromisoformat)
     ap.add_argument("--end", required=True, type=date.fromisoformat)
     args = ap.parse_args()
+    if args.end < args.start:
+        ap.error("--end must be on or after --start")
 
     load_dotenv(ROOT / "backend" / ".env")
     key = os.environ["FIRMS_MAP_KEY"]
-    bbox = next(r["bbox"] for r in json.loads((ROOT / "contracts" / "regions.json").read_text())["regions"]
-                if r["id"] == args.region)
+    regions = json.loads((ROOT / "contracts" / "regions.json").read_text(encoding="utf-8"))["regions"]
+    bbox = next(r["bbox"] for r in regions if r["id"] == args.region)
 
     out = ROOT / "data" / "raw" / args.region
     out.mkdir(parents=True, exist_ok=True)
@@ -64,13 +78,14 @@ def main() -> None:
         days = min(5, (args.end - day).days + 1)
         df = fetch(key, args.source, bbox, day, days)
         print(f"{day} +{days}d: {len(df)} rows")
-        if len(df):
-            chunks.append(df)
+        chunks.append(df)
         day += timedelta(days=days)
         time.sleep(0.5)
 
     result = pd.concat(chunks, ignore_index=True) if chunks else pd.DataFrame()
-    result.to_csv(target, index=False)
+    temporary = target.with_suffix(".csv.part")
+    result.to_csv(temporary, index=False)
+    temporary.replace(target)
     print(f"wrote {target} ({len(result):,} rows)")
 
 

@@ -79,3 +79,5 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - NRT fetches NOAA-20/21 and MODIS concurrently, splits 6-7 days into NASA's <=5-day forward-date windows, caches complete successes for 15 minutes and returns a sanitized 502 on any source failure. Why: frontend latency, rate limits, honest coverage and no MAP_KEY leaks in errors.
 
 - Area calendars follow P1's approved month-to-date rule when regional diagnostics identify an incomplete last month: only that row's baseline median/IQR/score use the same acquisition-day cutoff across baseline years; factors remain fitted on full fit-year months and observed counts stay unchanged. Why: partial-month observations must be compared with partial-month history.
+
+- P2 ingestion expands CSV globs in Python for Windows and rejects malformed API responses; errors omit request URLs/response bodies and completed downloads publish atomically. Why: PowerShell does not expand native-command globs, and FIRMS URLs contain the secret key.
