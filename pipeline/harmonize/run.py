@@ -24,7 +24,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 PROCESSED = ROOT / "data" / "processed"
-REGIONS = {r["id"]: r for r in json.loads((ROOT / "contracts" / "regions.json").read_text())["regions"]}
+_REGIONS_FILE = ROOT / "contracts" / "regions.json"
+REGIONS = {r["id"]: r for r in json.loads(_REGIONS_FILE.read_text(encoding="utf-8"))["regions"]}
 
 SATELLITES = ["terra", "aqua", "snpp", "noaa20", "noaa21"]
 
@@ -466,8 +467,8 @@ def main(argv: list[str] | None = None) -> None:
     calendar, calibration, history = build_outputs(hex_day, args.region, is_mock=args.synthetic)
     out = args.out or PROCESSED / args.region
     out.mkdir(parents=True, exist_ok=True)
-    (out / "calendar.json").write_text(json.dumps(calendar, indent=1))
-    (out / "calibration.json").write_text(json.dumps(calibration, indent=1))
+    (out / "calendar.json").write_text(json.dumps(calendar, indent=1), encoding="utf-8")
+    (out / "calibration.json").write_text(json.dumps(calibration, indent=1), encoding="utf-8")
     history.to_parquet(out / "hex_fire_history.parquet", index=False)
 
     factors = [f["factor"] for f in calibration["monthly_factors"]]
