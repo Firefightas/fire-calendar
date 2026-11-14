@@ -1,109 +1,54 @@
-# P2 Rio Negro ingestion status - 14 November 2026
+﻿# P2 Río Negro persistence review and sandbox join — 14 November 2026
 
-## Coverage and downloads
+## Evidence and conclusion
 
-All 54 requested annual SP CSVs exist and parse with valid normalization columns,
-satellite codes and dates inside their requested windows: MODIS 2000-2026 (27),
-S-NPP 2012-2026 (15), NOAA-20 2018-2026 (9), NOAA-21 2024-2026 (3).
-No missing or failed annual files required re-download. There is also a five-day
-MODIS 2005 file; overlapping detections were deduplicated.
+The strongest suspects are consistent with persistent non-vegetation thermal sources, but their industrial/gas-flare identity is not confirmed. P3's 142-hex list is reproduced exactly; 313 hexes have >=10 days in any satellite/year. The suspect list is an audit input, never a filter lookup table.
 
-Annual names follow `api_<SOURCE>_<YEAR>-01-01_<YEAR>-12-31.csv`.
-The existing 2026 names describe the requested range, not full-year coverage.
-The full local filename/size/date inventory is `data/raw/rio_negro/inventory.csv.txt`.
+The 142 suspects contain 51,606 points: 80.81% nighttime, median FRP 1.60 MW, versus 39.37% nighttime and 9.57 MW elsewhere. Of the suspect points, 48,615 have type 0 and 2,991 have null type. Example 87ce9e79cffffff has 432 S-NPP and 484 NOAA-20 detection days; in 2020 alone these are 295 and 303 days. Its median radial distance from the coordinate median is 262 m (p90 622 m), with FRP p10/median/p90 1.05/2.23/5.70 MW: strong evidence of compact recurrent heat, not a single vegetation-fire event.
 
-Downloaded the requested 2026-05-01 through 2026-11-13 NRT windows:
-- `api_MODIS_NRT_2026-05-01_2026-11-13.csv`: 246 raw rows.
-- `api_VIIRS_NOAA20_NRT_2026-05-01_2026-11-13.csv`: 2,290 raw rows.
-- `api_VIIRS_NOAA21_NRT_2026-05-01_2026-11-13.csv`: 3,946 raw rows.
+Not every suspect is confidently static. 87ce9e7adffffff has 36.4% nighttime points, median FRP 12.5 MW, p90 FRP 65.49 MW and p90 spatial radius 881 m. 87ce85180ffffff has p90 radius 1,142 m and p90 FRP 64.80 MW. They can contain real vegetation fires or a mixture. Both, plus 87c364841ffffff and 87ce9e71affffff, retain all records under the conservative screen.
 
-FIRMS availability was checked directly: MODIS SP ends 2026-08-31;
-S-NPP/NOAA-20/NOAA-21 SP end 2026-07-31. MODIS NRT begins 2026-09-01,
-NOAA-20 NRT begins 2026-08-01; NOAA-21 NRT includes the requested overlap.
-Thus S-NPP's November shutdown cannot be verified from this SP-only archive.
-Do not interpret its missing August-November tail as zero activity.
+NASA's [static thermal anomaly description](https://firms.modaps.eosdis.nasa.gov/descriptions/Static_Thermal_Anomalies_Mask.html) documents static sources being labeled type 0. This supports the failure mode, not independent confirmation of these particular sites.
 
-## Processed outputs (local, not uploaded to Drive)
+## General rule
 
-Both files are available in `data/processed/rio_negro/` in David's original
-`fire-calendar` checkout and the `fire-calendar-p2-status` worktree:
-- `points.parquet`: 317,938 rows; 6,356,324 bytes.
-- `hex_day.parquet`: 149,205 rows; 1,081,746 bytes.
+At H3 resolution 9 (~0.1 km²), require >=20 distinct days on one satellite, >=4 months and >=120 days between first and last detection in a year, repeated in >=2 distinct years. Never sum satellites or repeated overpasses. Apply the common site/year mask to every satellite only in qualifying years; retain other locations and older/isolated fire years. Preserve any candidate point with >=3 adjacent res-7 hexes active within ±1 day. Derive hex_day from retained points; frozen columns remain unchanged.
 
-No files under `data/` are included in this commit. P3 can use `hex_day.parquet`
-for harmonization; P4 can use both tables. Cross-laptop transfer remains pending.
+Fixed thresholds prioritize specificity and protect single fire seasons. This is retrospective quality control, not calibration fitting; thresholds were not tuned to P3's held-out error. Some intermittent sources remain. A data-only screen cannot guarantee perfect fire/source classification; validated industrial locations and imagery are the next check. The 110 untouched suspects are not thereby confirmed vegetation fires.
 
-Earliest retained observations: Terra 2000-11-08, Aqua 2002-07-04,
-S-NPP 2012-01-20, NOAA-20 2018-04-01, NOAA-21 2024-01-01.
-The NOAA-21 date is earlier than the README's January 17; FIRMS availability
-lists SP from 2023-03-01, while January 17, 2024 is its NRT start.
-No records were discarded merely to match the documentation date.
-Latest observations: Aqua 2026-11-12; Terra/NOAA-20/NOAA-21 2026-11-13;
-S-NPP 2026-07-31. S-NPP / combined MODIS detection ratios for 2012-2025
-range from 3.32 to 5.11 (individual sensor counts, not added together).
+## Before / after
 
-Earliest retained NRT dates: Terra 2026-09-01, Aqua 2026-09-02,
-NOAA-20 2026-08-01, NOAA-21 2026-05-06. P3 should use actual provenance
-from `points.parquet`; there is no single common SP/NRT cutoff across satellites.
+| Measure | Before | After |
+|---|---:|---:|
+| Point rows | 317,938 | 307,352 |
+| Hex/day/satellite rows | 149,205 | 143,233 |
+| Unique res-7 hexes | 27,405 | 27,405 |
+| 2000–2002 points | 10,600 | 10,600 |
+| Dec 2016–Feb 2017 points | 51,376 | 51,260 |
 
-## Retained detections per year and satellite
+Removed 10,586 points (3.3296%); 59 persistent res-9 sites affect 32 output hexes. No output hex is removed completely. The wider-event safeguard retains 34 additional candidate detections. All 2000–2002 data is unchanged.
 
-| Year | Terra | Aqua | S-NPP | NOAA-20 | NOAA-21 |
-|---|---:|---:|---:|---:|---:|
-| 2000 | 989 | 0 | 0 | 0 | 0 |
-| 2001 | 6,371 | 0 | 0 | 0 | 0 |
-| 2002 | 2,362 | 878 | 0 | 0 | 0 |
-| 2003 | 1,804 | 3,083 | 0 | 0 | 0 |
-| 2004 | 636 | 972 | 0 | 0 | 0 |
-| 2005 | 923 | 1,863 | 0 | 0 | 0 |
-| 2006 | 613 | 989 | 0 | 0 | 0 |
-| 2007 | 426 | 808 | 0 | 0 | 0 |
-| 2008 | 439 | 777 | 0 | 0 | 0 |
-| 2009 | 305 | 544 | 0 | 0 | 0 |
-| 2010 | 204 | 360 | 0 | 0 | 0 |
-| 2011 | 424 | 627 | 0 | 0 | 0 |
-| 2012 | 364 | 567 | 3,091 | 0 | 0 |
-| 2013 | 328 | 661 | 4,336 | 0 | 0 |
-| 2014 | 488 | 752 | 5,704 | 0 | 0 |
-| 2015 | 1,380 | 2,450 | 14,281 | 0 | 0 |
-| 2016 | 2,103 | 3,361 | 24,451 | 0 | 0 |
-| 2017 | 3,310 | 4,150 | 30,248 | 0 | 0 |
-| 2018 | 1,482 | 2,256 | 13,491 | 3,613 | 0 |
-| 2019 | 1,111 | 1,732 | 13,929 | 11,020 | 0 |
-| 2020 | 889 | 1,272 | 10,607 | 10,038 | 0 |
-| 2021 | 605 | 1,028 | 7,482 | 7,589 | 0 |
-| 2022 | 508 | 1,023 | 7,233 | 7,640 | 0 |
-| 2023 | 648 | 1,016 | 7,187 | 6,679 | 0 |
-| 2024 | 418 | 718 | 5,802 | 6,082 | 4,878 |
-| 2025 | 814 | 1,660 | 12,229 | 11,959 | 11,468 |
-| 2026 | 240 | 409 | 2,726 | 5,096 | 4,939 |
+The 116 big-season removals (0.226%) are in 87c36482effffff, 87c3648d0ffffff and 87c3648d1ffffff, around 38.15–38.19°S, 68.64–68.87°W. They recur in many months outside that fire season. Removed FRP median is 1.515 MW, max 12.63 MW; their summed FRP is 191.58 MW out of 2,639,040.68 MW for the season (a sum of detection FRP, not energy or burned area). All 25,707 season detections above 12.63 MW remain. Season hex coverage changes 5,697 -> 5,696, losing one inferred persistent-source hex in that window. These checks show no obvious loss of the large-fire signal, not proof of perfect classification of every point.
 
-## California background queue
+## Revised handoff for P3/P4
 
-Started a hidden PowerShell process (PID 16732) from the P2 worktree.
-The sequential queue covers MODIS 2000-2026, S-NPP 2012-2026,
-NOAA-20 2018-2026 and NOAA-21 2024-2026, using `--end 2026-11-13` for 2026.
-MODIS 2000 completed and 2001 was in progress at this handoff.
-Local runner: `data/raw/california-download.ps1`; progress/error logs:
-`data/raw/california-download.log` and `.err`; PID file: `.pid`.
-Keep the worktree and machine available until the queue finishes. The runner
-records failed years and continues; inspect failures and re-run only those years.
+Files are in data/processed/rio_negro/ in David's original checkout and the fire-calendar-p2-persistence worktree. No data files are committed.
 
-## Validation and code fixes
+| File | Bytes | SHA-256 |
+|---|---:|---|
+| points.parquet | 6,163,295 | a3e1fdd924e003dc3a0c68167b1e4c6cb60f7761ef8089b308a0a5e7699f4312 |
+| hex_day.parquet | 1,056,491 | 96b915fd704715091980c1c9713035e2abefba40bd45a0e056ffcc67d209bccb |
 
-- Normalization command from the README completed successfully on all 58 CSVs.
-- Output aggregation equals a fresh grouping of points; no duplicate points,
-  low-confidence records, disallowed fire types, invalid/non-res-7 H3 cells,
-  or NRT records sharing a satellite-day with retained SP observations.
-- 92 Python tests pass using a task-local temporary directory because the
-  machine's default pytest temp directory has access restrictions.
-- `uv run ruff check .` and `npm.cmd run build` pass.
-- Fixed native Windows wildcard expansion and UTF-8 reads; downloader failures
-  redact key-bearing URLs/bodies, reject malformed CSV responses, retry safely,
-  and write completed CSVs atomically. Regression tests cover these failures
-  and the PowerShell-style literal wildcard.
+Transfer bundle: data/raw/rio_negro-p2-persistence-handoff.zip (revised tables, provisional grid, provenance and manifest). Cross-laptop delivery is via the human; no shared Drive destination or recipient messaging tool is configured. P3 must regenerate calibration/calendar/history; P4 must deploy the revised tables with matching recalibrated outputs, not old factors. Existing P3 JSON outputs have not been regenerated by P2.
 
-The original checkout has an unrelated unfinished merge in PLAN.md. Work was
-isolated on `feat/p2-rio-negro-status` from `origin/main` at `350e533`.
+Original tables remain in data/raw/rio_negro-pre-persistence/. The audit command in the README reproduces data/raw/rio_negro-persistence-audit/: per-satellite/year counts, spatial/FRP metrics, site/year evidence and summary with input hash. All 54 annual files and three NRT windows remain unchanged. S-NPP still ends July 31, 2026; other series reach November 13 (Aqua November 12).
 
-Publishing: commit 9d83e55 pushed on feat/p2-rio-negro-status. PR creation remains pending: GitHub connector returned 403 (Resource not accessible by integration); automatic review blocked a local-credential API fallback; browser control was not approved. Open https://github.com/neamturazvan/fire-calendar/compare/main...feat/p2-rio-negro-status?expand=1 to create the PR.
+## Sandbox history join
+
+P3's supplied history has 27,405 unique rows, total burn_count 135,106.96 and 3,050 zero-count rows with real recency. It predates this screen. The rerunnable join produced schema-valid sandbox_grid.json: 1,027 mock terrain cells, 628 matches, 399 absent-history cells set to 0/null and 28 matched zero-count cells with recency preserved. is_mock stays true. This unblocks P6 integration, not the final corrected terrain/fuel result. Rerun the documented join command after P3 supplies replacement history. Real WorldCover/elevation preparation remains a separate P2 task.
+
+## Validation
+
+Full pytest suite and Ruff pass; startup frontend build passed. Tests cover cross-region behavior, satellite/overpass counting, recurrence, short and single long fire seasons, nearby event protection, old/other locations, empty input, join defaults, zero-count recency, replacement history and invalid data. Regenerated hex_day equals aggregation of points exactly; there are no duplicate points. Actual P3 join values were checked cell by cell; sandbox_grid passes tests/test_contracts.py.
+
+Work is isolated on feat/p2-persistence-sandbox from main 99c8473. The original unfinished merge and California download worktree are preserved.
