@@ -74,3 +74,5 @@ Next 3 steps:
 Gotchas: do not commit Parquet inputs or change the P1-approved calibration method. Polygon H3-center selection can exclude region-edge hexes; the whole-region JSON export remains distinct by design. Evidence hashes, coverage, observed limits and validation steps are in backend/REAL_DATA_HANDOFF.md.
 
 Validation after the real-data source fix: 110 Python tests and Ruff passed. The frontend baseline build passed; final CI builds against the newly available P3 JSON.
+
+- P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.
