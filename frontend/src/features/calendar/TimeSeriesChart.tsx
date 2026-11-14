@@ -94,8 +94,7 @@ export function TimeSeriesChart({ calendar, mode }: { calendar: Calendar; mode: 
   const ticks: number[] = []
   for (let y = Math.ceil(x0 / 5) * 5; y <= x1; y += 5) ticks.push(y)
 
-  // The series picked in the toggle is drawn last (on top) at full strength.
-  const order: Mode[] = mode === 'harmonized' ? ['raw', 'harmonized'] : ['harmonized', 'raw']
+  const series: Mode[] = ['harmonized', 'raw']
 
   return (
     <div>
@@ -171,10 +170,13 @@ export function TimeSeriesChart({ calendar, mode }: { calendar: Calendar; mode: 
                 }}
               />
             )}
-            {order.map((m) => (
+            {series.map((m) => (
               <Line
                 key={m}
                 dataKey={m}
+                // The series picked in the toggle sits on top at full strength. Recharts layers
+                // by zIndex, not by element order.
+                zIndex={m === mode ? 410 : 400}
                 type="linear"
                 stroke={COLOR[m]}
                 strokeWidth={2}
