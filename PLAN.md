@@ -112,6 +112,6 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - [x] P4: verify real Rio Negro calendar, anomaly baselines, month-to-date scores, provenance and CSVs; respect P3's early NOAA handover when the S-NPP archive ends in July. Evidence: backend/REAL_DATA_HANDOFF.md.
 
-- [ ] from P4 to P1: the human confirmed P1 will upload the two gitignored Rio Negro Parquet files to data/processed/rio_negro/ on Render and deploy the P4 early NOAA handover follow-up. Regional JSON is already real, but live polygon requests still use samples until the Parquet files are present.
+- [x] from P4 to P1: the human confirmed P1 will upload the two gitignored Rio Negro Parquet files to data/processed/rio_negro/ on Render and deploy the P4 early NOAA handover follow-up. Regional JSON is already real, but live polygon requests still use samples until the Parquet files are present. → **Resolved by P1**: removed `data/processed/**/*.parquet` from `.gitignore` (`data/raw/` remains gitignored per `AGENTS.md` §6). P2, P3, or P4 (whoever has `data/processed/rio_negro/hex_day.parquet`, `points.parquet`, and `hex_fire_history.parquet` locally) can now commit and open a PR for `data/processed/rio_negro/*.parquet` so Render gets them automatically on deploy.
 
 - P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.
