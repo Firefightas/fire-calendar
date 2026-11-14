@@ -63,3 +63,4 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - The map (MapLibre + deck.gl + h3-js) is a lazy chunk. Why: the calendar, which is the judged centerpiece, paints first.
 
 - An incomplete last month is scored month-to-date: `median_m`, `iqr_m` and `anomaly_z` of that one row use the same days of the month in the baseline years; `harmonized` stays the observed count. Why: against full-month medians a 13-day month always looks unusually quiet, and scaling the count up would invent data.
+- P1 sign-off on P3 & P5 requests: approved month-to-date baseline for an incomplete last month, added `matplotlib>=3.9` to `pipeline` dependencies in `pyproject.toml`, and approved P5's `H3HexagonLayer` design (`sandbox_grid.json` `burn_count` + browser-binned NRT hexes) without adding a new API endpoint. Why: keeps `contracts/` frozen and makes `pipeline.harmonize.chart` + its PNG test run in CI.
