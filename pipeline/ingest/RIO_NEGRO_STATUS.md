@@ -105,3 +105,5 @@ records failed years and continues; inspect failures and re-run only those years
 
 The original checkout has an unrelated unfinished merge in PLAN.md. Work was
 isolated on `feat/p2-rio-negro-status` from `origin/main` at `350e533`.
+
+Publishing: commit 9d83e55 pushed on feat/p2-rio-negro-status. PR creation remains pending: GitHub connector returned 403 (Resource not accessible by integration); automatic review blocked a local-credential API fallback; browser control was not approved. Open https://github.com/neamturazvan/fire-calendar/compare/main...feat/p2-rio-negro-status?expand=1 to create the PR.

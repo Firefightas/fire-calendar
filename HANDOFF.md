@@ -51,3 +51,5 @@ Next 3 steps:
 2. Monitor California's log; retry only failed years, then download its NRT tail and normalize.
 3. Start Romania and prepare sandbox inputs against P3 history.
 Gotchas: data/raw in the P2 worktree is a junction to the original checkout; do not delete either tree while downloads run. Python env is in the P2 worktree. For tests set PYTEST_DEBUG_TEMPROOT to its .venv/test-temp directory. No data or secrets were committed.
+
+Publishing: commit 9d83e55 pushed on feat/p2-rio-negro-status. PR creation remains pending: GitHub connector returned 403 (Resource not accessible by integration); automatic review blocked a local-credential API fallback; browser control was not approved. Open https://github.com/neamturazvan/fire-calendar/compare/main...feat/p2-rio-negro-status?expand=1 to create the PR.
