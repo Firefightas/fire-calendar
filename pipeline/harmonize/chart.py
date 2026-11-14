@@ -124,8 +124,8 @@ def main(argv: list[str] | None = None) -> None:
     for name in ("calendar.json", "calibration.json"):
         if not (folder / name).exists():
             parser.error(f"{folder / name} not found: run pipeline.harmonize.run first")
-    calendar = json.loads((folder / "calendar.json").read_text())
-    calibration = json.loads((folder / "calibration.json").read_text())
+    calendar = json.loads((folder / "calendar.json").read_text(encoding="utf-8"))
+    calibration = json.loads((folder / "calibration.json").read_text(encoding="utf-8"))
     print(plot(calendar, calibration, args.out or folder / "validation_chart.png"))
 
 
