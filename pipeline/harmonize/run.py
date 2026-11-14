@@ -158,22 +158,31 @@ def _single_factor(rows: pd.DataFrame, num: str, den: str) -> dict:
     return {"factor": float(r.median()), "cv": _cv(r), "n_months": int(len(r)), "measured": True}
 
 
-def fit_factors(monthly: pd.DataFrame) -> dict:
-    """All conversion factors to SNPP_VIIRS_EQ. Reads only fit-year rows, except noaa21 (see below)."""
-    fit = _window(monthly, max(SNPP_START, (FIT_YEARS[0], 1)), (FIT_YEARS[1], 12))
-    ratios = _ratios(fit, "snpp", "modis")
-    if ratios.empty:
-        raise ValueError(f"no usable S-NPP/MODIS overlap months in {FIT_YEARS}: cannot calibrate")
-    pooled, pooled_cv = float(ratios.median()), _cv(ratios)
+def _fit_window(monthly: pd.DataFrame) -> pd.DataFrame:
+    return _window(monthly, max(SNPP_START, (FIT_YEARS[0], 1)), (FIT_YEARS[1], 12))
 
-    monthly_factors = []
+
+def _monthly_factors(fit: pd.DataFrame, num: str, den: str) -> list[dict]:
+    """Median num/den per calendar month; a month with too few ratios takes the pooled median."""
+    ratios = _ratios(fit, num, den)
+    if ratios.empty:
+        return []
+    pooled, pooled_cv = float(ratios.median()), _cv(ratios)
+    out = []
     for m in range(1, 13):
         r = ratios[fit.loc[ratios.index, "month"] == m]
         fallback = len(r) < MIN_RATIO_YEARS
-        monthly_factors.append({"month": m, "factor": pooled if fallback else float(r.median()),
-                                "cv": pooled_cv if fallback else _cv(r), "n_years": int(len(r)),
-                                "fallback": bool(fallback)})
+        out.append({"month": m, "factor": pooled if fallback else float(r.median()),
+                    "cv": pooled_cv if fallback else _cv(r), "n_years": int(len(r)), "fallback": bool(fallback)})
+    return out
 
+
+def fit_factors(monthly: pd.DataFrame) -> dict:
+    """All conversion factors to SNPP_VIIRS_EQ. Reads only fit-year rows, except noaa21 (see below)."""
+    fit = _fit_window(monthly)
+    monthly_factors = _monthly_factors(fit, "snpp", "modis")
+    if not monthly_factors:
+        raise ValueError(f"no usable S-NPP/MODIS overlap months in {FIT_YEARS}: cannot calibrate")
     noaa20_fit = _window(monthly, NOAA20_START, (FIT_YEARS[1], 12))
     # NOAA-21 launched after the fit years, so its only overlap with S-NPP is 2024 -> Oct 2026.
     noaa21_fit = _window(monthly, NOAA21_START, SNPP_END)
@@ -182,9 +191,6 @@ def fit_factors(monthly: pd.DataFrame) -> dict:
         "terra_only": _single_factor(fit, "modis", "terra"),
         "noaa20": _single_factor(noaa20_fit, "snpp", "noaa20"),
         "noaa21": _single_factor(noaa21_fit, "snpp", "noaa21"),
-        # Orbit check (README step 3): afternoon Aqua vs. morning Terra against S-NPP.
-        "aqua_to_snpp": _single_factor(fit, "snpp", "aqua"),
-        "terra_to_snpp": _single_factor(fit, "snpp", "terra"),
     }
 
 
@@ -239,17 +245,49 @@ def add_anomaly(series: pd.DataFrame, baseline: tuple[int, int]) -> pd.DataFrame
 
 # --- Step 5: held-out validation ---------------------------------------------------------------
 
-def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict:
-    """Predict S-NPP from MODIS on the test years with the fit-year factors."""
-    test = _window(monthly, (TEST_YEARS[0], 1), min(SNPP_END, (TEST_YEARS[1], 12)))
-    if test.empty:
-        raise ValueError(f"no S-NPP months in test years {TEST_YEARS}: cannot compute test_mae")
-    factor = test["month"].map({f["month"]: f["factor"] for f in factors["monthly"]})
-    err = (test["modis"] * factor - test["snpp"]).abs()
+def _test_window(monthly: pd.DataFrame) -> pd.DataFrame:
+    return _window(monthly, (TEST_YEARS[0], 1), min(SNPP_END, (TEST_YEARS[1], 12)))
+
+
+def _test_error(test: pd.DataFrame, column: str, monthly_factors: list[dict]) -> dict:
+    """Error of `column` x its monthly factor as a prediction of S-NPP on the test months."""
+    factor = test["month"].map({f["month"]: f["factor"] for f in monthly_factors})
+    err = (test[column] * factor - test["snpp"]).abs()
     out = {"test_mae": float(err.mean())}
     seen = test["snpp"] > 0
     if seen.any():
         out["test_mape"] = float((err[seen] / test.loc[seen, "snpp"]).mean())
+    return out
+
+
+def orbit_check(monthly: pd.DataFrame) -> dict:
+    """Does afternoon Aqua track afternoon S-NPP better than morning Terra does? (TEAM_PLAN §2.2)
+
+    Each MODIS record (Aqua only, Terra only, both combined) gets its own monthly factors to
+    S-NPP on the fit years and is scored on the test years. Diagnostics only: the calendar
+    always uses the combined record.
+    """
+    fit, test = _fit_window(monthly), _test_window(monthly)
+    out = {}
+    for name, column in (("aqua_only", "aqua"), ("terra_only", "terra"), ("terra_aqua_combined", "modis")):
+        factors = _monthly_factors(fit, "snpp", column)
+        if not factors or test.empty:
+            continue
+        overall = _single_factor(fit, "snpp", column)
+        out[name] = {"factor": overall["factor"], "ratio_cv": overall["cv"], "n_months": overall["n_months"],
+                     "monthly_factors": [f["factor"] for f in factors], **_test_error(test, column, factors)}
+    scored = {name: r["test_mape"] for name, r in out.items() if "test_mape" in r}
+    if scored:
+        out["lowest_test_mape"] = min(scored, key=scored.get)
+    return out
+
+
+def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict:
+    """Predict S-NPP from MODIS on the test years with the fit-year factors."""
+    test = _test_window(monthly)
+    if test.empty:
+        raise ValueError(f"no S-NPP months in test years {TEST_YEARS}: cannot compute test_mae")
+    out = _test_error(test, "modis", factors["monthly"])
 
     naive = series["viirs_raw"].fillna(series["modis_raw"])  # what you get by just switching sensors
     before, after = series["year"].between(*STEP_BEFORE), series["year"].between(*STEP_AFTER)
@@ -287,6 +325,14 @@ def fire_history(hex_day: pd.DataFrame, monthly: pd.DataFrame, factors: dict) ->
 
 
 # --- Outputs ------------------------------------------------------------------------------------
+
+def _rounded(x, digits: int = 3):
+    if isinstance(x, dict):
+        return {k: _rounded(v, digits) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_rounded(v, digits) for v in x]
+    return round(x, digits) if isinstance(x, float) else x
+
 
 def _ym(year: int, month: int) -> str:
     return f"{year}-{month:02d}"
@@ -346,8 +392,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
         "terra_only": diag(factors["terra_only"]),
         "noaa20": diag(factors["noaa20"]),
         "noaa21": diag(factors["noaa21"]),
-        "orbit_check": {"aqua_to_snpp": diag(factors["aqua_to_snpp"]),
-                        "terra_to_snpp": diag(factors["terra_to_snpp"])},
+        "orbit_check": _rounded(orbit_check(monthly)),
     }
     if "noaa20_test_mae" in metrics:
         diagnostics["noaa20"]["test_mae"] = round(metrics["noaa20_test_mae"], 2)

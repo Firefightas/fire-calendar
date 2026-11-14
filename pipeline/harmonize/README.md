@@ -51,6 +51,7 @@ Defaults chosen where the method above is silent (also in `DECISIONS.md`):
 - `terra_only_factor` and the orbit-check factors are fitted on Feb 2012 – Dec 2020; `noaa20_factor` on Apr 2018 – Dec 2020; `noaa21_factor` on Feb 2024 – Oct 2026 (no overlap inside the fit years). A factor with no overlap data is 1.0 and `diagnostics.<name>.measured` is false.
 - `unc_low/unc_high` = `H ± 1.96·sqrt(H + (cv·H)²)`, with `cv` 0 for S-NPP months.
 - `hex_fire_history.parquet` lists only hexes with at least one detection (a hex missing from it never burned: P2 left-joins and gets null). `burn_count` uses the same satellite and factor as the calendar for each month, so the hexes add up to the regional harmonized series; `years_since_last_fire` uses the last detection by any satellite.
+- Orbit check (`diagnostics.orbit_check`): Aqua only, Terra only and Terra+Aqua combined each get their own monthly factors to S-NPP on the fit years and a `test_mae` / `test_mape` on the test years; `lowest_test_mape` names the best one. The calendar always uses the combined record.
 - `is_nrt` = the last data month and the 5 before it (`hex_day` has no `is_nrt` column).
 
 ## For the pitch

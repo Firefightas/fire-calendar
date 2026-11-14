@@ -41,8 +41,25 @@ def test_recovers_known_ratios(monthly):
     assert f["terra_only"]["factor"] == pytest.approx(truth["terra_only_factor"], rel=0.05)
     assert f["noaa20"]["factor"] == pytest.approx(truth["noaa20_factor"], rel=0.03)
     assert f["noaa21"]["factor"] == pytest.approx(truth["noaa21_factor"], rel=0.05)
-    # Afternoon Aqua sees more of what S-NPP sees than morning Terra does (synthetic detection rates).
-    assert f["aqua_to_snpp"]["factor"] < f["terra_to_snpp"]["factor"]
+
+
+def test_orbit_check(monthly):
+    sats = run.SYNTH_SATELLITES
+    check = run.orbit_check(monthly)
+    assert check["aqua_only"]["factor"] == pytest.approx(1 / sats["aqua"][1], rel=0.05)
+    assert check["terra_only"]["factor"] == pytest.approx(1 / sats["terra"][1], rel=0.05)
+    combined, fitted = check["terra_aqua_combined"], run.fit_factors(monthly)
+    assert combined["monthly_factors"] == [f["factor"] for f in fitted["monthly"]]
+    metrics = run.validate(monthly, run.harmonize(monthly, fitted), fitted)
+    assert combined["test_mae"] == pytest.approx(metrics["test_mae"])
+    for name in ("aqua_only", "terra_only", "terra_aqua_combined"):
+        assert len(check[name]["monthly_factors"]) == 12 and check[name]["test_mae"] >= 0
+    assert check["lowest_test_mape"] == min(("aqua_only", "terra_only", "terra_aqua_combined"),
+                                            key=lambda n: check[n]["test_mape"])
+
+    tampered = monthly.copy()  # fitted on fit years only, like every other factor
+    tampered.loc[tampered["year"] < run.FIT_YEARS[0], ["terra", "aqua", "modis"]] *= 7
+    assert run.orbit_check(tampered) == check
 
 
 def test_fit_uses_fit_years_only(monthly):
@@ -96,6 +113,7 @@ def test_outputs_match_contracts(hex_day):
     assert calibration["raw_step_ratio"] > 1.5
     assert calibration["harmonized_step_ratio"] < calibration["raw_step_ratio"]
     assert calibration["test_mape"] < 0.2
+    assert {"aqua_only", "terra_only", "terra_aqua_combined"} <= set(calibration["diagnostics"]["orbit_check"])
 
 
 def test_fire_history(hex_day, monthly):
