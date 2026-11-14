@@ -41,7 +41,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [ ] Held-out 2021–2025 → `test_mae` → `calibration.json`
 - [ ] `calendar.json`: harmonized series, IQR anomaly (floor 1.0), uncertainty, sparse fallback
 - [x] `hex_fire_history.parquet` (burn_count, years_since_last_fire) for P2 (code ready; real file once `hex_day.parquet` lands)
-- [ ] Method paragraph + raw-vs-harmonized validation chart for the pitch (chart script ready: `pipeline/harmonize/chart.py`; real chart and paragraph once real data lands)
+- [ ] Method paragraph + raw-vs-harmonized validation chart for the pitch (chart script ready: `pipeline/harmonize/chart.py`; paragraph drafted in `pipeline/harmonize/METHOD.md`; real chart and the paragraph's numbers once real data lands)
 
 ## P4: Backend
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)

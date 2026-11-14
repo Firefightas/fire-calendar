@@ -57,7 +57,7 @@ Defaults chosen where the method above is silent (also in `DECISIONS.md`):
 
 ## For the pitch
 
-One chart: raw (naive switch) vs. harmonized monthly series 2000–2026 with the 2012 line marked, plus the held-out test error. Give P1 a one-paragraph method note.
+One chart: raw (naive switch) vs. harmonized monthly series 2000–2026 with the 2012 line marked, plus the held-out test error. Give P1 a one-paragraph method note: draft in `METHOD.md`, with the error and step values left as placeholders until the real Río Negro run.
 
 ```bash
 uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro   # -> data/processed/rio_negro/validation_chart.png
