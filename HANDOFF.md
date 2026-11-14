@@ -29,15 +29,13 @@ Next 3 steps:
 Gotchas: `gh` is not installed on this laptop. After switching branches restart `npm run dev` (a stale dev server served the page unstyled). MapLibre 6 needs `setWorkerUrl` (already done in `MapPanel.tsx`). Every append to DECISIONS.md conflicts with other roles' appends: keep both sides.
 
 
-## P4 Backend ? 14 November 2026 ? Codex
-Done: polygon-specific DuckDB/H3 calendars with sparse regional calibration fallback, epoch conversion, full-baseline and month-to-date IQR anomalies; geometry/date validation; UTF-8 JSON reads; exact-coordinate streamed hotspot CSVs and calendar CSVs; cached concurrent FIRMS NRT proxy with seven-day window splitting, confidence filtering and sanitized failure responses. The human explicitly authorized h3/Shapely additions to the root backend group and lockfile. Integrated origin/main through a8bcee7, preserving P1/P3/P5 changes.
-In progress (files + exact state): implementation and docs complete on feat/p4-backend-api; pushed successfully after the human granted bwradu collaborator access. PR: https://github.com/neamturazvan/fire-calendar/pull/9. No half-written files.
-Broken / known issues: no known failing checks. No real processed archives from P2/P3 or backend/.env; live FIRMS integration and Render deployment have not been exercised. NRT returns 503 without a key. Large frontend chunk and Starlette/httpx deprecation warnings predate/are outside this backend implementation.
+## P4 Backend - 14 November 2026 - Codex
+Done: API implementation merged in PR #9. User deployed the service at https://fire-calendar.onrender.com. Live health, region discovery, all calendar/calibration/sandbox-grid JSON schemas for the three regions, polygon calendar, calendar and hotspot CSVs, validation errors and CORS preflight verified.
+In progress (files + exact state): deployment verification documented on feat/p4-render-deploy; preparing the deployment-record PR. No partially implemented code.
+Broken / known issues: the deployed health response reports all three regions using mocks and FIRMS key unconfigured; NRT returns 503. Real archives are not available in this checkout. Runtime deployment has passed; live NRT and real-data integration are separate pending checks.
 Next 3 steps:
-1. P1 reviews/merges the P4 PR; P5 verifies drawn-area results and downloads using the implemented API.
-2. When P2/P3 deliver Rio Negro files, validate the real region/polygon/CSV slice and provenance; supply FIRMS_MAP_KEY only via backend/.env or Render secret environment.
-3. P1 deploys Render using backend/README.md, coordinates CORS_ORIGINS and P5 VITE_API_URL, then verifies live NRT and the static frontend fallback.
-Gotchas: preserve contracts unchanged. Area statistics use full baseline before request-date slicing, with same-day cutoff for an incomplete last month. MODIS counts distinct hex-days; never sum MODIS+VIIRS. Samples produce is_mock=true and CSV X-Data-Source: MOCK DATA. New terminals need refreshed PATH after tool installation.
-Validation: uv sync --all-groups --locked; uv run pytest (87 passed, no skips); uv run ruff check .; frontend build/lint and 35 frontend tests passed.
-
-P4 publishing note: resolved after the human added bwradu as a collaborator; the feature branch is pushed and the PR is open. Main was never pushed. PR: https://github.com/neamturazvan/fire-calendar/pull/9
+1. P1 sets FIRMS_MAP_KEY securely in Render Environment and saves/redeploys; P4 rechecks live NRT without copying credentials into files tracked by Git or into chat.
+2. P5 sets its deployed VITE_API_URL to https://fire-calendar.onrender.com and coordinates CORS_ORIGINS with P1; this is outside P4's folder ownership.
+3. When P2/P3 deliver real files, verify the Rio Negro region/polygon/CSV slice and update data provenance.
+Gotchas: every region currently returns is_mock=true; CSVs expose X-Data-Source: MOCK DATA. Do not interpret mock deployment verification as scientific validation. The current CORS response allows all origins. Preserve frozen contracts and other role folders.
+Validation: live API verification passed except NRT, which correctly returns 503 until a key is configured. Required local validation passed: 87 Python tests, Ruff and the frontend build.
