@@ -79,3 +79,5 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - NRT fetches NOAA-20/21 and MODIS concurrently, splits 6-7 days into NASA's <=5-day forward-date windows, caches complete successes for 15 minutes and returns a sanitized 502 on any source failure. Why: frontend latency, rate limits, honest coverage and no MAP_KEY leaks in errors.
 
 - Area calendars follow P1's approved month-to-date rule when regional diagnostics identify an incomplete last month: only that row's baseline median/IQR/score use the same acquisition-day cutoff across baseline years; factors remain fitted on full fit-year months and observed counts stay unchanged. Why: partial-month observations must be compared with partial-month history.
+
+- Render backend deployment is verified at https://fire-calendar.onrender.com on 2026-11-14 using labeled mocks; deployment completion is recorded separately from pending FIRMS key activation and real-archive validation. Why: a healthy mock-backed deployment must not imply that live NRT or real historical data has been verified.
