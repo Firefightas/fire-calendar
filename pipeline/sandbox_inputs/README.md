@@ -25,8 +25,9 @@ uv run python -m pipeline.sandbox_inputs.join_history --region rio_negro --grid 
 ```
 
 Replace `--grid` with a real terrain/land-cover grid when available. The current
-Río Negro run uses 1,027 mock terrain cells and P3's real, pre-persistence-filter
-history: 628 matches and 399 missing cells. The output stays `is_mock: true`;
+Río Negro run uses 1,027 mock terrain cells and P3's replacement history from
+PR #21, computed on persistence-screened inputs: 628 matches and 399 missing
+cells. The output stays `is_mock: true`;
 this unblocks join/UI integration without claiming that the terrain is real.
 Real WorldCover/elevation preparation remains pending.
 
@@ -40,6 +41,9 @@ The output is validated against the frozen sandbox schema before atomic write.
 
 `sandbox_grid.provenance.json` records input hashes, row/match counts and mock
 state separately from the frozen schema. The current history has SHA-256
-`76b9e7640dda456126df0ad7595c15af17bfdc4259a5c987ade4944201c417e6`.
-It predates the persistence screen and must be replaced after P3 recalibrates;
-do not present its burn history as the corrected final result.
+`69f306f3e267ca187222e078d0b99ba59b6650d2a99dc78047c61833bb05b7a3`.
+The replacement contains 27,405 hexes and 130,382.08 harmonized cell-days.
+P2 reproduced its history, calendar and calibration from the screened input
+tables before joining. The refresh changes history in 474 grid cells; the
+grid's burn_count sum changes from 6,020.07 to 5,905.03. No terrain fields
+change. History is now current; real terrain preparation remains pending.
