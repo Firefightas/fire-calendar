@@ -1,7 +1,7 @@
 // TypeScript mirror of contracts/*.schema.json (owner: P1).
 // Change only together with the schemas. P5 and P6 import from here.
 
-export type RegionId = string;
+export type RegionId = "rio_negro" | "california" | "romania" | (string & {});
 
 export interface Region {
   id: RegionId;
@@ -40,6 +40,7 @@ export interface CalendarMonth {
   is_nrt: boolean;
   median_m: number;
   iqr_m: number;
+  /** Display as "IQR Anomaly Score (Z_IQR)". Never "sigma". */
   anomaly_z: number;
   unc_low: number;
   unc_high: number;
@@ -50,19 +51,21 @@ export interface Calendar {
   region_id: RegionId;
   area_label?: string;
   unit: "active_fire_cell_days";
-  scale: "viirs_snpp_equivalent";
+  scale: "SNPP_VIIRS_EQ";
   is_mock: boolean;
   generated_at: string;
   first_month: string; // "YYYY-MM"
   last_month: string;
-  baseline_years?: [number, number];
+  baseline_years: [number, number];
   months: CalendarMonth[];
 }
 
-/** Raw toggle = naive satellite switch: VIIRS when present, else MODIS. */
+/** "Raw Unharmonized" toggle = naive satellite switch: VIIRS when present, else MODIS. */
 export const rawValue = (m: CalendarMonth): number | null => m.viirs_raw ?? m.modis_raw;
 
-export interface CalibrationMonth {
+export const ANOMALY_LABEL = "IQR Anomaly Score (Z_IQR)";
+
+export interface MonthlyFactor {
   month: number;
   factor: number;
   cv: number;
@@ -75,28 +78,34 @@ export interface Calibration {
   is_mock: boolean;
   generated_at: string;
   method: string;
-  reference_sensor: "viirs_snpp";
+  target_scale: "SNPP_VIIRS_EQ";
   fit_years: [number, number];
   test_years: [number, number];
-  sensors: {
-    sensor: "modis_terra" | "modis_aqua" | "modis_terra_aqua" | "viirs_noaa20" | "viirs_noaa21";
-    overlap?: [string, string];
-    monthly: CalibrationMonth[];
-  }[];
-  validation: {
-    test_mae: number;
-    test_mape: number;
-    raw_step_ratio: number;
-    harmonized_step_ratio: number;
-  };
+  /** Held-out 2021–2025 error, cell-days: show in the UI validation badge. */
+  test_mae: number;
+  terra_only_factor: number;
+  noaa20_factor: number;
+  noaa21_factor: number;
+  monthly_factors: MonthlyFactor[];
+  test_mape?: number;
+  raw_step_ratio?: number;
+  harmonized_step_ratio?: number;
+  diagnostics?: Record<string, unknown>;
 }
+
+export type AssetType = "village" | "farm" | "river" | "forest" | "grassland" | "none";
 
 export interface SandboxCell {
   h3: string;
-  /** ESA WorldCover code */
+  lat: number;
+  lon: number;
+  /** ESA WorldCover code: 10 tree, 20 shrub, 30 grass, 40 crop, 50 built, 60 bare, 80 water, ... */
   landcover: number;
+  /** 10→forest, 20/30→grassland, 40→farm, 50→village, 80→river, else none */
+  asset_type: AssetType;
   burnable: boolean;
   elevation_m: number;
+  slope_deg: number;
   burn_count: number;
   years_since_last_fire: number | null;
 }
@@ -116,3 +125,16 @@ export interface AreaQuery {
   end: string;
   area_label?: string;
 }
+
+/** GET /api/nrt → GeoJSON FeatureCollection of points with these properties. */
+export interface NrtHotspotProps {
+  satellite: "terra" | "aqua" | "noaa20" | "noaa21";
+  date: string;
+  time: string;
+  confidence_class: "low" | "nominal" | "high";
+  frp: number;
+  daynight: "D" | "N";
+}
+
+export const SANDBOX_BANNER =
+  "Illustrative Counterfactual Scenario Tool — Driven by Harmonized FIRMS Fuel History, ESA WorldCover & Open-Meteo (Not an Operational Forecast)";

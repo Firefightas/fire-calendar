@@ -1,34 +1,58 @@
 {
   "regions": [
     {
-      "id": "rio-negro",
-      "name": "Río Negro, Argentina",
+      "id": "rio_negro",
+      "name": "Río Negro / Choele Choel, Argentina",
       "country": "Argentina",
       "hemisphere": "south",
-      "bbox": [-71.9, -42.0, -62.8, -37.5],
-      "center": [-65.6, -39.3],
+      "bbox": [
+        -71.9,
+        -42.0,
+        -62.8,
+        -37.5
+      ],
+      "center": [
+        -65.6,
+        -39.3
+      ],
       "default_zoom": 6,
-      "note": "Hero demo. CONAE's example fire: Choele Choel, July 2026."
+      "note": "Hero demo: CONAE briefing case study (Choele Choel fire, July 2026)."
     },
     {
       "id": "california",
       "name": "California, USA",
       "country": "United States",
       "hemisphere": "north",
-      "bbox": [-124.5, 32.5, -114.1, 42.0],
-      "center": [-119.5, 37.2],
+      "bbox": [
+        -124.5,
+        32.5,
+        -114.1,
+        42.0
+      ],
+      "center": [
+        -119.5,
+        37.2
+      ],
       "default_zoom": 5,
-      "note": "Large wildfire seasons; well known to judges."
+      "note": "High-intensity timber/chaparral regime."
     },
     {
       "id": "romania",
-      "name": "Romania",
+      "name": "Romania (Carpathians & Sub-Carpathians)",
       "country": "Romania",
       "hemisphere": "north",
-      "bbox": [20.2, 43.6, 29.8, 48.3],
-      "center": [25.0, 45.9],
+      "bbox": [
+        20.2,
+        43.6,
+        29.8,
+        48.3
+      ],
+      "center": [
+        25.0,
+        45.9
+      ],
       "default_zoom": 6,
-      "note": "Mostly agricultural burning; sparse counts test the uncertainty fallback."
+      "note": "Mixed forest/agricultural regime; Romanian firefighter field doctrine in the sandbox."
     }
   ]
 }

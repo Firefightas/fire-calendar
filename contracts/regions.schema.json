@@ -12,7 +12,7 @@
         "type": "object",
         "required": ["id", "name", "country", "hemisphere", "bbox", "center", "default_zoom"],
         "properties": {
-          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
           "name": { "type": "string" },
           "country": { "type": "string" },
           "hemisphere": { "enum": ["north", "south"] },

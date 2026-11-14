@@ -113,8 +113,29 @@ def export_calendar(q: AreaQuery):
     raise HTTPException(501, "TODO(P4): CSV of the area calendar months (contracts/api.md)")
 
 
+def nrt_bbox(region_id: str | None, bbox: str | None) -> list[float]:
+    """Region bbox, or a global user bbox 'west,south,east,north' (TEAM_PLAN §0.1)."""
+    if region_id:
+        match = [r for r in regions()["regions"] if r["id"] == region_id]
+        if not match:
+            raise HTTPException(404, f"unknown region '{region_id}'")
+        return match[0]["bbox"]
+    if bbox:
+        try:
+            w, s, e, n = (float(v) for v in bbox.split(","))
+        except ValueError as exc:
+            raise HTTPException(422, "bbox must be west,south,east,north") from exc
+        if not (-180 <= w < e <= 180 and -90 <= s < n <= 90):
+            raise HTTPException(422, "bbox out of range or inverted")
+        return [w, s, e, n]
+    raise HTTPException(422, "give region_id or bbox")
+
+
 @app.get("/api/nrt")
-def nrt(region_id: str, days: int = 1):
+def nrt(region_id: str | None = None, bbox: str | None = None, days: int = 1):
     if not 1 <= days <= 7:
         raise HTTPException(422, "days must be 1..7")
-    raise HTTPException(501, "TODO(P4): cached FIRMS area API proxy, NOAA-20/21 + MODIS NRT (contracts/api.md)")
+    area = nrt_bbox(region_id, bbox)
+    # TODO(P4): FIRMS area API for VIIRS_NOAA20_NRT, VIIRS_NOAA21_NRT, MODIS_NRT over `area`
+    # (never S-NPP), cache ~15 min, return GeoJSON per contracts/api.md.
+    raise HTTPException(501, f"TODO(P4): NRT proxy not implemented yet (area {area})")

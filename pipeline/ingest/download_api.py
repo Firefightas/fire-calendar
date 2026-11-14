@@ -3,7 +3,7 @@
 Best for the recent tail (months not in the yearly country files) and gaps.
 For full history prefer the yearly country CSVs (see README.md).
 
-    uv run python -m pipeline.ingest.download_api --region rio-negro \
+    uv run python -m pipeline.ingest.download_api --region rio_negro \
         --source VIIRS_NOAA20_SP --start 2026-01-01 --end 2026-11-13
 
 Needs FIRMS_MAP_KEY in the environment or backend/.env.

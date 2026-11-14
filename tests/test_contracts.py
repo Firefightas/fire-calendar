@@ -63,6 +63,7 @@ def test_calibration(region_id):
         assert_valid("calibration.schema.json", path)
         data = json.loads(path.read_text())
         assert data["fit_years"][1] < data["test_years"][0], "test years must come after fit years"
+        assert [m["month"] for m in data["monthly_factors"]] == list(range(1, 13))
 
 
 @pytest.mark.parametrize("region_id", REGION_IDS)
@@ -70,18 +71,24 @@ def test_sandbox_grid_if_present(region_id):
     files = candidate_files(region_id, "sandbox_grid.json")
     if not files:
         pytest.skip("sandbox_grid.json not generated yet (needs h3)")
+    asset = {10: "forest", 20: "grassland", 30: "grassland", 40: "farm", 50: "village", 80: "river"}
     for path in files:
         assert_valid("sandbox_grid.schema.json", path)
+        for c in json.loads(path.read_text())["cells"]:
+            assert c["asset_type"] == asset.get(c["landcover"], "none"), (path, c["h3"])
+            assert c["burnable"] == (c["landcover"] in {10, 20, 30, 40, 50}), (path, c["h3"])
 
 
 POINT_COLUMNS = ["date", "time", "lat", "lon", "h3", "sensor", "satellite", "confidence_class",
                  "frp", "daynight", "type", "is_nrt"]
-HEXDAY_COLUMNS = ["h3", "date", "satellite", "n_points", "frp_sum"]
+HEXDAY_COLUMNS = ["h3", "date", "sensor", "satellite", "n_points", "frp_sum"]
+HISTORY_COLUMNS = ["h3", "burn_count", "years_since_last_fire"]
 
 
 @pytest.mark.parametrize("region_id", REGION_IDS)
 @pytest.mark.parametrize("filename,columns", [("points.sample.csv", POINT_COLUMNS),
-                                              ("hex_day.sample.csv", HEXDAY_COLUMNS)])
+                                              ("hex_day.sample.csv", HEXDAY_COLUMNS),
+                                              ("hex_fire_history.sample.csv", HISTORY_COLUMNS)])
 def test_sample_tables_if_present(region_id, filename, columns):
     path = CONTRACTS / "mocks" / region_id / filename
     if not path.exists():

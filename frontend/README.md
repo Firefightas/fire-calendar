@@ -13,34 +13,38 @@ npm install maplibre-gl @deck.gl/core @deck.gl/layers @deck.gl/geo-layers @deck.
 npm install -D tailwindcss @tailwindcss/vite @types/geojson @types/d3-scale @types/d3-scale-chromatic
 ```
 
-Keep the existing `src/types/contracts.ts` and folder layout.
+Keep the existing `src/types/contracts.ts` and folder layout. Dependencies for the sandbox (`h3-js`) are already in this list, so P6 doesn't need to touch `package.json`.
 
 ## Layout and ownership
 
 ```
-src/
-├── app/                 shell, routing, data fetching            [P5]
-├── features/map/        MapLibre + deck.gl, region presets, draw  [P5]
-├── features/calendar/   heatmap, toggle, anomaly cards, charts    [P5]
-├── features/export/     CSV download buttons                      [P5]
-├── features/sandbox/    simulation, optimizer, sandbox UI         [P6]
-└── types/contracts.ts   shared types (P1, mirrors contracts/)
+frontend/
+├── package.json, vite config, index.html     scaffold + config          [P5]
+└── src/
+    ├── app/                 shell, routing, data loading, fallback        [P5]
+    ├── features/map/        MapLibre + deck.gl, region presets, draw      [P5]
+    ├── features/calendar/   heatmap, toggle, anomaly cards, charts        [P5]
+    ├── features/export/     CSV download buttons                          [P5]
+    ├── features/sandbox/    Tactical Containment Sandbox                  [P6]
+    └── types/contracts.ts   shared types, mirrors contracts/              [P1]
 ```
 
 ## Data
 
 - API base: `VITE_API_URL` (default `http://localhost:8000`). Endpoints: `contracts/api.md`.
-- **Fallback:** if the API fails, load `/data/<region>/calendar.json` from `public/data/` (copy from `contracts/mocks/` or `data/processed/`). The demo must never die because of the backend.
-- **Raw ↔ Harmonized toggle:** harmonized = `m.harmonized`; raw = `rawValue(m)` from `contracts.ts` (VIIRS if present, else MODIS). In raw mode the 2012 jump must be obvious.
-- Mark `is_estimated` months (hatching or a dot) and `is_nrt` months (outline). Show `is_mock` data with a visible "MOCK DATA" badge.
+- **Static fallback (TEAM_PLAN §1):** the build bundles `public/data/<region_id>/calendar.json`, `calibration.json` and `sandbox_grid.json` for the 3 regions (copy from `data/processed/`, or from `contracts/mocks/` until real data exists). If the API fails, load these. The demo must work offline.
+- Region ids: `rio_negro`, `california`, `romania`.
 
-## Calendar design rules
+## Calendar (P5): what the plan requires
 
-- Rows = years, columns = months. For southern-hemisphere regions, consider a July→June season view.
-- Color: Cividis by default; switcher with Viridis and Inferno (all colorblind-safe). Anomaly view uses a diverging ramp centered on 0.
-- Tooltip: harmonized value, raw MODIS/VIIRS, median for that month, anomaly, uncertainty, source satellite.
-- Headline card: "This month vs. historical median" for the selected area.
+1. MapLibre + deck.gl `H3HexagonLayer` + terra-draw polygon tool + lat/lon input + 3 region preset buttons.
+2. **26-year × 12-month Burning Activity Calendar:** rows = years, columns = months (consider a July→June season view for Río Negro). Palette switcher **Cividis (default)**, Viridis, Inferno. Mark `is_estimated` months (hatching/dot) and `is_nrt` months (outline). Rich tooltips: harmonized, raw MODIS/VIIRS, monthly median, anomaly, uncertainty, source satellite.
+3. The centerpiece toggle **`[ Raw Unharmonized ]` ↔ `[ Harmonized (S-NPP Equivalent) ]`**: harmonized = `m.harmonized`, raw = `rawValue(m)`. In raw mode the 2012 jump must be obvious.
+4. Time-series chart showing the 2012 jump disappearing; **validation badge** with `test_mae` from `calibration.json` (held-out 2021–2025).
+5. Anomaly cards ("this month vs. historical median"), labeled **"IQR Anomaly Score (Z_IQR)"** (`ANOMALY_LABEL` in `contracts.ts`). Never "sigma".
+6. CSV export buttons (points + calendar), and the **"Launch Tactical Containment Sandbox"** button (from an anomalous cell or an NRT hotspot cluster), passing region and area to P6.
+7. Show a visible "MOCK DATA" badge whenever `is_mock` is true.
 
 ## Sandbox (P6)
 
-Opened from the calendar with the selected area. Load `/api/regions/<id>/sandbox-grid` (mock: `contracts/mocks/<region>/sandbox_grid.json`, generated with `uv run`). Simulation runs in a Web Worker. Visible label: "Illustrative scenario, not an operational forecast."
+See `src/features/sandbox/README.md`.

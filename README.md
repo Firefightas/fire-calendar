@@ -2,18 +2,20 @@
 
 NASA Space Apps Challenge 2026, Challenge #9: *Harmonization of MODIS and VIIRS Hot Spots* (by CONAE).
 
-One consistent 2000-to-today record of satellite fire hotspots, shown as a burning activity calendar for any area you draw, plus a tactical containment sandbox.
+One consistent 2000-to-today record of satellite fire hotspots, shown as a burning activity calendar for any area you draw, plus a Tactical Containment Sandbox based on real firefighting doctrine.
 
-- **Stage 1, Harmonization:** MODIS (2000→) and VIIRS (2012→) hotspot counts converted to one common scale, so the satellite of origin no longer matters.
-- **Stage 2, Calendar:** years × months heatmap, raw vs. harmonized toggle, anomalies against the historical median, CSV export.
-- **Stage 3, Sandbox:** illustrative fire spread simulation where a human and an optimizer place firebreaks with the same budget.
+- **Stage 1, Harmonization:** MODIS (2000→), VIIRS S-NPP (2012 → Nov 2026) and NOAA-20/21 hotspot counts converted to one scale (`SNPP_VIIRS_EQ` active fire cell-days), so the satellite of origin no longer matters.
+- **Stage 2, Burning Activity Calendar:** 26 years × 12 months heatmap, Raw ↔ Harmonized toggle, IQR anomalies vs. the historical median, CSV export, live NRT overlay.
+- **Stage 3, Tactical Containment Sandbox:** illustrative fire-spread simulation following a Romanian firefighter's 8-step protocol; a human and an optimizer place interventions with the same budget. Not an operational forecast.
+
+The full plan is [TEAM_PLAN.md](TEAM_PLAN.md).
 
 ## Start here
 
 | If you are... | Read |
 |---|---|
 | A person on the team | [WORKFLOW.md](WORKFLOW.md), then your role in [TEAM_PLAN.md](TEAM_PLAN.md) |
-| An AI agent | [AGENTS.md](AGENTS.md) |
+| An AI agent | [AGENTS.md](AGENTS.md), then [TEAM_PLAN.md](TEAM_PLAN.md) |
 | Looking for the data formats | [contracts/](contracts/) |
 
 ## Quick start
@@ -34,7 +36,7 @@ cd frontend && npm install && npm run dev
 
 ```
 AGENTS.md        brief every agent reads first (CLAUDE.md / GEMINI.md point here)
-TEAM_PLAN.md     roles, stack, science decisions, timeline
+TEAM_PLAN.md     the master plan: science, sandbox spec, contracts, roles, timeline
 WORKFLOW.md      how we work together
 PLAN.md          live task checklist + current state
 DECISIONS.md     one line per decision and why

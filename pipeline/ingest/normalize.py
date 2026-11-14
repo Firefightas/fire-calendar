@@ -8,7 +8,7 @@ bbox, adds H3 res-7 cells and writes:
     data/processed/<region>/hex_day.parquet
 
 Usage:
-    uv run python -m pipeline.ingest.normalize --region rio-negro data/raw/rio-negro/*.csv
+    uv run python -m pipeline.ingest.normalize --region rio_negro data/raw/rio_negro/*.csv
 
 Contract: contracts/tables.md
 """
@@ -107,8 +107,10 @@ def add_h3(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def hex_day(points: pd.DataFrame) -> pd.DataFrame:
-    return (points.groupby(["h3", "date", "satellite"], as_index=False)
-            .agg(n_points=("frp", "size"), frp_sum=("frp", "sum")))
+    """One row per (hex, day, satellite); see contracts/tables.md."""
+    return (points.groupby(["h3", "date", "sensor", "satellite"], as_index=False)
+            .agg(n_points=("frp", "size"), frp_sum=("frp", "sum"))
+            .astype({"n_points": "int32"}))
 
 
 def main() -> None:

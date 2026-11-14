@@ -1,15 +1,19 @@
-# pipeline/sandbox_inputs/ (owner: P2, with P3 for fire history)
+# pipeline/sandbox_inputs/ (owner: P2, with P3's fire history)
 
-Builds `data/processed/<region>/sandbox_grid.json` (schema: `contracts/sandbox_grid.schema.json`) for P6's simulation. One cell per H3 res-7 hex.
+Builds `data/processed/<region>/sandbox_grid.json` (schema: `contracts/sandbox_grid.schema.json`) for P6's Tactical Containment Sandbox. One cell per H3 res-7 hex. No extra data sources beyond ESA WorldCover and Open-Meteo (TEAM_PLAN §0.3).
 
-| Field | Source |
+| Field | How |
 |---|---|
-| `landcover` | ESA WorldCover 10 m, majority class per hex (10 tree, 20 shrub, 30 grass, 40 crop, 50 built, 60 bare, 80 water) |
-| `burnable` | landcover in {10, 20, 30, 40} |
-| `elevation_m` | Open-Meteo elevation API (no key) at the hex center, batched |
-| `burn_count` | harmonized fire cell-days in the hex over the whole record (from `hex_day`, with P3's factors) |
-| `years_since_last_fire` | years since the hex's last detection; `null` if never |
+| `h3`, `lat`, `lon` | hex id and its center (`h3.cell_to_latlng`) |
+| `landcover` | ESA WorldCover 10 m, majority class per hex |
+| `asset_type` | deterministic: 10 → `forest`, 20/30 → `grassland`, 40 → `farm`, 50 → `village`, 80 → `river`, anything else → `none` |
+| `burnable` | `landcover` in {10, 20, 30, 40, 50}; water (80) never burns |
+| `elevation_m` | Open-Meteo elevation API (no key) at the hex center, batched (many coordinates per call) |
+| `slope_deg` | max over the 6 neighbors of `atan(abs(Δelevation) / center distance)`, in degrees |
+| `burn_count`, `years_since_last_fire` | join P3's `hex_fire_history.parquet` on `h3`; hexes not in it get `0` and `null` |
 
-Scope: don't build the whole province. A sub-area of ~1,000–5,000 hexes around the demo fire (Choele Choel for Río Negro) is enough for the sandbox.
+Scope: don't build the whole province. A sub-area of ~1,000–5,000 hexes around each demo area (Choele Choel for Río Negro, a Carpathian valley for Romania, a chaparral area for California) is enough.
 
-Honesty note for the pitch: hotspot history is a **proxy** for fuel depletion, not a fuel map, and absence of hotspots can mean cropland, water or cloud. Land cover masks the obvious cases.
+Until P3's history exists, use `contracts/mocks/<region>/hex_fire_history.sample.csv` to test the join.
+
+Honesty note for the pitch: hotspot history is a **proxy** for fuel depletion, not a fuel map; absence of hotspots can mean cropland, water or cloud. Land cover masks the obvious cases.

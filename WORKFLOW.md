@@ -51,7 +51,7 @@ Agents never talk to each other. They only read from and write to the repo. That
 
 1. **Pull** `main` and rebase your branch.
 2. **Prime your agent** with:
-   > Read AGENTS.md, PLAN.md, DECISIONS.md and HANDOFF.md, then run `git log -10` and the tests. Summarize your understanding before changing anything.
+   > Read AGENTS.md, TEAM_PLAN.md, PLAN.md, DECISIONS.md, HANDOFF.md and the README of my folder, then run `git log -10` and the test suite. Summarize my role and current state before editing any files.
 3. **Work** on the next unchecked task for your module in `PLAN.md`.
 4. **Run tests** after every change; loop on fixes until they pass.
 5. **Commit** after each passing task.
@@ -94,7 +94,7 @@ Auto-approve / full-access modes (e.g. `--dangerously-skip-permissions`, `--yolo
 
 ## Quick checklist
 
-- [ ] I read `AGENTS.md`, `PLAN.md`, `DECISIONS.md`
+- [ ] I read `AGENTS.md`, `TEAM_PLAN.md`, `PLAN.md`, `DECISIONS.md` and my folder's README
 - [ ] I know which folder I own and which branch I'm on
 - [ ] My agent runs in a sandbox with its own keys
 - [ ] I commit small, push every 30 to 60 minutes

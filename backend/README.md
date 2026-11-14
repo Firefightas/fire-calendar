@@ -18,9 +18,9 @@ For every file the backend tries `data/processed/<region>/` first, then `contrac
 
 ## Your tasks (TODOs in `app/main.py`)
 
-1. `POST /api/calendar`: H3 cells inside the polygon (`h3.geo_to_cells` / `polygon_to_cells`, res 7) → DuckDB over `hex_day.parquet` → monthly cell-days per satellite → apply `calibration.json` factors → recompute median/IQR/anomaly for the area. Use the region factors (fallback) when the area is sparse.
+1. `POST /api/calendar`: H3 cells inside the polygon (`h3.geo_to_cells`, res 7) → DuckDB over `hex_day.parquet` → monthly cell-days per satellite (MODIS combined = distinct hex-days, see `contracts/tables.md`) → apply `calibration.json` (`terra_only_factor`, `monthly_factors`, `noaa20_factor`, `noaa21_factor`) → recompute median/IQR/`anomaly_z` (floor 1.0) for the area. **Sparse fallback:** < 5 cell-days in month m during the overlap → region factor + widen uncertainty with the regional `cv`. Reject polygons outside the region bbox (422).
 2. `POST /api/export/points` and `/api/export/calendar` as CSV (`StreamingResponse`, `text/csv`, filename in `Content-Disposition`).
-3. `GET /api/nrt`: FIRMS area API, sources `VIIRS_NOAA20_NRT`, `VIIRS_NOAA21_NRT`, `MODIS_NRT` (never S-NPP: it stopped on 2 Nov 2026), region bbox, cache ~15 min, return GeoJSON.
+3. `GET /api/nrt`: works for a `region_id` **or any global `bbox`** (parameter parsing already done in `nrt_bbox`). FIRMS area API, sources `VIIRS_NOAA20_NRT`, `VIIRS_NOAA21_NRT`, `MODIS_NRT` (never S-NPP: it stopped on 2 Nov 2026), cache ~15 min, return GeoJSON. The sandbox uses it for the t = 0 drone perimeter.
 4. Deploy on Render: build `pip install -r backend/requirements.txt`, start `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`, env vars `FIRMS_MAP_KEY`, `CORS_ORIGINS`.
 
 FIRMS area API: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/<KEY>/<SOURCE>/<west,south,east,north>/<1..5>[/<YYYY-MM-DD>]`, max 5 days per call, 5,000 transactions per 10 minutes.

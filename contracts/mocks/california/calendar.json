@@ -1,9 +1,9 @@
 {
  "region_id": "california",
  "unit": "active_fire_cell_days",
- "scale": "viirs_snpp_equivalent",
+ "scale": "SNPP_VIIRS_EQ",
  "is_mock": true,
- "generated_at": "2026-11-14T10:30:48+00:00",
+ "generated_at": "2026-11-14T11:48:20+00:00",
  "first_month": "2000-11",
  "last_month": "2026-11",
  "baseline_years": [
@@ -196,14 +196,14 @@
    "month": 11,
    "modis_raw": 14.1,
    "viirs_raw": null,
-   "harmonized": 77.5,
+   "harmonized": 77.4,
    "is_estimated": true,
    "is_nrt": false,
    "median_m": 77.2,
    "iqr_m": 25.2,
    "anomaly_z": 0.01,
-   "unc_low": 54.7,
-   "unc_high": 100.3,
+   "unc_low": 54.6,
+   "unc_high": 100.2,
    "source": "modis_terra"
   },
   {
@@ -301,14 +301,14 @@
    "month": 6,
    "modis_raw": 31.8,
    "viirs_raw": null,
-   "harmonized": 143.9,
+   "harmonized": 143.8,
    "is_estimated": true,
    "is_nrt": false,
    "median_m": 154.8,
    "iqr_m": 86.3,
    "anomaly_z": -0.13,
-   "unc_low": 115.4,
-   "unc_high": 172.4,
+   "unc_low": 115.3,
+   "unc_high": 172.3,
    "source": "modis_terra"
   },
   {

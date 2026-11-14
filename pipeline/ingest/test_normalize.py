@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pipeline.ingest.normalize import dedupe_nrt, filter_and_clip, normalize_frame
+from pipeline.ingest.normalize import dedupe_nrt, filter_and_clip, hex_day, normalize_frame
 
 BBOX = [-71.9, -42.0, -62.8, -37.5]
 
@@ -46,3 +46,10 @@ def test_dedupe_prefers_standard_data():
     sp = normalize_frame(modis_raw()).iloc[:1]
     nrt = sp.assign(is_nrt=True)
     assert len(dedupe_nrt(pd.concat([sp, nrt]))) == 1
+
+
+def test_hex_day_counts_per_satellite():
+    pts = normalize_frame(modis_raw()).assign(h3="87abc")
+    hd = hex_day(pts)
+    assert list(hd.columns) == ["h3", "date", "sensor", "satellite", "n_points", "frp_sum"]
+    assert set(hd["satellite"]) == {"terra", "aqua"} and hd["n_points"].sum() == 4

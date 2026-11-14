@@ -2,55 +2,47 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "calibration.schema.json",
   "title": "Sensor calibration for one region",
-  "description": "Producer: P3. Factors convert a sensor's cell-days to the common S-NPP-VIIRS-equivalent scale: harmonized = raw * factor.",
+  "description": "Producer: P3. Converts each sensor's active fire cell-days to the common SNPP_VIIRS_EQ scale. Chain: Terra-only MODIS --terra_only_factor--> Terra+Aqua MODIS --monthly_factors[m]--> S-NPP VIIRS; NOAA-20 --noaa20_factor--> S-NPP; NOAA-21 --noaa21_factor--> S-NPP. Factors are learned on fit_years only and validated on test_years.",
   "type": "object",
-  "required": ["region_id", "is_mock", "generated_at", "method", "reference_sensor", "fit_years", "test_years", "sensors", "validation"],
+  "required": ["region_id", "is_mock", "generated_at", "method", "target_scale", "fit_years", "test_years", "test_mae",
+               "terra_only_factor", "noaa20_factor", "noaa21_factor", "monthly_factors"],
   "properties": {
     "region_id": { "type": "string" },
     "is_mock": { "type": "boolean" },
     "generated_at": { "type": "string", "format": "date-time" },
     "method": { "description": "Short human-readable method name", "type": "string" },
-    "reference_sensor": { "const": "viirs_snpp" },
+    "target_scale": { "const": "SNPP_VIIRS_EQ" },
     "fit_years": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
     "test_years": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
-    "sensors": {
-      "description": "One entry per sensor converted to the reference",
-      "type": "array",
+    "test_mae": { "description": "Mean absolute error (cell-days) predicting S-NPP from MODIS on test_years", "type": "number", "minimum": 0 },
+    "terra_only_factor": {
+      "description": "Terra-only cell-days x this = Terra+Aqua-equivalent cell-days (learned where both fly). Used for Nov 2000-Jun 2002, before monthly_factors.",
+      "type": "number", "exclusiveMinimum": 0
+    },
+    "noaa20_factor": { "description": "NOAA-20 cell-days x this = S-NPP-equivalent (overlap Apr 2018-Oct 2026)", "type": "number", "exclusiveMinimum": 0 },
+    "noaa21_factor": { "description": "NOAA-21 cell-days x this = S-NPP-equivalent (overlap Jan 2024-Oct 2026)", "type": "number", "exclusiveMinimum": 0 },
+    "monthly_factors": {
+      "description": "Terra+Aqua MODIS -> S-NPP, per calendar month: median over fit_years of (S-NPP / MODIS)",
+      "type": "array", "minItems": 12, "maxItems": 12,
       "items": {
         "type": "object",
-        "required": ["sensor", "monthly"],
+        "required": ["month", "factor", "cv", "n_years"],
         "properties": {
-          "sensor": { "enum": ["modis_terra", "modis_aqua", "modis_terra_aqua", "viirs_noaa20", "viirs_noaa21"] },
-          "overlap": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
-          "monthly": {
-            "type": "array", "minItems": 12, "maxItems": 12,
-            "items": {
-              "type": "object",
-              "required": ["month", "factor", "cv", "n_years"],
-              "properties": {
-                "month": { "type": "integer", "minimum": 1, "maximum": 12 },
-                "factor": { "type": "number", "exclusiveMinimum": 0 },
-                "cv": { "description": "Coefficient of variation of the yearly ratios (uncertainty)", "type": "number", "minimum": 0 },
-                "n_years": { "type": "integer", "minimum": 0 },
-                "fallback": { "description": "True if the factor came from a larger region because data was sparse", "type": "boolean" }
-              },
-              "additionalProperties": false
-            }
-          }
+          "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "factor": { "type": "number", "exclusiveMinimum": 0 },
+          "cv": { "description": "Coefficient of variation of the yearly ratios (uncertainty)", "type": "number", "minimum": 0 },
+          "n_years": { "type": "integer", "minimum": 0 },
+          "fallback": { "description": "True if pooled/parent-region factor was used because data was sparse", "type": "boolean" }
         },
         "additionalProperties": false
       }
     },
-    "validation": {
-      "type": "object",
-      "required": ["test_mae", "test_mape", "raw_step_ratio", "harmonized_step_ratio"],
-      "properties": {
-        "test_mae": { "description": "Mean absolute error on test years, cell-days", "type": "number", "minimum": 0 },
-        "test_mape": { "description": "Mean absolute percentage error on test years (0-1)", "type": "number", "minimum": 0 },
-        "raw_step_ratio": { "description": "Mean 2012-2014 / mean 2009-2011 using raw counts (shows the jump)", "type": "number", "minimum": 0 },
-        "harmonized_step_ratio": { "description": "Same ratio after harmonization (should be near 1)", "type": "number", "minimum": 0 }
-      },
-      "additionalProperties": false
+    "test_mape": { "description": "Mean absolute percentage error on test_years (0-1)", "type": "number", "minimum": 0 },
+    "raw_step_ratio": { "description": "Naive raw series: mean 2013-2015 / mean 2009-2011 (shows the 2012 jump)", "type": "number", "minimum": 0 },
+    "harmonized_step_ratio": { "description": "Same ratio on the harmonized series (should be near 1)", "type": "number", "minimum": 0 },
+    "diagnostics": {
+      "description": "Free-form extras from P3, e.g. Aqua-only vs Terra-only factors (afternoon/morning orbit check). Not used by the app.",
+      "type": "object"
     }
   },
   "additionalProperties": false
