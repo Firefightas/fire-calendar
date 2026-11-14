@@ -9,7 +9,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#6 (P3 + P5); added `matplotlib` to `pyproject.toml`; signed off on month-to-date anomaly & H3 map layer rules. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
-| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Polygon calendars, streaming CSV exports and cached global NRT implemented; UTF-8 fixed; real data and Render deployment pending. |
+| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend deployed at https://fire-calendar.onrender.com and verified on labeled mocks; live NRT awaits Render key configuration; real archives await P2/P3. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; an incomplete last month is labeled "month to date" from P3's diagnostics; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
@@ -48,7 +48,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
 - [x] CSV exports (points, calendar)
 - [x] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
-- [ ] Deploy to Render with P1
+- [x] Deploy to Render with P1 (https://fire-calendar.onrender.com; health, all regional JSON schemas, polygon queries and CSV exports verified on 2026-11-14; mock mode)
 
 ## P5: Frontend
 - [x] Scaffold Vite app (see `frontend/README.md`)
@@ -84,8 +84,14 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - [x] from P4 to P1: add h3>=4.0 and shapely>=2.1 to the root backend group and refresh uv.lock. The human explicitly authorized this dependency-only change; applied and locked.
 
-- [ ] from P4 to P1: deploy the tested backend with the repository-root build/start/health settings in backend/README.md; supply FIRMS_MAP_KEY securely and the frontend CORS origin in Render, then coordinate VITE_API_URL with P5. No local backend/.env or Render service is configured in this checkout.
+- [ ] from P4 to P1/P5: backend deployment is verified at https://fire-calendar.onrender.com. Set FIRMS_MAP_KEY securely in Render and recheck NRT (currently 503; health reports key unconfigured); coordinate the frontend CORS origin and VITE_API_URL with P5. Real regional archives remain pending P2/P3.
 
-- P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render/real-data verification remains pending.
+- P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render deployment is now verified on mocks; live NRT configuration and real-data verification remain pending.
+
+- P4 deployment record: https://github.com/neamturazvan/fire-calendar/pull/10 (feat/p4-render-deploy). No unchecked P4 checklist tasks remain; live NRT key configuration and P5/P2/P3 integration are tracked in Requests.
+
+- [ ] from P4 to P1: Render now reports FIRMS_MAP_KEY configured, but region/bbox one-day and seven-day NRT requests return 502. Review/deploy feat/p4-nrt-errors to identify the safe per-source cause; live NRT is not yet verified. Deployment verification is separately recorded in PR #10.
+
+- P4 NRT diagnostics PR: https://github.com/neamturazvan/fire-calendar/pull/11 (feat/p4-nrt-errors); 100 Python tests and Ruff passed. Live 502 cause awaits deployment.
 
 - [ ] from P2 to P3/P4: Rio Negro tables are ready locally; coordinate cross-laptop transfer (no data committed). See `pipeline/ingest/RIO_NEGRO_STATUS.md` for sizes and counts. S-NPP SP stops 2026-07-31; NOAA-20/21 and MODIS include NRT through November 13. Read per-satellite provenance from points.parquet; NOAA-21 retained NRT starts May 6.

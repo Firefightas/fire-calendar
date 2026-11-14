@@ -185,3 +185,58 @@ def test_sources_are_fetched_concurrently(monkeypatch):
     mock_http(monkeypatch, handler)
     assert client.get("/api/nrt", params={"bbox": BBOX}).status_code == 200
     assert maximum == 3
+
+@pytest.mark.parametrize(("status", "body", "expected"), [
+    (400, "Invalid MAP_KEY.", "rejected MAP_KEY"),
+    (200, "Invalid MAP_KEY.", "rejected MAP_KEY"),
+    (200, "MAP_KEY is invalid or your have exceeded your transaction/time limit.", "invalid MAP_KEY or exhausted"),
+    (429, "rate limited", "quota exceeded"),
+    (200, "You have exceeded your transaction limit.", "quota exceeded"),
+    (403, "Access denied", "HTTP 403"),
+    (500, "Internal failure", "HTTP 500"),
+    (200, "Error in processing: No data.", "data unavailable"),
+    (200, "unexpected response", "unexpected hotspot CSV"),
+])
+def test_errors_identify_safe_source_and_category_without_leaking_secrets(monkeypatch, caplog, status, body, expected):
+    def handler(request):
+        # Both the response body and request URL deliberately contain the fake
+        # credential. Neither may reach the public error or warning logs.
+        return httpx.Response(status, text=body + " " + FAKE_KEY + " " + str(request.url))
+
+    mock_http(monkeypatch, handler)
+    response = client.get("/api/nrt", params={"bbox": BBOX})
+    assert response.status_code == 502
+    detail = response.json()["detail"]
+    assert expected in detail
+    assert all(source in detail for source in proxy.SOURCES)
+    assert FAKE_KEY not in response.text + caplog.text
+    assert "https://" not in response.text + caplog.text
+
+
+@pytest.mark.parametrize(("exception", "expected"), [
+    (httpx.ReadTimeout, "timed out"), (httpx.ConnectError, "could not be reached"),
+])
+def test_transport_errors_remain_distinct_and_safe(monkeypatch, caplog, exception, expected):
+    def handler(request):
+        raise exception(f"failure at {request.url}", request=request)
+
+    mock_http(monkeypatch, handler)
+    response = client.get("/api/nrt", params={"bbox": BBOX})
+    assert response.status_code == 502 and expected in response.json()["detail"]
+    assert FAKE_KEY not in response.text + caplog.text
+
+
+def test_configured_key_whitespace_is_trimmed_before_request(monkeypatch):
+    monkeypatch.setattr(main, "FIRMS_MAP_KEY", "  " + FAKE_KEY + "\n")
+
+    def handler(request):
+        assert request.url.path.split("/")[4] == FAKE_KEY
+        return httpx.Response(200, text=HEADER)
+
+    mock_http(monkeypatch, handler)
+    assert client.get("/api/nrt", params={"bbox": BBOX}).status_code == 200
+
+
+def test_whitespace_only_key_is_unconfigured(monkeypatch):
+    monkeypatch.setattr(main, "FIRMS_MAP_KEY", "  \n")
+    assert client.get("/api/nrt", params={"bbox": BBOX}).status_code == 503

@@ -80,5 +80,44 @@ Use the Render dashboard for secret values. Configure P5's `VITE_API_URL` to the
 resulting backend URL and verify an area calendar, both CSVs, health and live NRT.
 See [Render's Python version settings](https://render.com/docs/python-version).
 
-No service has been published by this branch. Real archive validation still depends
-on P2/P3's files; until then the demo deliberately serves labeled sample/mock data.
+## Verified deployment
+
+- Backend: https://fire-calendar.onrender.com
+- Health check: https://fire-calendar.onrender.com/api/health
+- API documentation: https://fire-calendar.onrender.com/docs
+
+Live verification on 14 November 2026 passed health and region discovery; calendar,
+calibration and sandbox-grid schemas for all three regions; a polygon calendar;
+both CSV exports (including filenames and MOCK DATA provenance); invalid-query 422
+responses; and the localhost CORS preflight. Calendar CSV values matched the
+corresponding polygon response.
+
+The service currently uses mocks for all three regions. Health reports
+firms_key_configured=false, and NRT returns 503 with a missing-key message.
+P1 must set FIRMS_MAP_KEY in Render's Environment settings and save/redeploy
+before live NRT can be verified. Keep credentials out of Git and chat.
+
+P5 should configure VITE_API_URL=https://fire-calendar.onrender.com in the frontend
+deployment and coordinate its origin with CORS_ORIGINS (the current backend allows
+all origins). That frontend configuration belongs to P5.
+
+Real archive validation still depends on P2/P3's files; until then the demo
+deliberately serves labeled sample/mock data.
+
+## Diagnosing NRT failures
+
+A true firms_key_configured field in health means the environment variable is
+present, not that NASA has accepted the key. On 14 November 2026, the deployed
+service reported a configured key, while one-day region, equivalent global bbox
+and seven-day requests returned generic 502 responses. Live NRT remains unverified.
+
+The proxy now returns safe per-source reasons for rejected keys, exhausted quota,
+timeouts, network failures, upstream HTTP errors, unavailable source/date data and
+unexpected CSV responses. Warning logs contain only source, category and status;
+raw response bodies, credentials and upstream URLs are omitted. HTTP status and
+the frozen detail-string error shape remain unchanged. Failed or partial results
+are not cached. Header-only valid CSV is still a successful empty observation set.
+
+Leading/trailing whitespace is stripped from the configured key. After merging
+this diagnostics fix and redeploying Render, recheck the live NRT error before
+deciding whether key activation, quota, network access or parsing needs attention.
