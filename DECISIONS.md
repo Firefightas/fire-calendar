@@ -40,3 +40,15 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Uncertainty band = `H ± 1.96·sqrt(H + (cv·H)²)`. Why: Poisson count noise plus factor spread, same as the mocks.
 - `is_nrt` = last data month and the 5 before it. Why: `hex_day` has no `is_nrt` column; standard processing lags ~5 months.
 - Synthetic runs need an explicit `--out`. Why: the backend reports a region as real once `data/processed/<region>/calendar.json` exists.
+
+## P5 frontend defaults (`frontend/`)
+
+- Static fallback JSON is committed in `frontend/public/data/` and refreshed by `scripts/sync-data.mjs` before `dev`/`build` (`data/processed/` first, else `contracts/mocks/`). Why: the deployed frontend must work offline and cannot rely on files outside `frontend/`.
+- The heatmap uses one square-root color scale, 0 to the largest raw-or-harmonized month, shared by both toggle states. Why: flipping the toggle never rescales colors, so a cell that changes color changed value; counts are heavy-tailed.
+- The calendar shows every calendar year in the record (27 rows for Nov 2000 – Nov 2026), with empty slots where there is no month. Why: "26 years" spans 27 calendar years.
+- `is_estimated` is a corner dot (not hatching) and is hidden in the raw view; `is_nrt` is an outline. Why: hatching fights the color scale; raw counts are not estimates.
+- The annual time series plots only years with all 12 months; the raw annual total sums the naive switch series (`rawValue`) month by month. Why: partial years would look like real dips; MODIS and VIIRS are never added for the same month.
+- A "month in progress" chip is shown when the latest month is the current UTC month by the browser clock. Why: the contract has no partial-month flag, and a part-month count against a full-month median reads falsely low.
+- Anomaly wording bands (±0.5, ±1.5) are display text only; the score always comes from `anomaly_z`. Why: readers need a plain-language reading next to the number.
+- The validation tile is flagged "whole-region calibration" when a drawn area is shown. Why: `test_mae` is regional and in cell-days, so it does not describe a small polygon.
+

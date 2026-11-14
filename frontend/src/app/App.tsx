@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CalendarPanel } from '../features/calendar/CalendarPanel.tsx'
 import type { RegionId } from '../types/contracts.ts'
 import { loadCalendar, loadCalibration, loadRegions } from './api.ts'
 import { MockBadge, OriginChip } from './badges.tsx'
@@ -14,6 +15,7 @@ export default function App() {
   const calibration = useAsync(() => loadCalibration(regionId), `calibration:${regionId}`)
 
   const cal = calendar.data?.data ?? null
+  const region = regions.data?.data.regions.find((r) => r.id === regionId)
   const isMock = Boolean(cal?.is_mock || calibration.data?.data.is_mock)
 
   return (
@@ -55,20 +57,22 @@ export default function App() {
           )}
         </nav>
 
-        <section className="rounded-lg border border-hairline bg-surface p-4">
-          {calendar.status === 'error' && (
-            <p role="alert" className="text-sm text-serious">
-              Could not load the calendar: {calendar.error.message}
-            </p>
-          )}
-          {cal && (
-            <p className="text-sm text-ink-2">
-              {cal.months.length} months loaded for <span className="text-ink">{cal.region_id}</span>,{' '}
-              {cal.first_month} to {cal.last_month}.
-            </p>
-          )}
-          {!cal && calendar.status === 'loading' && <p className="text-sm text-muted">Loading…</p>}
-        </section>
+        {calendar.status === 'error' && (
+          <p role="alert" className="rounded-lg border border-hairline bg-surface p-4 text-sm text-serious">
+            Could not load the calendar: {calendar.error.message}
+          </p>
+        )}
+        {!cal && calendar.status === 'loading' && <p className="text-sm text-muted">Loading…</p>}
+        {cal && (
+          <CalendarPanel
+            calendar={cal}
+            calibration={calibration.data?.data ?? null}
+            areaName={region?.name ?? cal.region_id}
+            isArea={false}
+            southern={region?.hemisphere === 'south'}
+            stale={calendar.status === 'loading' || cal.region_id !== regionId}
+          />
+        )}
       </main>
     </div>
   )
