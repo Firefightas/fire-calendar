@@ -51,17 +51,19 @@ Defaults chosen where the method above is silent (also in `DECISIONS.md`):
 - `terra_only_factor` and the orbit-check factors are fitted on Feb 2012 – Dec 2020; `noaa20_factor` on Apr 2018 – Dec 2020; `noaa21_factor` on Feb 2024 – Oct 2026 (no overlap inside the fit years). A factor with no overlap data is 1.0 and `diagnostics.<name>.measured` is false.
 - `unc_low/unc_high` = `H ± 1.96·sqrt(H + (cv·H)²)`, with `cv` 0 for S-NPP months.
 - `hex_fire_history.parquet` lists only hexes with at least one detection (a hex missing from it never burned: P2 left-joins and gets null). `burn_count` uses the same satellite and factor as the calendar for each month, so the hexes add up to the regional harmonized series; `years_since_last_fire` uses the last detection by any satellite.
+- `diagnostics.modis_only_step_ratio` is the 2013–2015 / 2009–2011 ratio on MODIS alone. It says how much fire activity really changed across the 2012 switch, so `harmonized_step_ratio` should be read against it, not against 1.
 - Orbit check (`diagnostics.orbit_check`): Aqua only, Terra only and Terra+Aqua combined each get their own monthly factors to S-NPP on the fit years and a `test_mae` / `test_mape` on the test years; `lowest_test_mape` names the best one. The calendar always uses the combined record.
 - An incomplete last month (data ends before the month does) is scored month-to-date: its `median_m`, `iqr_m` and `anomaly_z` use the same days of that calendar month in the baseline years, and `harmonized` stays the observed count so far. `diagnostics.last_month_complete` and `last_data_date` say when this applies.
-- `is_nrt` = the last data month and the 5 before it (`hex_day` has no `is_nrt` column).
+- `is_nrt`: if `points.parquet` sits next to `hex_day.parquet`, a month is NRT when the satellite that supplies its harmonized value has NRT detections that month; otherwise the last data month and the 5 before it (`hex_day` has no `is_nrt` column). `diagnostics.is_nrt_rule` says which was used.
+- S-NPP is the reference only up to its last complete month of data (`diagnostics.snpp_reference_until`), at most Oct 2026. The standard-processing archive can stop earlier (Río Negro: 31 Jul 2026) and S-NPP NRT is never used, so NOAA-20 × `noaa20_factor` takes over from the next month; the missing months are not zero fire.
 
 ## For the pitch
 
-One chart: raw (naive switch) vs. harmonized monthly series 2000–2026 with the 2012 line marked, plus the held-out test error. Give P1 a one-paragraph method note: draft in `METHOD.md`, with the error and step values left as placeholders until the real Río Negro run.
+One chart: raw (naive switch) vs. harmonized monthly series 2000–2026 with the 2012 line marked, plus the held-out test error. Give P1 a one-paragraph method note: `METHOD.md`, with the Río Negro numbers and the limits to state with them.
 
 ```bash
-uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro   # -> data/processed/rio_negro/validation_chart.png
-uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro --dir <dir> --out chart.png
+uv run python -m pipeline.harmonize.chart --region rio_negro   # -> data/processed/rio_negro/validation_chart.png
+uv run python -m pipeline.harmonize.chart --region rio_negro --dir <dir> --out chart.png
 ```
 
-`chart.py` reads `calendar.json` + `calibration.json` and draws two panels: the 12-month running mean of the raw and harmonized series with the Feb 2012 switch marked, and observed vs. predicted S-NPP on the test years with `test_mae`. Mock inputs are labeled "MOCK DATA" on the chart. matplotlib is not a project dependency yet (requested in `PLAN.md`), hence `--with`.
+`chart.py` reads `calendar.json` + `calibration.json` and draws two panels: the 12-month running mean of the raw and harmonized series with the Feb 2012 switch marked, and observed vs. predicted S-NPP on the test years with `test_mae`. Mock inputs are labeled "MOCK DATA" on the chart. The Río Negro chart for the pitch is committed as `pitch/rio_negro_validation_chart.png`.

@@ -140,6 +140,27 @@ def monthly_cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
     return out.astype(int).reset_index()
 
 
+def snpp_last_month(hex_day: pd.DataFrame) -> tuple[int, int]:
+    """Last month S-NPP can serve as the reference: its last complete month of data, at most SNPP_END.
+
+    The standard-processing archive can stop months before the satellite did (S-NPP NRT is never
+    used, TEAM_PLAN §2.4). Those missing months are not zero fire: NOAA-20 takes over from there.
+    """
+    dates = pd.to_datetime(hex_day.loc[hex_day["satellite"] == "snpp", "date"])
+    if dates.empty:
+        return SNPP_END
+    last = dates.max()
+    t = _t(last.year, last.month) - (0 if last.is_month_end else 1)
+    return min(SNPP_END, (t // 12, t % 12 + 1))
+
+
+def nrt_months(points: pd.DataFrame) -> set[tuple[int, int, str]]:
+    """(year, month, satellite) combinations that contain near-real-time detections."""
+    nrt = points[points["is_nrt"].astype(bool)]
+    dates = pd.to_datetime(nrt["date"])
+    return set(zip(dates.dt.year, dates.dt.month, nrt["satellite"], strict=True))
+
+
 # --- Steps 3-4: factors, fit years only -------------------------------------------------------
 
 def _ratios(rows: pd.DataFrame, num: str, den: str) -> pd.Series:
@@ -178,16 +199,19 @@ def _monthly_factors(fit: pd.DataFrame, num: str, den: str) -> list[dict]:
     return out
 
 
-def fit_factors(monthly: pd.DataFrame) -> dict:
-    """All conversion factors to SNPP_VIIRS_EQ. Reads only fit-year rows, except noaa21 (see below)."""
+def fit_factors(monthly: pd.DataFrame, snpp_end: tuple[int, int] = SNPP_END) -> dict:
+    """All conversion factors to SNPP_VIIRS_EQ. Reads only fit-year rows, except noaa21 (see below).
+
+    snpp_end is the last month with complete S-NPP data (see snpp_last_month)."""
     fit = _fit_window(monthly)
     monthly_factors = _monthly_factors(fit, "snpp", "modis")
     if not monthly_factors:
         raise ValueError(f"no usable S-NPP/MODIS overlap months in {FIT_YEARS}: cannot calibrate")
     noaa20_fit = _window(monthly, NOAA20_START, (FIT_YEARS[1], 12))
     # NOAA-21 launched after the fit years, so its only overlap with S-NPP is 2024 -> Oct 2026.
-    noaa21_fit = _window(monthly, NOAA21_START, SNPP_END)
+    noaa21_fit = _window(monthly, NOAA21_START, snpp_end)
     return {
+        "snpp_end": snpp_end,
         "monthly": monthly_factors,
         "terra_only": _single_factor(fit, "modis", "terra"),
         "noaa20": _single_factor(noaa20_fit, "snpp", "noaa20"),
@@ -205,7 +229,7 @@ def _epoch(r: dict, factors: dict) -> tuple[str, float, float, str]:
         return "terra", terra["factor"] * f["factor"], math.hypot(f["cv"], terra["cv"]), "modis_terra"
     if ym < SNPP_START:
         return "modis", f["factor"], f["cv"], "modis_terra_aqua"
-    if ym <= SNPP_END:
+    if ym <= factors["snpp_end"]:
         return "snpp", 1.0, 0.0, "viirs_snpp"
     if r["noaa20"] == 0 and r["noaa21"] > 0:
         return "noaa21", n21["factor"], n21["cv"], "viirs_noaa21"
@@ -318,6 +342,12 @@ def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict
         out["harmonized_step_ratio"] = float(series.loc[after, "harmonized"].mean()
                                              / series.loc[before, "harmonized"].mean())
 
+    # Same step on MODIS alone (one sensor family throughout): how much of the change is real fire.
+    modis_before = _window(monthly, (STEP_BEFORE[0], 1), (STEP_BEFORE[1], 12))["modis"]
+    modis_after = _window(monthly, (STEP_AFTER[0], 1), (STEP_AFTER[1], 12))["modis"]
+    if len(modis_before) and len(modis_after) and modis_before.mean() > 0:
+        out["modis_only_step_ratio"] = float(modis_after.mean() / modis_before.mean())
+
     if factors["noaa20"]["measured"]:
         out["noaa20_test_mae"] = float((test["noaa20"] * factors["noaa20"]["factor"] - test["snpp"]).abs().mean())
     return out
@@ -360,20 +390,32 @@ def _ym(year: int, month: int) -> str:
     return f"{year}-{month:02d}"
 
 
-def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple[dict, dict, pd.DataFrame]:
-    """(calendar, calibration) dicts matching contracts/*.schema.json, and the hex_fire_history table."""
+def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool,
+                  points: pd.DataFrame | None = None) -> tuple[dict, dict, pd.DataFrame]:
+    """(calendar, calibration) dicts matching contracts/*.schema.json, and the hex_fire_history table.
+
+    points (points.parquet, optional) gives the real SP/NRT provenance for is_nrt; without it the
+    months inside the standard-processing lag are flagged."""
     dates = pd.to_datetime(hex_day["date"])
     first_day, last_day = dates.min(), dates.max()
     monthly = monthly_cell_days(hex_day)
-    factors = fit_factors(monthly)
+    factors = fit_factors(monthly, snpp_last_month(hex_day))
     baseline = baseline_years(first_day, last_day)
     series = add_anomaly(harmonize(monthly, factors), baseline)
     last_month_complete = bool(last_day.is_month_end)
     if not last_month_complete:
         series = month_to_date_anomaly(series, hex_day, factors, baseline, last_day)
     metrics = validate(monthly, series, factors)
-    # hex_day has no is_nrt column: flag the months inside the standard-processing lag.
+    # hex_day has no is_nrt column: use points.parquet if given, else the standard-processing lag.
     nrt_from = _t(last_day.year, last_day.month) - NRT_LAG_MONTHS
+    nrt = None if points is None else nrt_months(points)
+    source_satellites = {"modis_terra": ("terra",), "modis_terra_aqua": ("terra", "aqua"), "viirs_snpp": ("snpp",),
+                         "viirs_noaa20": ("noaa20",), "viirs_noaa21": ("noaa21",)}
+
+    def is_nrt(r: dict) -> bool:
+        if nrt is None:
+            return bool(_t(r["year"], r["month"]) >= nrt_from)
+        return any((r["year"], r["month"], s) in nrt for s in source_satellites[r["source"]])
     now = datetime.now(UTC).replace(microsecond=0).isoformat()
 
     months = []
@@ -384,7 +426,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
             "viirs_raw": None if pd.isna(r["viirs_raw"]) else round(float(r["viirs_raw"]), 1),
             "harmonized": round(r["harmonized"], 1),
             "is_estimated": bool(r["is_estimated"]),
-            "is_nrt": bool(_t(r["year"], r["month"]) >= nrt_from),
+            "is_nrt": is_nrt(r),
             "median_m": round(r["median_m"], 1), "iqr_m": round(r["iqr_m"], 1),
             "anomaly_z": round(r["anomaly_z"], 2),
             "unc_low": round(r["unc_low"], 1), "unc_high": round(r["unc_high"], 1),
@@ -407,12 +449,14 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
         "input": "synthetic hex_day with known ratios (MOCK)" if is_mock else "hex_day.parquet",
         "last_data_date": last_day.date().isoformat(),
         "last_month_complete": last_month_complete,
+        "snpp_reference_until": _ym(*factors["snpp_end"]),
+        "is_nrt_rule": "points.parquet provenance" if points is not None else f"last {NRT_LAG_MONTHS + 1} data months",
         "min_cell_days_per_ratio": MIN_CELL_DAYS, "min_ratio_years": MIN_RATIO_YEARS,
         "fit_windows": {
             "monthly_factors": [_ym(*max(SNPP_START, (FIT_YEARS[0], 1))), _ym(FIT_YEARS[1], 12)],
             "terra_only_factor": [_ym(*max(SNPP_START, (FIT_YEARS[0], 1))), _ym(FIT_YEARS[1], 12)],
             "noaa20_factor": [_ym(*NOAA20_START), _ym(FIT_YEARS[1], 12)],
-            "noaa21_factor": [_ym(*NOAA21_START), _ym(*SNPP_END)],
+            "noaa21_factor": [_ym(*NOAA21_START), _ym(*factors["snpp_end"])],
         },
         "noaa21_note": "NOAA-21 has no overlap with S-NPP inside fit_years; fitted on its whole overlap",
         "terra_only": diag(factors["terra_only"]),
@@ -420,6 +464,8 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
         "noaa21": diag(factors["noaa21"]),
         "orbit_check": _rounded(orbit_check(monthly)),
     }
+    if "modis_only_step_ratio" in metrics:
+        diagnostics["modis_only_step_ratio"] = round(metrics["modis_only_step_ratio"], 2)
     if "noaa20_test_mae" in metrics:
         diagnostics["noaa20"]["test_mae"] = round(metrics["noaa20_test_mae"], 2)
     if is_mock:
@@ -453,6 +499,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--out", type=Path, help="output folder (default: data/processed/<region>)")
     args = parser.parse_args(argv)
 
+    points = None
     if args.synthetic:
         if args.out is None:
             # The backend treats data/processed/<region>/calendar.json as real data.
@@ -463,8 +510,10 @@ def main(argv: list[str] | None = None) -> None:
         if not path.exists():
             parser.error(f"{path} not found (P2 has not landed it yet); use --synthetic --out <dir>")
         hex_day = pd.read_parquet(path)
+        if (path.parent / "points.parquet").exists():
+            points = pd.read_parquet(path.parent / "points.parquet", columns=["date", "satellite", "is_nrt"])
 
-    calendar, calibration, history = build_outputs(hex_day, args.region, is_mock=args.synthetic)
+    calendar, calibration, history = build_outputs(hex_day, args.region, is_mock=args.synthetic, points=points)
     out = args.out or PROCESSED / args.region
     out.mkdir(parents=True, exist_ok=True)
     (out / "calendar.json").write_text(json.dumps(calendar, indent=1), encoding="utf-8")

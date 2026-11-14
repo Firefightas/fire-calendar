@@ -3,9 +3,9 @@
 Reads calendar.json + calibration.json written by pipeline.harmonize.run; every number on the
 chart comes from those two files. Mock inputs (is_mock: true) are labeled "MOCK DATA".
 
-Usage (from repo root; matplotlib is not a project dependency yet, hence --with):
-    uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro
-    uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro --dir <dir> --out chart.png
+Usage (from repo root):
+    uv run python -m pipeline.harmonize.chart --region rio_negro
+    uv run python -m pipeline.harmonize.chart --region rio_negro --dir <dir> --out chart.png
 """
 
 from __future__ import annotations
@@ -69,7 +69,7 @@ def plot(calendar: dict, calibration: dict, out: Path) -> Path:
     fit, test = calibration["fit_years"], calibration["test_years"]
 
     fig, (top, bottom) = plt.subplots(2, 1, figsize=(12, 6.75), height_ratios=[3, 2], facecolor=SURFACE)
-    fig.subplots_adjust(left=0.07, right=0.97, top=0.80, bottom=0.07, hspace=0.45)
+    fig.subplots_adjust(left=0.07, right=0.97, top=0.78, bottom=0.07, hspace=0.45)
 
     # Panel 1: the sensor switch.
     top.plot(series["date"], series["raw_smooth"], color=RAW_COLOR, linewidth=2, label="Raw: MODIS, then VIIRS")
@@ -82,12 +82,15 @@ def plot(calendar: dict, calibration: dict, out: Path) -> Path:
         top.annotate("S-NPP VIIRS starts (Feb 2012)", (switch, top.get_ylim()[1]), xytext=(6, -4),
                      textcoords="offset points", va="top", fontsize=10, color=INK_SECONDARY)
     top.legend(loc="upper left", frameon=False, fontsize=10, labelcolor=INK, ncols=2,
-               bbox_to_anchor=(0, 1.13), borderaxespad=0, handlelength=1.6)
+               bbox_to_anchor=(0, 1.19), borderaxespad=0, handlelength=1.6)
     top.set_ylabel(f"cell-days per month\n({SMOOTH_MONTHS}-month running mean)", color=INK_SECONDARY, fontsize=10)
     if "raw_step_ratio" in calibration:
         step = (f"2013–2015 vs. 2009–2011: raw ×{calibration['raw_step_ratio']:.2f}, "
                 f"harmonized ×{calibration['harmonized_step_ratio']:.2f}")
-        top.set_title(step, loc="right", fontsize=10, color=INK_SECONDARY, pad=10)
+        modis_only = calibration.get("diagnostics", {}).get("modis_only_step_ratio")
+        if modis_only is not None:  # how much of the step is real fire activity
+            step += f" (MODIS alone ×{modis_only:.2f})"
+        top.text(1.0, 1.06, step, transform=top.transAxes, ha="right", va="bottom", fontsize=10, color=INK_SECONDARY)
 
     # Panel 2: held-out test.
     bottom.plot(holdout["date"], holdout["observed"], color=INK_SECONDARY, linewidth=2, label="Observed S-NPP VIIRS")
