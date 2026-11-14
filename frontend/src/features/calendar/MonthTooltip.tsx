@@ -1,5 +1,6 @@
 import { ANOMALY_LABEL } from '../../types/contracts.ts'
 import type { Calendar, CalendarMonth } from '../../types/contracts.ts'
+import { FloatingTip } from './FloatingTip.tsx'
 import {
   ANOMALY_BAND_LABEL,
   MODE_LABEL,
@@ -73,25 +74,11 @@ export function MonthDetails({ m, calendar, mode, progress }: DetailsProps) {
   )
 }
 
-const WIDTH = 264
-
-/** Fixed-position tooltip anchored to a cell's bounding box; flips below when there is no room above. */
+/** Tooltip for one heatmap cell. */
 export function MonthTooltip(props: DetailsProps & { anchor: DOMRect }) {
-  const { anchor } = props
-  const center = anchor.left + anchor.width / 2
-  const left = Math.min(Math.max(center - WIDTH / 2, 8), window.innerWidth - WIDTH - 8)
-  const above = anchor.top > 300
   return (
-    <div
-      role="tooltip"
-      className="pointer-events-none fixed z-50 rounded-lg border border-hairline bg-raised p-3 shadow-xl shadow-black/50"
-      style={{
-        width: WIDTH,
-        left,
-        ...(above ? { bottom: window.innerHeight - anchor.top + 8 } : { top: anchor.bottom + 8 }),
-      }}
-    >
+    <FloatingTip anchor={props.anchor}>
       <MonthDetails m={props.m} calendar={props.calendar} mode={props.mode} progress={props.progress} />
-    </div>
+    </FloatingTip>
   )
 }

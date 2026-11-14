@@ -3,6 +3,7 @@ import type { Calendar, Calibration } from '../../types/contracts.ts'
 import { AnomalyCards } from './AnomalyCards.tsx'
 import { CalendarHeatmap } from './CalendarHeatmap.tsx'
 import { CalendarTable } from './CalendarTable.tsx'
+import { CalibrationPanel } from './CalibrationPanel.tsx'
 import { ModeToggle, PaletteSwitcher, Segmented } from './Controls.tsx'
 import { TimeSeriesChart } from './TimeSeriesChart.tsx'
 import { MODE_LABEL, UNIT_LABEL, lastMonthProgress, monthKey } from './model.ts'
@@ -94,6 +95,8 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
         </header>
         <TimeSeriesChart calendar={calendar} mode={mode} />
       </section>
+
+      {calibration && <CalibrationPanel calibration={calibration} isArea={isArea} />}
     </div>
   )
 }
