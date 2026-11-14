@@ -16,6 +16,7 @@ Contract: contracts/tables.md
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 from pathlib import Path
 
@@ -118,14 +119,21 @@ def main() -> None:
     ap.add_argument("--region", required=True)
     ap.add_argument("--satellite", help="force satellite (terra/aqua/snpp/noaa20/noaa21) if codes are odd")
     ap.add_argument("--keep-low", action="store_true", help="keep low-confidence detections")
-    ap.add_argument("csvs", nargs="+", type=Path)
+    ap.add_argument("csvs", nargs="+")
     args = ap.parse_args()
 
-    regions = {r["id"]: r for r in json.loads((ROOT / "contracts" / "regions.json").read_text())["regions"]}
+    regions = {r["id"]: r for r in json.loads(
+        (ROOT / "contracts" / "regions.json").read_text(encoding="utf-8"))["regions"]}
     bbox = regions[args.region]["bbox"]
 
     frames = []
-    for path in args.csvs:
+    paths = []
+    for pattern in args.csvs:
+        matches = sorted(glob.glob(pattern))
+        if not matches:
+            ap.error(f"no CSV files match {pattern}")
+        paths.extend(Path(p) for p in matches)
+    for path in dict.fromkeys(paths):
         raw = pd.read_csv(path)
         norm = filter_and_clip(normalize_frame(raw, args.satellite), bbox, args.keep_low)
         print(f"{path.name}: {len(raw):>9,} rows -> {len(norm):>9,} kept")

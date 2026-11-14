@@ -88,3 +88,5 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Render backend deployment is verified at https://fire-calendar.onrender.com on 2026-11-14 using labeled mocks; deployment completion is recorded separately from pending FIRMS key activation and real-archive validation. Why: a healthy mock-backed deployment must not imply that live NRT or real historical data has been verified.
 
 - NRT failures expose only predefined per-source categories and numeric HTTP statuses; warning logs omit raw bodies, URLs and credentials. Why: the first live configured-key requests returned opaque 502 errors, which did not distinguish key/quota problems from transport or CSV failures. Health's configured flag means presence, not successful NASA authentication.
+
+- P2 ingestion expands CSV globs in Python for Windows and rejects malformed API responses; errors omit request URLs/response bodies and completed downloads publish atomically. Why: PowerShell does not expand native-command globs, and FIRMS URLs contain the secret key.
