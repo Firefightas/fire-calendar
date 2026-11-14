@@ -1,7 +1,7 @@
 {
  "region_id": "rio_negro",
  "is_mock": false,
- "generated_at": "2026-11-14T16:46:05+00:00",
+ "generated_at": "2026-11-14T17:37:57+00:00",
  "method": "overlap median ratio of active fire cell-days per calendar month",
  "target_scale": "SNPP_VIIRS_EQ",
  "fit_years": [
@@ -12,99 +12,99 @@
   2021,
   2025
  ],
- "test_mae": 102.01,
+ "test_mae": 91.11,
  "terra_only_factor": 2.641,
- "noaa20_factor": 1.069,
- "noaa21_factor": 1.013,
+ "noaa20_factor": 1.075,
+ "noaa21_factor": 1.024,
  "monthly_factors": [
   {
    "month": 1,
-   "factor": 1.811,
-   "cv": 0.519,
+   "factor": 1.797,
+   "cv": 0.51,
    "n_years": 8,
    "fallback": false
   },
   {
    "month": 2,
-   "factor": 3.894,
-   "cv": 0.477,
+   "factor": 3.798,
+   "cv": 0.484,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 3,
    "factor": 3.236,
-   "cv": 0.223,
+   "cv": 0.208,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 4,
-   "factor": 3.35,
-   "cv": 0.259,
+   "factor": 3.183,
+   "cv": 0.253,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 5,
-   "factor": 5.261,
-   "cv": 0.334,
+   "factor": 5.105,
+   "cv": 0.331,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 6,
-   "factor": 9.235,
-   "cv": 0.374,
+   "factor": 8.667,
+   "cv": 0.346,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 7,
-   "factor": 3.917,
-   "cv": 0.894,
+   "factor": 3.667,
+   "cv": 0.906,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 8,
-   "factor": 2.602,
-   "cv": 0.166,
+   "factor": 2.509,
+   "cv": 0.167,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 9,
-   "factor": 2.674,
-   "cv": 0.258,
+   "factor": 2.636,
+   "cv": 0.253,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 10,
-   "factor": 3.833,
-   "cv": 0.319,
+   "factor": 3.574,
+   "cv": 0.28,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 11,
-   "factor": 5.667,
-   "cv": 0.307,
+   "factor": 5.242,
+   "cv": 0.285,
    "n_years": 9,
    "fallback": false
   },
   {
    "month": 12,
-   "factor": 1.646,
-   "cv": 0.496,
+   "factor": 1.627,
+   "cv": 0.488,
    "n_years": 9,
    "fallback": false
   }
  ],
- "test_mape": 0.354,
+ "test_mape": 0.332,
  "raw_step_ratio": 5.17,
- "harmonized_step_ratio": 1.44,
+ "harmonized_step_ratio": 1.5,
  "diagnostics": {
   "input": "hex_day.parquet",
   "last_data_date": "2026-11-13",
@@ -134,86 +134,86 @@
   "noaa21_note": "NOAA-21 has no overlap with S-NPP inside fit_years; fitted on its whole overlap",
   "terra_only": {
    "factor": 2.641,
-   "cv": 0.412,
+   "cv": 0.413,
    "n_months": 96,
    "measured": true
   },
   "noaa20": {
-   "factor": 1.069,
-   "cv": 0.109,
+   "factor": 1.075,
+   "cv": 0.105,
    "n_months": 33,
    "measured": true,
-   "test_mae": 49.97
+   "test_mae": 50.39
   },
   "noaa21": {
-   "factor": 1.013,
-   "cv": 0.193,
+   "factor": 1.024,
+   "cv": 0.192,
    "n_months": 30,
    "measured": true
   },
   "orbit_check": {
    "aqua_only": {
-    "factor": 4.887,
-    "ratio_cv": 0.66,
+    "factor": 4.618,
+    "ratio_cv": 0.646,
     "n_months": 106,
     "monthly_factors": [
      2.389,
      5.354,
-     4.684,
-     4.786,
-     7.624,
-     12.444,
-     4.821,
-     3.525,
+     4.453,
+     4.548,
+     7.224,
+     10.867,
+     4.513,
+     3.252,
      3.756,
      5.737,
-     9.471,
+     8.286,
      2.842
     ],
-    "test_mae": 105.828,
-    "test_mape": 0.366
+    "test_mae": 95.126,
+    "test_mape": 0.337
    },
    "terra_only": {
-    "factor": 9.662,
-    "ratio_cv": 0.542,
+    "factor": 9.046,
+    "ratio_cv": 0.55,
     "n_months": 96,
     "monthly_factors": [
-     3.687,
-     11.0,
+     3.623,
+     9.021,
      9.368,
-     8.733,
-     13.444,
+     8.71,
+     12.125,
      14.01,
-     18.4,
-     10.23,
-     8.273,
+     17.944,
+     9.533,
+     8.067,
      8.074,
-     11.316,
-     2.714
+     10.947,
+     2.688
     ],
-    "test_mae": 140.854,
-    "test_mape": 0.456
+    "test_mae": 119.262,
+    "test_mape": 0.418
    },
    "terra_aqua_combined": {
-    "factor": 3.522,
-    "ratio_cv": 0.71,
+    "factor": 3.277,
+    "ratio_cv": 0.705,
     "n_months": 107,
     "monthly_factors": [
-     1.811,
-     3.894,
+     1.797,
+     3.798,
      3.236,
-     3.35,
-     5.261,
-     9.235,
-     3.917,
-     2.602,
-     2.674,
-     3.833,
-     5.667,
-     1.646
+     3.183,
+     5.105,
+     8.667,
+     3.667,
+     2.509,
+     2.636,
+     3.574,
+     5.242,
+     1.627
     ],
-    "test_mae": 102.014,
-    "test_mape": 0.354
+    "test_mae": 91.105,
+    "test_mape": 0.332
    },
    "lowest_test_mape": "terra_aqua_combined"
   },
