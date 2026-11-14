@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import csv
 import io
+import logging
 import math
 from collections import OrderedDict
 from datetime import UTC, date, datetime, timedelta
@@ -18,8 +19,47 @@ SOURCES = ("VIIRS_NOAA20_NRT", "VIIRS_NOAA21_NRT", "MODIS_NRT")
 BASE_URL = "https://firms.modaps.eosdis.nasa.gov/api/area/csv"
 CACHE_SECONDS = 15 * 60
 CACHE_ENTRIES = 64
+logger = logging.getLogger(__name__)
 _cache: OrderedDict[tuple, tuple[float, dict]] = OrderedDict()
 _cache_lock = Lock()
+
+
+class FirmsFailure(Exception):
+    """Only safe categories/status codes; never retain an upstream body or URL."""
+
+    def __init__(self, source: str, category: str, status: int | None = None):
+        self.source, self.category, self.status = source, category, status
+        super().__init__(category)
+
+    def public_detail(self) -> str:
+        messages = {
+            "key": "FIRMS rejected MAP_KEY; verify the configured key is valid and active",
+            "quota": "FIRMS request quota exceeded; retry after the rate-limit window",
+            "key_or_quota": "FIRMS reports an invalid MAP_KEY or exhausted request quota; verify both",
+            "timeout": "FIRMS request timed out",
+            "network": "FIRMS could not be reached",
+            "csv": "FIRMS returned an unexpected hotspot CSV response",
+            "unavailable": "FIRMS reports data unavailable for the requested source/date window",
+            "http": f"FIRMS returned HTTP {self.status}",
+        }
+        return f"{self.source}: {messages[self.category]}"
+
+
+def check_response(response: httpx.Response, source: str) -> None:
+    """Classify known NASA errors, including plain-text errors with HTTP 200."""
+    body = response.text[:4096].casefold()
+    invalid_key = any(phrase in body for phrase in ("invalid map_key", "map_key is invalid", "invalid map key"))
+    quota = "exceeded" in body and any(word in body for word in ("transaction", "quota", "limit"))
+    if response.status_code == 429 or (quota and not invalid_key):
+        raise FirmsFailure(source, "quota", response.status_code)
+    if invalid_key:
+        raise FirmsFailure(source, "key_or_quota" if quota else "key", response.status_code)
+    if response.status_code == 401:
+        raise FirmsFailure(source, "key", response.status_code)
+    if response.status_code != 200:
+        raise FirmsFailure(source, "http", response.status_code)
+    if body.strip().startswith(("error in processing: no data", "no data available")):
+        raise FirmsFailure(source, "unavailable", response.status_code)
 
 
 def utc_today() -> date:
@@ -89,6 +129,7 @@ def parse_csv(text: str, source: str, area: list[float], start: date, end: date)
 
 
 async def overlay(area: list[float], days: int, map_key: str) -> dict:
+    map_key = map_key.strip()
     if not map_key:
         raise HTTPException(503, "FIRMS_MAP_KEY is not configured in backend/.env")
     today = utc_today()
@@ -104,9 +145,17 @@ async def overlay(area: list[float], days: int, map_key: str) -> dict:
     start = today - timedelta(days=days - 1)
 
     async def fetch(client, source, first, count):
-        response = await client.get(f"{BASE_URL}/{map_key}/{source}/{bbox}/{count}/{first.isoformat()}")
-        response.raise_for_status()
-        return parse_csv(response.text, source, area, start, today)
+        try:
+            response = await client.get(f"{BASE_URL}/{map_key}/{source}/{bbox}/{count}/{first.isoformat()}")
+        except httpx.TimeoutException:
+            raise FirmsFailure(source, "timeout") from None
+        except httpx.RequestError:
+            raise FirmsFailure(source, "network") from None
+        check_response(response, source)
+        try:
+            return parse_csv(response.text, source, area, start, today)
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError, csv.Error):
+            raise FirmsFailure(source, "csv", response.status_code) from None
 
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(6.0, connect=2.0)) as client:
@@ -114,8 +163,18 @@ async def overlay(area: list[float], days: int, map_key: str) -> dict:
                 *(fetch(client, source, first, count) for source in SOURCES for first, count in windows(days, today)),
                 return_exceptions=True,
             )
-        if any(isinstance(result, BaseException) for result in results):
-            raise ValueError("one or more FIRMS requests failed")
+        failures = [result for result in results if isinstance(result, BaseException)]
+        if failures:
+            details = set()
+            for failure in failures:
+                if isinstance(failure, FirmsFailure):
+                    logger.warning("FIRMS NRT failure source=%s category=%s status=%s",
+                                   failure.source, failure.category, failure.status)
+                    details.add(failure.public_detail())
+                else:
+                    logger.warning("FIRMS NRT failure category=unexpected")
+                    details.add("FIRMS NRT request failed unexpectedly")
+            raise HTTPException(502, "; ".join(sorted(details))) from None
     except (httpx.HTTPError, ValueError, KeyError, TypeError, csv.Error):
         # NASA errors and HTTP exception strings can contain the MAP_KEY URL.
         # Fail the whole overlay instead of presenting incomplete source data.

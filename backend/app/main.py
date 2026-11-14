@@ -23,7 +23,7 @@ PROCESSED = ROOT / "data" / "processed"
 MOCKS = CONTRACTS / "mocks"
 
 load_dotenv(ROOT / "backend" / ".env")
-FIRMS_MAP_KEY = os.getenv("FIRMS_MAP_KEY", "")
+FIRMS_MAP_KEY = os.getenv("FIRMS_MAP_KEY", "").strip()
 
 app = FastAPI(title="Fire Calendar API", version="0.1.0")
 app.add_middleware(

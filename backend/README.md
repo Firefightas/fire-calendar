@@ -103,3 +103,21 @@ all origins). That frontend configuration belongs to P5.
 
 Real archive validation still depends on P2/P3's files; until then the demo
 deliberately serves labeled sample/mock data.
+
+## Diagnosing NRT failures
+
+A true firms_key_configured field in health means the environment variable is
+present, not that NASA has accepted the key. On 14 November 2026, the deployed
+service reported a configured key, while one-day region, equivalent global bbox
+and seven-day requests returned generic 502 responses. Live NRT remains unverified.
+
+The proxy now returns safe per-source reasons for rejected keys, exhausted quota,
+timeouts, network failures, upstream HTTP errors, unavailable source/date data and
+unexpected CSV responses. Warning logs contain only source, category and status;
+raw response bodies, credentials and upstream URLs are omitted. HTTP status and
+the frozen detail-string error shape remain unchanged. Failed or partial results
+are not cached. Header-only valid CSV is still a successful empty observation set.
+
+Leading/trailing whitespace is stripped from the configured key. After merging
+this diagnostics fix and redeploying Render, recheck the live NRT error before
+deciding whether key activation, quota, network access or parsing needs attention.

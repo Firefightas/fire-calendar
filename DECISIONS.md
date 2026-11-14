@@ -81,3 +81,5 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Area calendars follow P1's approved month-to-date rule when regional diagnostics identify an incomplete last month: only that row's baseline median/IQR/score use the same acquisition-day cutoff across baseline years; factors remain fitted on full fit-year months and observed counts stay unchanged. Why: partial-month observations must be compared with partial-month history.
 
 - Render backend deployment is verified at https://fire-calendar.onrender.com on 2026-11-14 using labeled mocks; deployment completion is recorded separately from pending FIRMS key activation and real-archive validation. Why: a healthy mock-backed deployment must not imply that live NRT or real historical data has been verified.
+
+- NRT failures expose only predefined per-source categories and numeric HTTP statuses; warning logs omit raw bodies, URLs and credentials. Why: the first live configured-key requests returned opaque 502 errors, which did not distinguish key/quota problems from transport or CSV failures. Health's configured flag means presence, not successful NASA authentication.
