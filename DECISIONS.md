@@ -42,3 +42,23 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Synthetic runs need an explicit `--out`. Why: the backend reports a region as real once `data/processed/<region>/calendar.json` exists.
 - P1 sign-off on P3 requests: approved `terra_only_factor` fit on 2012–2020, `noaa21_factor` fit on Feb 2024 – Oct 2026 (only S-NPP overlap window), and the 5-month `is_nrt` lag rule so `hex_day.parquet` stays frozen. Why: zero contract churn across P2/P3/P4 while honoring TEAM_PLAN §2.2 and §2.4.
 - `hex_fire_history.parquet` holds only hexes with ≥ 1 detection; `burn_count` counts, per month, the same satellite × factor the calendar uses; `years_since_last_fire` uses the last detection by any satellite. Why: hexes then sum to the regional harmonized series (MODIS and VIIRS are never added), while recency should not ignore a fire just because a non-reference satellite saw it.
+
+## P5 frontend defaults (`frontend/`)
+
+- Static fallback JSON is committed in `frontend/public/data/` and refreshed by `scripts/sync-data.mjs` before `dev`/`build` (`data/processed/` first, else `contracts/mocks/`). Why: the deployed frontend must work offline and cannot rely on files outside `frontend/`.
+- The heatmap uses one square-root color scale, 0 to the largest raw-or-harmonized month, shared by both toggle states. Why: flipping the toggle never rescales colors, so a cell that changes color changed value; counts are heavy-tailed.
+- The calendar shows every calendar year in the record (27 rows for Nov 2000 – Nov 2026), with empty slots where there is no month. Why: "26 years" spans 27 calendar years.
+- `is_estimated` is a corner dot (not hatching) and is hidden in the raw view; `is_nrt` is an outline. Why: hatching fights the color scale; raw counts are not estimates.
+- The annual time series plots only years with all 12 months; the raw annual total sums the naive switch series (`rawValue`) month by month. Why: partial years would look like real dips; MODIS and VIIRS are never added for the same month.
+- A "month in progress" chip is shown when the latest month is the current UTC month by the browser clock. Why: the contract has no partial-month flag, and a part-month count against a full-month median reads falsely low.
+- Anomaly wording bands (±0.5, ±1.5) are display text only; the score always comes from `anomaly_z`. Why: readers need a plain-language reading next to the number.
+- The validation tile is flagged "whole-region calibration" when a drawn area is shown. Why: `test_mae` is regional and in cell-days, so it does not describe a small polygon.
+- Basemap = OpenFreeMap "dark" vector style (no token); if it cannot be fetched the map falls back to a blank style that still shows region boxes, the drawn area and hex layers. Why: free, and the demo must survive without internet tiles.
+- terra-draw is only the pen: a finished shape is validated (every vertex inside the region bbox), stored as one GeoJSON polygon in app state and drawn by our own MapLibre layer. One area at a time. Why: one source of truth for the area shared by calendar, exports and sandbox; the 26-year archive only exists inside the three regions.
+- The map's `H3HexagonLayer` shows (a) `burn_count` from the region's sandbox grid and (b) live NRT hotspots binned to H3 res-7 in the browser, loaded on demand for the current map view via `GET /api/nrt?bbox=`. Why: no contract endpoint returns per-hex archive values; NRT by view bbox keeps the overlay global (TEAM_PLAN §0.1).
+- MapLibre 6 gets its worker through `setWorkerUrl()` with a Vite `?url` asset import. Why: it resolves the worker relative to its own module at runtime, which breaks once Vite bundles it.
+- When an area calendar comes back identical to the whole-region series, the UI says so. Why: the interim `POST /api/calendar` ignores the polygon, and region totals must not be presented as a drawn area's numbers.
+- "Export calendar (CSV)" falls back to a CSV built in the browser from the calendar on screen (contract column order) when the backend export fails, and says so; "Export hotspots (CSV)" has no fallback. Why: the monthly table is already in the page, the point archive is not.
+- The sandbox is mounted through `import.meta.glob('../features/sandbox/index.{ts,tsx}')` inside a host page that always shows `SANDBOX_BANNER`. Why: P5's build stays green before P6's entry exists, and the banner rule holds no matter what the module renders.
+- The map (MapLibre + deck.gl + h3-js) is a lazy chunk. Why: the calendar, which is the judged centerpiece, paints first.
+

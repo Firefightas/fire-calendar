@@ -15,6 +15,22 @@ npm install -D tailwindcss @tailwindcss/vite @types/geojson @types/d3-scale @typ
 
 Keep the existing `src/types/contracts.ts` and folder layout. Dependencies for the sandbox (`h3-js`) are already in this list, so P6 doesn't need to touch `package.json`.
 
+## Run it (scaffold is done)
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173, backend expected on VITE_API_URL (default http://localhost:8000)
+npm run build      # type-check + production build (CI runs this)
+npm test           # vitest unit tests (calendar model, CSV, geometry)
+npm run lint       # oxlint
+npm run sync-data  # refresh public/data/ from data/processed/, else contracts/mocks/ (also runs before dev/build)
+```
+
+The app works with the backend down: whole-region calendars, calibration and sandbox grids come from `public/data/`. Drawn-area calendars, the hotspot CSV and live hotspots need the backend, and the UI says so when it is missing. Commit `public/data/` after `sync-data` changes it, so the deployed build carries the latest fallback.
+
+Where things live: `src/app/api.ts` (all fetching + fallback), `src/app/App.tsx` (state: region, drawn polygon, sandbox open), `src/features/calendar/model.ts` (every derived number), `src/features/map/MapPanel.tsx` (MapLibre, terra-draw, deck.gl), `src/features/export/`, `src/app/SandboxHost.tsx` (mounts P6's `features/sandbox/index.tsx`).
+
 ## Layout and ownership
 
 ```
