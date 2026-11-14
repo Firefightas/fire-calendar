@@ -115,6 +115,41 @@ def test_complete_last_month_keeps_the_full_month_baseline(hex_day):
     assert (last["median_m"], last["iqr_m"]) == (year_before["median_m"], year_before["iqr_m"])
 
 
+def test_snpp_archive_ending_early_hands_over_to_noaa20(hex_day):
+    """Like the real standard-processing archive: S-NPP stops on 31 Jul 2026, the others run on."""
+    dates = pd.to_datetime(hex_day["date"])
+    early = hex_day[~((hex_day["satellite"] == "snpp") & (dates > "2026-07-31")).to_numpy()]
+    assert run.snpp_last_month(early) == (2026, 7)
+    assert run.snpp_last_month(hex_day) == (2026, 10)  # synthetic S-NPP stops on 1 Nov: October is the last full month
+    mid_month = hex_day[~((hex_day["satellite"] == "snpp") & (dates > "2026-07-15")).to_numpy()]
+    assert run.snpp_last_month(mid_month) == (2026, 6)
+
+    calendar, calibration, history = run.build_outputs(early, "rio_negro", is_mock=True)
+    months = {(m["year"], m["month"]): m for m in calendar["months"]}
+    assert months[(2026, 7)]["source"] == "viirs_snpp"
+    august = months[(2026, 8)]
+    assert august["source"] == "viirs_noaa20" and not august["is_estimated"]
+    assert august["harmonized"] == pytest.approx(august["viirs_raw"] * calibration["noaa20_factor"], abs=0.2)
+    assert august["harmonized"] > 0  # missing S-NPP months are not reported as zero fire
+    assert calibration["diagnostics"]["snpp_reference_until"] == "2026-07"
+    assert calibration["diagnostics"]["fit_windows"]["noaa21_factor"] == ["2024-02", "2026-07"]
+    assert history["burn_count"].sum() == pytest.approx(sum(m["harmonized"] for m in calendar["months"]), rel=1e-3)
+
+
+def test_is_nrt_from_points_provenance(hex_day):
+    points = pd.DataFrame({
+        "date": ["2026-06-10", "2026-09-03", "2026-11-02", "2026-11-05"],
+        "satellite": ["noaa21", "terra", "noaa20", "noaa20"],
+        "is_nrt": [True, True, True, False],
+    })
+    calendar, calibration, _ = run.build_outputs(hex_day, "rio_negro", is_mock=True, points=points)
+    months = {(m["year"], m["month"]): m for m in calendar["months"]}
+    # Only the satellite that supplies the month's harmonized value counts.
+    assert not months[(2026, 6)]["is_nrt"] and not months[(2026, 9)]["is_nrt"]  # both S-NPP months
+    assert months[(2026, 11)]["is_nrt"]  # NOAA-20 month with NRT rows
+    assert calibration["diagnostics"]["is_nrt_rule"] == "points.parquet provenance"
+
+
 def test_outputs_match_contracts(hex_day):
     calendar, calibration, _ = run.build_outputs(hex_day, "rio_negro", is_mock=True)
     for name, doc in (("calendar.schema.json", calendar), ("calibration.schema.json", calibration)):

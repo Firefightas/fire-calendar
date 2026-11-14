@@ -8,7 +8,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#13; Render backend & live FIRMS NRT verified (`200 OK`); signed off on all P3/P4/P5 requests. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
-| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
+| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; code handles the real Río Negro archive (S-NPP SP ends Jul 2026). First real run: held-out MAPE 35 % with the binding median-ratio method, and MODIS-era mega-fire months overstated; outputs not committed, waiting for a method decision (see Requests). |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend deployed at https://fire-calendar.onrender.com; live FIRMS NRT (`200 OK` after PR #11 deploy), polygon queries and CSV exports verified; real archives await P2/P3. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports, cold-start handling and live NRT endpoint verified; next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
@@ -70,6 +70,8 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 ## Requests (cross-folder changes)
 
 _Format: `- [ ] from Px to Py: what and why`_
+
+- [ ] from P3 to P1 (method + possible contract change): on real Río Negro data the S-NPP / MODIS cell-day ratio is not constant, it falls as fires get larger (about 1.4 in the biggest months, 5–10 in quiet ones). The binding median-ratio factors give held-out 2021–2025 MAE 102 cell-days (MAPE 35 %) and turn Terra's 2,402 cell-days of Jan 2001 into 11,490. A power law `S-NPP = a · MODIS^b` fitted on the same 2012–2020 months (a ≈ 23, b ≈ 0.57) gives MAE 51 (MAPE 18 %) on the same held-out years. It cannot be written as `monthly_factors`, so it needs new fields in `calibration.schema.json` and a change in P4's polygon math. Decide: keep the binding method, or change the contract.
 
 - [x] from P3 to P1/P5: when the data ends mid-month, the last row of `calendar.json` is month-to-date: `harmonized` is the count so far and `median_m` / `iqr_m` / `anomaly_z` use the same days of that month in the baseline years (shape unchanged, but `median_m` is not the full-month median for that one row). P1: confirm this reading of the schema. P5: consider a "month to date" label on that cell (`calibration.json` → `diagnostics.last_month_complete`, `last_data_date`). → **Approved by P1** (schema preserved; P5 already shows an "in progress" badge and can optionally inspect `diagnostics.last_month_complete`). → **Done by P5** (`feat/p5-month-to-date`): when `diagnostics.last_month_complete` is false the last month reads "Month to date, through <last_data_date>" and its median/IQR are marked "to date"; without those keys the wording stays a neutral "Month in progress".
 
