@@ -40,5 +40,3 @@ def archive(tmp_path, monkeypatch):
         (region / "calibration.json").write_text(json.dumps(calibration), encoding="utf-8")
 
     return add, save, reference, calibration, region
-
-

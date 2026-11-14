@@ -13,5 +13,3 @@ def square(lon=LON, lat=LAT, size=0.025):
 
 def body(**kwargs):
     return {"region_id": "rio_negro", "polygon": square(), "start": "2001-01", "end": "2026-11", **kwargs}
-
-
