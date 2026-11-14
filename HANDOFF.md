@@ -19,12 +19,12 @@ Gotchas:
 ---
 
 ## P5 Frontend — Sat 14 Nov 2026 — Claude (Fable)
-Done: all P5 items in PLAN.md, including the calibration panel, the month-to-date label and the integration with P4's deployed backend (drawn-area calendar, both CSV exports, cold-start handling; verified end to end on mocks against https://fire-calendar.onrender.com).
+Done: all P5 items in PLAN.md. Checkpoint A verified from the frontend side on real Río Negro data through the deployed backend; the colour-scale fix and the real Río Negro offline bundle are on `feat/p5-checkpoint-a`.
 In progress (files + exact state): nothing half-written.
-Broken / known issues: the live overlay shows "Unavailable" because the backend's FIRMS requests return 502 (P4/P1 are on it; the frontend needs no change). The sandbox button opens a placeholder until P6 adds `frontend/src/features/sandbox/index.tsx`.
+Broken / known issues: a drawn polygon in Río Negro still returns MOCK DATA (labelled) until the parquet tables are on the server. The sandbox button opens a placeholder until P6 adds `frontend/src/features/sandbox/index.tsx`.
 Next 3 steps:
-1. When P2/P3 land real Río Negro files: `cd frontend && npm run sync-data`, commit `public/data/`, check the page (Checkpoint A).
-2. Re-check the live overlay once `/api/nrt` returns 200.
+1. When California and Romania get real files: `cd frontend && npm run sync-data`, commit `public/data/`, repeat the Checkpoint A checks for them.
+2. Re-check a drawn area and both exports once P4 serves real parquet tables.
 3. Check the sandbox launch once P6's entry file exists.
 Gotchas: `gh` is not installed on this laptop. `npm run build` reads `frontend/.env.production`, so a local production build or `vite preview` talks to the Render backend; `npm run dev` still uses `http://localhost:8000`. After switching branches restart `npm run dev` (a stale dev server served the page unstyled). MapLibre 6 needs `setWorkerUrl` (already done in `MapPanel.tsx`). Every append to DECISIONS.md conflicts with other roles' appends: keep both sides.
 

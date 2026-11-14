@@ -46,6 +46,48 @@ export function sharedMax(months: CalendarMonth[]): number {
   return max
 }
 
+/** Linear-interpolated quantile (`p` in 0..1) of a list of numbers; 0 for an empty list. */
+export function quantile(values: number[], p: number): number {
+  if (values.length === 0) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const at = Math.min(Math.max(p, 0), 1) * (sorted.length - 1)
+  const lo = Math.floor(at)
+  const hi = Math.min(lo + 1, sorted.length - 1)
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (at - lo)
+}
+
+export interface ColorDomain {
+  /** The value drawn in the top colour; anything larger shares that colour. */
+  top: number
+  /** The largest value in either mode. */
+  max: number
+  /** True when `top` is below `max`, so some months are above the colour scale. */
+  capped: boolean
+}
+
+const CAP_QUANTILE = 0.98
+const CAP_WHEN_MAX_IS_OVER = 2
+
+/**
+ * Colour domain shared by both modes. Normally 0..max. When a few extreme months sit far
+ * above the rest (max more than twice the 98th percentile of all values in both modes), the
+ * scale stops at that percentile, so one outlier cannot flatten every other month into the
+ * bottom shades. Months above it are marked in the grid and keep their exact value in the
+ * tooltip, table and CSV. Presentation only: no number is changed.
+ */
+export function colorDomain(months: CalendarMonth[]): ColorDomain {
+  const values: number[] = []
+  for (const m of months) {
+    values.push(m.harmonized)
+    const raw = rawValue(m)
+    if (raw !== null) values.push(raw)
+  }
+  const max = sharedMax(months)
+  const q = quantile(values, CAP_QUANTILE)
+  const capped = q > 0 && max > CAP_WHEN_MAX_IS_OVER * q
+  return { top: capped ? q : max, max, capped }
+}
+
 /** True when two calendars carry the same values for the same months (e.g. an area query that was not aggregated). */
 export function sameSeries(a: Calendar, b: Calendar): boolean {
   if (a.months.length !== b.months.length) return false
@@ -217,6 +259,14 @@ export function fmtDay(iso: string): string {
   if (!match) return iso
   const month = MONTH_NAMES[Number(match[2]) - 1]
   return month ? `${Number(match[3])} ${month} ${match[1]}` : iso
+}
+
+/** "2026-07" → "Jul 2026". Returns the input when it is not a year-month. */
+export function fmtYm(ym: string): string {
+  const match = /^(\d{4})-(\d{2})$/.exec(ym)
+  if (!match) return ym
+  const month = MONTH_NAMES[Number(match[2]) - 1]
+  return month ? `${month} ${match[1]}` : ym
 }
 
 /** One line for chips and tooltips, or null when the month is complete. */

@@ -82,7 +82,7 @@ const CHAIN: { key: ChainFactor['key']; diag: string; title: string; meaning: st
     key: 'noaa20_factor',
     diag: 'noaa20',
     title: 'NOAA-20 VIIRS',
-    meaning: 'NOAA-20 cell-days × this = S-NPP equivalent. Carries the record on after S-NPP ended.',
+    meaning: 'NOAA-20 cell-days × this = S-NPP equivalent. Carries the record on once the S-NPP data ends.',
   },
   {
     key: 'noaa21_factor',
@@ -117,4 +117,22 @@ export function chainFactors(c: Calibration): ChainFactor[] {
       window: asWindow(windows?.[key]),
     }
   })
+}
+
+/**
+ * Last month ("YYYY-MM") for which S-NPP itself is the reference, when `diagnostics` says so
+ * (`snpp_reference_until`). After it, NOAA-20 × `noaa20_factor` supplies the value.
+ */
+export function snppReferenceUntil(c: Calibration): string | null {
+  const v = asRecord(c.diagnostics)?.snpp_reference_until
+  return typeof v === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(v) ? v : null
+}
+
+/**
+ * The 2012 step of MODIS alone over the same years as `raw_step_ratio`, when `diagnostics`
+ * records it (`modis_only_step_ratio`): how much fire activity itself changed, sensor held fixed.
+ */
+export function modisOnlyStepRatio(c: Calibration): number | null {
+  const v = asRecord(c.diagnostics)?.modis_only_step_ratio
+  return typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null
 }
