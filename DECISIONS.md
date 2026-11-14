@@ -61,4 +61,6 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - "Export calendar (CSV)" falls back to a CSV built in the browser from the calendar on screen (contract column order) when the backend export fails, and says so; "Export hotspots (CSV)" has no fallback. Why: the monthly table is already in the page, the point archive is not.
 - The sandbox is mounted through `import.meta.glob('../features/sandbox/index.{ts,tsx}')` inside a host page that always shows `SANDBOX_BANNER`. Why: P5's build stays green before P6's entry exists, and the banner rule holds no matter what the module renders.
 - The map (MapLibre + deck.gl + h3-js) is a lazy chunk. Why: the calendar, which is the judged centerpiece, paints first.
+- Calibration panel: monthly factors are drawn as a dot (factor) with a ±1 CV line (`factor × (1 ± cv)`) on an axis that always includes ×1; fallback months are hollow dots. Why: a factor is a ratio, so "no conversion" (×1) is the honest reference, and `cv` is the spread the contract provides.
+- The panel reads `diagnostics.{terra_only,noaa20,noaa21}.measured` and `diagnostics.fit_windows` only if present and well-formed, and otherwise shows the factor alone. Why: `diagnostics` is free-form in the contract, but P3 writes a neutral 1.0 when a NOAA factor has no overlap data, and showing that as a measured factor would mislead.
 

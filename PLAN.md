@@ -10,7 +10,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
-| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All five P5 items built and tested on mocks, online and offline; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check, polish. |
+| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
@@ -56,6 +56,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] 26 × 12 calendar heatmap, palette switcher (Cividis default), `is_estimated` / `is_nrt` / MOCK badges, tooltips
 - [x] Raw ↔ Harmonized toggle, time-series chart, `test_mae` validation badge, IQR anomaly cards
 - [x] CSV export buttons, NRT overlay, "Launch Tactical Containment Sandbox" trigger
+- [x] Calibration panel under the calendar: 12 monthly factors with ±1 CV, Terra-only / NOAA-20 / NOAA-21 factors, fallback and not-measured flags (all from `calibration.json`)
 
 ## P6: Tactical Containment Sandbox
 - [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
@@ -76,3 +77,4 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [ ] from P5 to P4/P1: no endpoint gives per-hex historical values, so the map's `H3HexagonLayer` has no archive data source. Interim: P5 shows NRT hotspots binned to H3 res-7 in the browser and the sandbox grid's `burn_count`. Say if you want a per-hex endpoint instead.
 - [ ] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape.
 - [ ] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
+- [ ] from P5 to P3: FYI, no change needed. The calibration panel reads three optional things from `calibration.json` `diagnostics` if present: `terra_only.measured`, `noaa20.measured`, `noaa21.measured` (to flag a neutral ×1 placeholder) and `fit_windows.<factor name>` (shown as "Fitted on …"). It works without them; tell me if you rename these keys.
