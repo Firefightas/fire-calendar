@@ -68,6 +68,8 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 _Format: `- [ ] from Px to Py: what and why`_
 
+- [ ] from P3 to P1/P5: when the data ends mid-month, the last row of `calendar.json` is month-to-date: `harmonized` is the count so far and `median_m` / `iqr_m` / `anomaly_z` use the same days of that month in the baseline years (shape unchanged, but `median_m` is not the full-month median for that one row). P1: confirm this reading of the schema. P5: consider a "month to date" label on that cell (`calibration.json` → `diagnostics.last_month_complete`, `last_data_date`).
+
 - [ ] from P3 to P1: add `matplotlib` to the `pipeline` dependency group in `pyproject.toml`. `pipeline/harmonize/chart.py` needs it; until then it runs with `uv run --with matplotlib` and its PNG test is skipped in CI.
 
 - [x] from P3 to P1: confirm the NOAA-21 exception (fitted on Feb 2024 – Oct 2026, outside `fit_years`, because it has no S-NPP overlap in 2012–2020) and that `terra_only_factor` is fitted on 2012–2020. → **Approved by P1** (matches `calibration.schema.json`).

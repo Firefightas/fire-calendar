@@ -243,6 +243,27 @@ def add_anomaly(series: pd.DataFrame, baseline: tuple[int, int]) -> pd.DataFrame
     return out
 
 
+def month_to_date_anomaly(series: pd.DataFrame, hex_day: pd.DataFrame, factors: dict,
+                          baseline: tuple[int, int], last_day: pd.Timestamp) -> pd.DataFrame:
+    """Score an incomplete last month against the same days of that month in the baseline years.
+
+    Without this, a month with 13 days of data is compared with full-month medians and always
+    looks unusually quiet. Only the last row's median_m, iqr_m and anomaly_z change.
+    """
+    dates = pd.to_datetime(hex_day["date"])
+    same_days = hex_day[((dates.dt.month == last_day.month) & (dates.dt.day <= last_day.day)).to_numpy()]
+    to_date = harmonize(monthly_cell_days(same_days), factors)
+    to_date = to_date[to_date["month"] == last_day.month].set_index("year")["harmonized"]
+    values = to_date.reindex(range(baseline[0], baseline[1] + 1), fill_value=0.0)
+    if values.empty:
+        return series
+    median, iqr = values.median(), values.quantile(0.75) - values.quantile(0.25)
+    out, last = series.copy(), series.index[-1]
+    out.loc[last, ["median_m", "iqr_m"]] = [median, iqr]
+    out.loc[last, "anomaly_z"] = (out.loc[last, "harmonized"] - median) / max(iqr, ANOMALY_FLOOR)
+    return out
+
+
 # --- Step 5: held-out validation ---------------------------------------------------------------
 
 def _test_window(monthly: pd.DataFrame) -> pd.DataFrame:
@@ -346,6 +367,9 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
     factors = fit_factors(monthly)
     baseline = baseline_years(first_day, last_day)
     series = add_anomaly(harmonize(monthly, factors), baseline)
+    last_month_complete = bool(last_day.is_month_end)
+    if not last_month_complete:
+        series = month_to_date_anomaly(series, hex_day, factors, baseline, last_day)
     metrics = validate(monthly, series, factors)
     # hex_day has no is_nrt column: flag the months inside the standard-processing lag.
     nrt_from = _t(last_day.year, last_day.month) - NRT_LAG_MONTHS
@@ -381,6 +405,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
     diagnostics = {
         "input": "synthetic hex_day with known ratios (MOCK)" if is_mock else "hex_day.parquet",
         "last_data_date": last_day.date().isoformat(),
+        "last_month_complete": last_month_complete,
         "min_cell_days_per_ratio": MIN_CELL_DAYS, "min_ratio_years": MIN_RATIO_YEARS,
         "fit_windows": {
             "monthly_factors": [_ym(*max(SNPP_START, (FIT_YEARS[0], 1))), _ym(FIT_YEARS[1], 12)],
