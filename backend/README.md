@@ -1,34 +1,84 @@
-# backend/ (owner: P4)
+# Backend (owner: P4)
 
-FastAPI service implementing `contracts/api.md`. Already working on mocks: `/api/health`, `/api/regions`, `/api/regions/{id}/calendar`, `/api/regions/{id}/calibration`, `/api/regions/{id}/sandbox-grid`, and polygon-specific `POST /api/calendar` (DuckDB aggregation, calibration, uncertainty and area IQR anomalies).
+FastAPI implementation of [the frozen API contract](../contracts/api.md).
 
-## Run
+## Run and verify
 
-```bash
-cp backend/.env.example backend/.env      # add the FIRMS MAP_KEY
+From the repository root:
+
+```powershell
+uv sync --all-groups --locked
 uv run uvicorn backend.app.main:app --reload
-uv run pytest backend
+uv run pytest
+uv run ruff check .
 ```
 
-Docs at http://localhost:8000/docs.
+API docs: http://localhost:8000/docs. Copy `.env.example` to `backend/.env` and set
+`FIRMS_MAP_KEY` locally to enable the live overlay. Never commit or paste the key.
+Without a key, historical endpoints still work; NRT returns 503.
 
-## Data resolution
+## Implemented endpoints
 
-For every file the backend tries `data/processed/<region>/` first, then `contracts/mocks/<region>/`. When P2/P3 drop real files in, the API switches automatically; `/api/health` lists which regions still use mocks.
+- Health, region presets, whole-region calendars, calibration and sandbox grids.
+- `POST /api/calendar`: polygon-specific calibrated monthly cell-days and IQR anomalies.
+- `POST /api/export/points` and `POST /api/export/calendar`: streamed contract CSVs.
+- `GET /api/nrt`: region or global bbox, 1-7 days, NOAA-20/21 and MODIS NRT.
 
-## Your tasks (TODOs in `app/main.py`)
+Each JSON file resolves to `data/processed/<region>/` first, then
+`contracts/mocks/<region>/`. Tables resolve to real Parquet first, then the matching
+`*.sample.csv`. Sample-derived calendars and any calendar with mock metadata or
+calibration remain `is_mock: true`. CSV provenance is in `X-Data-Source`
+(`MOCK DATA` or `processed`); download headers are exposed through CORS.
+JSON is explicitly read as UTF-8 on every platform.
 
-1. `POST /api/calendar`: H3 cells inside the polygon (`h3.geo_to_cells`, res 7) → DuckDB over `hex_day.parquet` → monthly cell-days per satellite (MODIS combined = distinct hex-days, see `contracts/tables.md`) → apply `calibration.json` (`terra_only_factor`, `monthly_factors`, `noaa20_factor`, `noaa21_factor`) → recompute median/IQR/`anomaly_z` (floor 1.0) for the area. **Sparse fallback:** < 5 cell-days in month m during the overlap → region factor + widen uncertainty with the regional `cv`. Reject polygons outside the region bbox (422).
-2. `POST /api/export/points` and `/api/export/calendar` as CSV (`StreamingResponse`, `text/csv`, filename in `Content-Disposition`).
-3. `GET /api/nrt`: works for a `region_id` **or any global `bbox`** (parameter parsing already done in `nrt_bbox`). FIRMS area API, sources `VIIRS_NOAA20_NRT`, `VIIRS_NOAA21_NRT`, `MODIS_NRT` (never S-NPP: it stopped on 2 Nov 2026), cache ~15 min, return GeoJSON. The sandbox uses it for the t = 0 drone perimeter.
-4. Deploy on Render: build `pip install -r backend/requirements.txt`, start `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`, env vars `FIRMS_MAP_KEY`, `CORS_ORIGINS`.
+## Polygon and scientific behavior
 
-FIRMS area API: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/<KEY>/<SOURCE>/<west,south,east,north>/<1..5>[/<YYYY-MM-DD>]`, max 5 days per call, 5,000 transactions per 10 minutes.
+Polygons must be valid, nonempty closed GeoJSON polygons (holes supported), entirely
+inside the chosen region bbox; invalid geometry/date windows return 422.
 
-## P4 implementation status
+Calendars include H3 resolution-7 cells whose centers lie inside the polygon, following
+`h3.geo_to_cells`. MODIS Terra/Aqua observations of the same hex-day count once;
+pixel counts and different satellite records are never added together. Hotspot exports
+instead filter actual coordinates, including boundaries and excluding hole interiors.
 
-Polygon calendars now validate closed, non-self-intersecting polygons and holes inside the region bbox. They select H3 res-7 cells by cell center, count distinct hex-days, apply the four epochs and recompute anomalies over the full regional baseline before date filtering. Until real Parquet files arrive, sample CSV tables are used with is_mock=true. JSON reads explicitly use UTF-8 on Windows.
+Monthly local MODIS-to-S-NPP factors use Feb 2012-Dec 2020 only, with at least five
+MODIS cell-days per usable yearly ratio and three usable years per calendar month.
+Sparse months inherit the regional factor/CV. Terra-only and NOAA conversion factors
+remain regional. Epochs match P3: Terra-only through June 2002, combined MODIS through
+January 2012, S-NPP through October 2026, then the regional NOAA reference satellite.
+Zero detections inside a polygon do not establish that a satellite was unavailable.
 
-Local monthly factors require three fit-year ratios, each with at least five MODIS cell-days, from Feb 2012-Dec 2020. Sparse months inherit the region factor/CV. Terra-only and NOAA factors remain regional. Post-S-NPP satellite availability and NRT flags come from the regional calendar, including months with no area detections.
+Coverage, baseline years and NRT flags come from the regional calendar. Area baseline
+statistics are recomputed before the requested date range is applied. Uncertainty uses
+the recorded factor CV plus Poisson count noise, following P3's formula.
 
-Runtime dependencies are in backend/requirements.txt. The human authorized adding h3/Shapely to the root backend dependency group; uv sync --all-groups now installs them. Both CSV endpoints stream contract columns, expose download filenames via CORS, and report mock provenance in X-Data-Source. Points are filtered by exact coordinates, including holes and polygon boundaries. The NRT proxy is the next task.
+## Live overlay
+
+The proxy fetches the three allowed sources concurrently, splits dated requests into
+windows of at most five days, and normalizes confidence, coordinates and acquisition
+times to the frozen GeoJSON contract. Low-confidence and known non-vegetation sources
+are excluded. Exact duplicate observations are removed within a satellite; different
+satellites remain separate observations. Successful complete results are cached for
+15 minutes (bounded to 64 bbox/day/date entries). Upstream failure returns a sanitized
+502; incomplete source results are never presented as a complete overlay.
+
+The FIRMS window/date behavior follows [NASA's Area API documentation](https://firms.modaps.eosdis.nasa.gov/api/area).
+Weather remains a direct browser call to Open-Meteo.
+
+## Render deployment with P1
+
+Create a Python web service from the repository. Keep the service root at the repository
+root, so `contracts/` and `data/processed/` remain available.
+
+- Build: `pip install -r backend/requirements.txt`
+- Start: `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
+- Health check: `/api/health`
+- Environment: `PYTHON_VERSION=3.11.18`, `FIRMS_MAP_KEY`, and a comma-separated
+  `CORS_ORIGINS` including the frontend deployment origin.
+
+Use the Render dashboard for secret values. Configure P5's `VITE_API_URL` to the
+resulting backend URL and verify an area calendar, both CSVs, health and live NRT.
+See [Render's Python version settings](https://render.com/docs/python-version).
+
+No service has been published by this branch. Real archive validation still depends
+on P2/P3's files; until then the demo deliberately serves labeled sample/mock data.

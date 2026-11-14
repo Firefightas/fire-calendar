@@ -39,8 +39,9 @@ def test_area_calendar_trims_months():
     assert len(months) == 12 and all(m["year"] == 2015 for m in months)
 
 
-def test_nrt_parameter_validation():
+def test_nrt_parameter_validation(monkeypatch):
+    monkeypatch.setattr(main, "FIRMS_MAP_KEY", "")
     assert client.get("/api/nrt", params={"days": 1}).status_code == 422
     assert client.get("/api/nrt", params={"bbox": "10,0,5,1"}).status_code == 422
     assert client.get("/api/nrt", params={"region_id": "atlantis"}).status_code == 404
-    assert client.get("/api/nrt", params={"bbox": "-66,-40,-65,-39", "days": 3}).status_code == 501
+    assert client.get("/api/nrt", params={"bbox": "-66,-40,-65,-39", "days": 3}).status_code == 503

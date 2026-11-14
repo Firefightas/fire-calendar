@@ -70,3 +70,5 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Area calendars read real hex_day.parquet first, else the labeled hex_day.sample.csv; any mock input keeps is_mock=true. Why: P5 can integrate honest polygon results before P2 delivers the archive.
 
 - Hotspot CSV exports filter actual lon/lat (including polygon holes/boundaries) after DuckDB bbox/date pushdown, rather than filtering by H3 alone; downloads expose Content-Disposition and X-Data-Source (MOCK DATA/processed). Why: points near a selected hex edge can be outside the polygon, and browser clients need filenames and provenance.
+
+- NRT fetches NOAA-20/21 and MODIS concurrently, splits 6-7 days into NASA's <=5-day forward-date windows, caches complete successes for 15 minutes and returns a sanitized 502 on any source failure. Why: frontend latency, rate limits, honest coverage and no MAP_KEY leaks in errors.

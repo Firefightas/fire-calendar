@@ -9,7 +9,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Master plan + H3 mocks committed; PR #1 (P3) merged; P3 fit-window & `is_nrt` rules signed off. |
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
-| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Polygon calendars implemented and verified on synthetic/sample archives; UTF-8 loading fixed; streaming CSV exports implemented; NRT next; real data pending P2. |
+| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Polygon calendars implemented and verified on synthetic/sample archives; UTF-8 loading fixed; streaming CSV exports and cached global NRT implemented; real data and Render deployment pending. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All five P5 items built and tested on mocks, online and offline; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check, polish. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
@@ -47,7 +47,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)
 - [x] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
 - [x] CSV exports (points, calendar)
-- [ ] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
+- [x] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
 - [ ] Deploy to Render with P1
 
 ## P5: Frontend

@@ -93,7 +93,9 @@ def test_holes_and_empty_areas_return_zero_counts(archive):
     {"start": "2015-13"}, {"end": "2015-1"}, {"start": "2020-01", "end": "2019-12"},
 ])
 def test_invalid_area_queries_are_rejected(overrides):
-    assert client.post("/api/calendar", json=body(**overrides)).status_code == 422
+    response = client.post("/api/calendar", json=body(**overrides))
+    assert response.status_code == 422
+    assert isinstance(response.json()["detail"], str)
 
 
 def test_sample_fallback_is_marked_and_never_whole_region_totals(tmp_path, monkeypatch):

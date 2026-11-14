@@ -9,10 +9,13 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from backend.app.area import AreaQuery, build_calendar, region_polygon
 from backend.app.exports import calendar_download, points_download
+from backend.app.nrt import overlay
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = ROOT / "contracts"
@@ -30,6 +33,15 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["Content-Disposition", "X-Data-Source"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(_request, exc: RequestValidationError):
+    detail = "; ".join(
+        f"{'.'.join(str(part) for part in error['loc'])}: {error['msg']}"
+        for error in exc.errors()
+    )
+    return JSONResponse(status_code=422, content={"detail": detail})
 
 
 @lru_cache
@@ -139,8 +151,8 @@ def nrt_bbox(region_id: str | None, bbox: str | None) -> list[float]:
 
 
 @app.get("/api/nrt")
-def nrt(region_id: str | None = None, bbox: str | None = None, days: int = 1):
+async def nrt(region_id: str | None = None, bbox: str | None = None, days: int = 1):
     if not 1 <= days <= 7:
         raise HTTPException(422, "days must be 1..7")
     area = nrt_bbox(region_id, bbox)
-    raise HTTPException(501, f"TODO(P4): NRT proxy not implemented yet (area {area})")
+    return await overlay(area, days, FIRMS_MAP_KEY)
