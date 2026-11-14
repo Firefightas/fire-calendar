@@ -67,3 +67,15 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 
 - An incomplete last month is scored month-to-date: `median_m`, `iqr_m` and `anomaly_z` of that one row use the same days of the month in the baseline years; `harmonized` stays the observed count. Why: against full-month medians a 13-day month always looks unusually quiet, and scaling the count up would invent data.
 - P1 sign-off on P3 & P5 requests: approved month-to-date baseline for an incomplete last month, added `matplotlib>=3.9` to `pipeline` dependencies in `pyproject.toml`, and approved P5's `H3HexagonLayer` design (`sandbox_grid.json` `burn_count` + browser-binned NRT hexes) without adding a new API endpoint. Why: keeps `contracts/` frozen and makes `pipeline.harmonize.chart` + its PNG test run in CI.
+
+## P4 backend polygon calendars
+
+- Polygon monthly factors use P3's >=5 MODIS cell-days per ratio and >=3 fit-year ratios, restricted to Feb 2012-Dec 2020; sparse months inherit the regional factor/CV. Terra-only and NOAA factors stay regional. Why: stable small-area calibration without fitting held-out years.
+- Polygon calendars use regional archive month coverage, baseline years, NRT flags and post-S-NPP source availability, then recompute area medians/IQR before filtering the requested dates. Why: no-detection months are zeros, and neither date filtering nor a quiet area establishes satellite availability.
+- Area calendars read real hex_day.parquet first, else the labeled hex_day.sample.csv; any mock input keeps is_mock=true. Why: P5 can integrate honest polygon results before P2 delivers the archive.
+
+- Hotspot CSV exports filter actual lon/lat (including polygon holes/boundaries) after DuckDB bbox/date pushdown, rather than filtering by H3 alone; downloads expose Content-Disposition and X-Data-Source (MOCK DATA/processed). Why: points near a selected hex edge can be outside the polygon, and browser clients need filenames and provenance.
+
+- NRT fetches NOAA-20/21 and MODIS concurrently, splits 6-7 days into NASA's <=5-day forward-date windows, caches complete successes for 15 minutes and returns a sanitized 502 on any source failure. Why: frontend latency, rate limits, honest coverage and no MAP_KEY leaks in errors.
+
+- Area calendars follow P1's approved month-to-date rule when regional diagnostics identify an incomplete last month: only that row's baseline median/IQR/score use the same acquisition-day cutoff across baseline years; factors remain fitted on full fit-year months and observed counts stay unchanged. Why: partial-month observations must be compared with partial-month history.

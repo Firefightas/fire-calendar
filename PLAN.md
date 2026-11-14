@@ -9,7 +9,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#6 (P3 + P5); added `matplotlib` to `pyproject.toml`; signed off on month-to-date anomaly & H3 map layer rules. |
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
-| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
+| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Polygon calendars, streaming CSV exports and cached global NRT implemented; UTF-8 fixed; real data and Render deployment pending. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; an incomplete last month is labeled "month to date" from P3's diagnostics; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
@@ -45,9 +45,9 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 ## P4: Backend
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)
-- [ ] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
-- [ ] CSV exports (points, calendar)
-- [ ] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
+- [x] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
+- [x] CSV exports (points, calendar)
+- [x] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
 - [ ] Deploy to Render with P1
 
 ## P5: Frontend
@@ -76,8 +76,14 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - [x] from P3 to P1: confirm the NOAA-21 exception (fitted on Feb 2024 – Oct 2026, outside `fit_years`, because it has no S-NPP overlap in 2012–2020) and that `terra_only_factor` is fitted on 2012–2020. → **Approved by P1** (matches `calibration.schema.json`).
 - [x] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date. → **Resolved by P1**: keep `hex_day.parquet` schema frozen (`contracts/tables.md` unchanged); P3's 5-month SP lag rule (`last_data_month` + 5 preceding months) is the official standard (or `MIN(date) WHERE is_nrt` from `points.parquet` if present in the same directory).
-- [ ] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
+- [x] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
 - [x] from P5 to P4/P1: no endpoint gives per-hex historical values, so the map's `H3HexagonLayer` has no archive data source. Interim: P5 shows NRT hotspots binned to H3 res-7 in the browser and the sandbox grid's `burn_count`. Say if you want a per-hex endpoint instead. → **Approved by P1**: keep `contracts/api.md` frozen; `sandbox_grid.json` `burn_count` + browser-binned NRT hexes is the official `H3HexagonLayer` design.
 - [ ] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape.
-- [ ] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
+- [x] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
 - [ ] from P5 to P3: FYI, no change needed. The calibration panel reads three optional things from `calibration.json` `diagnostics` if present: `terra_only.measured`, `noaa20.measured`, `noaa21.measured` (to flag a neutral ×1 placeholder) and `fit_windows.<factor name>` (shown as "Fitted on …"). It works without them; tell me if you rename these keys.
+
+- [x] from P4 to P1: add h3>=4.0 and shapely>=2.1 to the root backend group and refresh uv.lock. The human explicitly authorized this dependency-only change; applied and locked.
+
+- [ ] from P4 to P1: deploy the tested backend with the repository-root build/start/health settings in backend/README.md; supply FIRMS_MAP_KEY securely and the frontend CORS origin in Render, then coordinate VITE_API_URL with P5. No local backend/.env or Render service is configured in this checkout.
+
+- P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render/real-data verification remains pending.
