@@ -87,3 +87,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [ ] from P4 to P1/P5: backend deployment is verified at https://fire-calendar.onrender.com. Set FIRMS_MAP_KEY securely in Render and recheck NRT (currently 503; health reports key unconfigured); coordinate the frontend CORS origin and VITE_API_URL with P5. Real regional archives remain pending P2/P3.
 
 - P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render deployment is now verified on mocks; live NRT configuration and real-data verification remain pending.
+
+- P4 deployment record: https://github.com/neamturazvan/fire-calendar/pull/10 (feat/p4-render-deploy). No unchecked P4 checklist tasks remain; live NRT key configuration and P5/P2/P3 integration are tracked in Requests.

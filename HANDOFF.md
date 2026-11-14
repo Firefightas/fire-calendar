@@ -31,7 +31,7 @@ Gotchas: `gh` is not installed on this laptop. After switching branches restart 
 
 ## P4 Backend - 14 November 2026 - Codex
 Done: API implementation merged in PR #9. User deployed the service at https://fire-calendar.onrender.com. Live health, region discovery, all calendar/calibration/sandbox-grid JSON schemas for the three regions, polygon calendar, calendar and hotspot CSVs, validation errors and CORS preflight verified.
-In progress (files + exact state): deployment verification documented on feat/p4-render-deploy; preparing the deployment-record PR. No partially implemented code.
+In progress (files + exact state): deployment verification documented and pushed on feat/p4-render-deploy; PR: https://github.com/neamturazvan/fire-calendar/pull/10. No partially implemented code.
 Broken / known issues: the deployed health response reports all three regions using mocks and FIRMS key unconfigured; NRT returns 503. Real archives are not available in this checkout. Runtime deployment has passed; live NRT and real-data integration are separate pending checks.
 Next 3 steps:
 1. P1 sets FIRMS_MAP_KEY securely in Render Environment and saves/redeploys; P4 rechecks live NRT without copying credentials into files tracked by Git or into chat.
