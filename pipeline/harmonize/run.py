@@ -342,6 +342,12 @@ def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict
         out["harmonized_step_ratio"] = float(series.loc[after, "harmonized"].mean()
                                              / series.loc[before, "harmonized"].mean())
 
+    # Same step on MODIS alone (one sensor family throughout): how much of the change is real fire.
+    modis_before = _window(monthly, (STEP_BEFORE[0], 1), (STEP_BEFORE[1], 12))["modis"]
+    modis_after = _window(monthly, (STEP_AFTER[0], 1), (STEP_AFTER[1], 12))["modis"]
+    if len(modis_before) and len(modis_after) and modis_before.mean() > 0:
+        out["modis_only_step_ratio"] = float(modis_after.mean() / modis_before.mean())
+
     if factors["noaa20"]["measured"]:
         out["noaa20_test_mae"] = float((test["noaa20"] * factors["noaa20"]["factor"] - test["snpp"]).abs().mean())
     return out
@@ -458,6 +464,8 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool,
         "noaa21": diag(factors["noaa21"]),
         "orbit_check": _rounded(orbit_check(monthly)),
     }
+    if "modis_only_step_ratio" in metrics:
+        diagnostics["modis_only_step_ratio"] = round(metrics["modis_only_step_ratio"], 2)
     if "noaa20_test_mae" in metrics:
         diagnostics["noaa20"]["test_mae"] = round(metrics["noaa20_test_mae"], 2)
     if is_mock:
