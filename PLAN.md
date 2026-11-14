@@ -9,7 +9,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#6 (P3 + P5); added `matplotlib` to `pyproject.toml`; signed off on month-to-date anomaly & H3 map layer rules. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
-| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend deployed at https://fire-calendar.onrender.com and verified on labeled mocks; live NRT awaits Render key configuration; real archives await P2/P3. |
+| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Rio Negro P2 tables received and integrity/export checks passed; real input placement and hotspot export verified; calendar/calibration plus S-NPP tail handling await P3; live NRT remains unverified. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports and cold-start handling verified end to end on mocks; the live overlay shows the backend's reason while FIRMS returns 502 (P4/P1); next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
@@ -45,6 +45,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 ## P4: Backend
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)
+- [x] Validate received Rio Negro P2 Parquet tables and actual-data hotspot export (see backend/REAL_DATA_HANDOFF.md); full harmonized integration remains pending P3 outputs
 - [x] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
 - [x] CSV exports (points, calendar)
 - [x] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
@@ -98,3 +99,9 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [ ] from P2 to P3/P4: Rio Negro tables are ready locally; coordinate cross-laptop transfer (no data committed). See `pipeline/ingest/RIO_NEGRO_STATUS.md` for sizes and counts. S-NPP SP stops 2026-07-31; NOAA-20/21 and MODIS include NRT through November 13. Read per-satellite provenance from points.parquet; NOAA-21 retained NRT starts May 6.
 
 - [ ] from P5 to P4/P1: FYI, no change needed. `POST /api/export/calendar` for the whole region box is a polygon aggregation, not P3's regional `calendar.json` (on mocks the totals differ: about 137 vs 19,067 cell-days for `rio_negro`). So the frontend calls that endpoint only for a drawn area; with no area drawn, "Export calendar (CSV)" writes the regional calendar that is on screen, same columns. Say if you would rather serve the regional file from the endpoint when the polygon equals the region box.
+
+- [ ] from P4 to P3: P4 received the Rio Negro tables (317,938 points / 149,205 hex-days) and verified integrity and actual-data hotspot export. Provide real calendar.json and calibration.json, with an explicit coverage-aware treatment of missing S-NPP August-October 2026 observations; do not turn the documented SP tail gap into zero fire activity. Inputs are now in data/processed/rio_negro/ on P4's laptop after explicit human authorization; hashes were preserved and normal backend lookup/export passed.
+
+- P4 received-data evidence: backend/REAL_DATA_HANDOFF.md. P2's NOAA-21 SP start explanation resolves the earlier-than-NRT dates; no observations were discarded.
+
+- P4 integration boundary: P3's feat/p3-rio-negro-run is now pushed with SP-tail/provenance fixes but deliberately excludes real JSON outputs pending P1's calibration-method/possible-contract decision. P4 is paused at that boundary; any adopted reference-source change must also be reflected in backend polygon source selection.
