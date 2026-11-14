@@ -41,7 +41,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [ ] Held-out 2021–2025 → `test_mae` → `calibration.json`
 - [ ] `calendar.json`: harmonized series, IQR anomaly (floor 1.0), uncertainty, sparse fallback
 - [x] `hex_fire_history.parquet` (burn_count, years_since_last_fire) for P2 (code ready; real file once `hex_day.parquet` lands)
-- [ ] Method paragraph + raw-vs-harmonized validation chart for the pitch (chart script ready: `pipeline/harmonize/chart.py`; real chart and paragraph once real data lands)
+- [ ] Method paragraph + raw-vs-harmonized validation chart for the pitch (chart script ready: `pipeline/harmonize/chart.py`; paragraph drafted in `pipeline/harmonize/METHOD.md`; real chart and the paragraph's numbers once real data lands)
 
 ## P4: Backend
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)
@@ -68,6 +68,8 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 ## Requests (cross-folder changes)
 
 _Format: `- [ ] from Px to Py: what and why`_
+
+- [ ] from P3 to P1/P5: when the data ends mid-month, the last row of `calendar.json` is month-to-date: `harmonized` is the count so far and `median_m` / `iqr_m` / `anomaly_z` use the same days of that month in the baseline years (shape unchanged, but `median_m` is not the full-month median for that one row). P1: confirm this reading of the schema. P5: consider a "month to date" label on that cell (`calibration.json` → `diagnostics.last_month_complete`, `last_data_date`).
 
 - [ ] from P3 to P1: add `matplotlib` to the `pipeline` dependency group in `pyproject.toml`. `pipeline/harmonize/chart.py` needs it; until then it runs with `uv run --with matplotlib` and its PNG test is skipped in CI.
 
