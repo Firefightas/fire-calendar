@@ -121,3 +121,7 @@ are not cached. Header-only valid CSV is still a successful empty observation se
 Leading/trailing whitespace is stripped from the configured key. After merging
 this diagnostics fix and redeploying Render, recheck the live NRT error before
 deciding whether key activation, quota, network access or parsing needs attention.
+
+P2's received Rio Negro inputs and the P4 verification evidence are documented in
+[REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md). Real harmonized integration awaits
+P3's calendar/calibration outputs and the documented S-NPP coverage decision.
