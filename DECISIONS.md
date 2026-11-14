@@ -62,3 +62,4 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - The sandbox is mounted through `import.meta.glob('../features/sandbox/index.{ts,tsx}')` inside a host page that always shows `SANDBOX_BANNER`. Why: P5's build stays green before P6's entry exists, and the banner rule holds no matter what the module renders.
 - The map (MapLibre + deck.gl + h3-js) is a lazy chunk. Why: the calendar, which is the judged centerpiece, paints first.
 
+- An incomplete last month is scored month-to-date: `median_m`, `iqr_m` and `anomaly_z` of that one row use the same days of the month in the baseline years; `harmonized` stays the observed count. Why: against full-month medians a 13-day month always looks unusually quiet, and scaling the count up would invent data.
