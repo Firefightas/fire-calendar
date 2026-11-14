@@ -1,4 +1,4 @@
-"""Harmonize one region: hex_day.parquet -> calendar.json + calibration.json.
+"""Harmonize one region: hex_day.parquet -> calendar.json, calibration.json, hex_fire_history.parquet.
 
 Method: pipeline/harmonize/README.md (binding) and TEAM_PLAN.md §2. Shapes: contracts/.
 
@@ -114,14 +114,20 @@ def _window(monthly: pd.DataFrame, start: tuple[int, int], end: tuple[int, int])
     return monthly[(t >= _t(*start)) & (t <= _t(*end))]
 
 
-def monthly_cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
-    """One row per month from the first to the last data month: cell-days per satellite, plus
-    `modis` = distinct (h3, date) over Terra+Aqua (a hex seen by both on one day counts once)."""
+def _cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
+    """One row per (hex, day, satellite) with year and month columns."""
     dates = pd.to_datetime(hex_day["date"])
     df = pd.DataFrame({"h3": hex_day["h3"].to_numpy(), "date": dates.to_numpy(),
                        "sensor": hex_day["sensor"].to_numpy(), "satellite": hex_day["satellite"].to_numpy(),
                        "year": dates.dt.year.to_numpy(), "month": dates.dt.month.to_numpy()})
-    df = df.drop_duplicates(["h3", "date", "satellite"])
+    return df.drop_duplicates(["h3", "date", "satellite"])
+
+
+def monthly_cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
+    """One row per month from the first to the last data month: cell-days per satellite, plus
+    `modis` = distinct (h3, date) over Terra+Aqua (a hex seen by both on one day counts once)."""
+    df = _cell_days(hex_day)
+    dates = df["date"]
     per_sat = df.groupby(["year", "month", "satellite"]).size().unstack("satellite", fill_value=0)
     modis = df[df["sensor"] == "modis"].drop_duplicates(["h3", "date"]).groupby(["year", "month"]).size()
 
@@ -184,31 +190,33 @@ def fit_factors(monthly: pd.DataFrame) -> dict:
 
 # --- Steps 3, 6, 7: harmonized series, uncertainty, IQR Anomaly Score -------------------------
 
+def _epoch(r: dict, factors: dict) -> tuple[str, float, float, str]:
+    """(count column, factor, cv, source) that give one month its harmonized value (README table)."""
+    ym, f = (r["year"], r["month"]), factors["monthly"][r["month"] - 1]
+    terra, n20, n21 = factors["terra_only"], factors["noaa20"], factors["noaa21"]
+    if ym < AQUA_START:
+        return "terra", terra["factor"] * f["factor"], math.hypot(f["cv"], terra["cv"]), "modis_terra"
+    if ym < SNPP_START:
+        return "modis", f["factor"], f["cv"], "modis_terra_aqua"
+    if ym <= SNPP_END:
+        return "snpp", 1.0, 0.0, "viirs_snpp"
+    if r["noaa20"] == 0 and r["noaa21"] > 0:
+        return "noaa21", n21["factor"], n21["cv"], "viirs_noaa21"
+    return "noaa20", n20["factor"], n20["cv"], "viirs_noaa20"
+
+
 def harmonize(monthly: pd.DataFrame, factors: dict) -> pd.DataFrame:
     """Add modis_raw, viirs_raw, harmonized, source, is_estimated, unc_low, unc_high per month."""
-    mf = {f["month"]: f for f in factors["monthly"]}
-    terra, n20, n21 = factors["terra_only"], factors["noaa20"], factors["noaa21"]
     rows = []
     for r in monthly.to_dict("records"):
-        ym, f = (r["year"], r["month"]), mf[r["month"]]
-        if ym < AQUA_START:
-            h, cv = r["terra"] * terra["factor"] * f["factor"], math.hypot(f["cv"], terra["cv"])
-            modis_raw, viirs_raw, source = r["terra"], None, "modis_terra"
-        elif ym < SNPP_START:
-            h, cv = r["modis"] * f["factor"], f["cv"]
-            modis_raw, viirs_raw, source = r["modis"], None, "modis_terra_aqua"
-        elif ym <= SNPP_END:
-            h, cv = r["snpp"], 0.0
-            modis_raw, viirs_raw, source = r["modis"], r["snpp"], "viirs_snpp"
-        elif r["noaa20"] == 0 and r["noaa21"] > 0:
-            h, cv = r["noaa21"] * n21["factor"], n21["cv"]
-            modis_raw, viirs_raw, source = r["modis"], r["noaa21"], "viirs_noaa21"
-        else:
-            h, cv = r["noaa20"] * n20["factor"], n20["cv"]
-            modis_raw, viirs_raw, source = r["modis"], r["noaa20"], "viirs_noaa20"
+        column, factor, cv, source = _epoch(r, factors)
+        from_modis = source.startswith("modis")
+        h = r[column] * factor
         half = Z95 * math.sqrt(h + (cv * h) ** 2)  # Poisson count noise + factor spread
-        rows.append({"year": r["year"], "month": r["month"], "modis_raw": modis_raw, "viirs_raw": viirs_raw,
-                     "harmonized": h, "is_estimated": viirs_raw is None, "source": source,
+        rows.append({"year": r["year"], "month": r["month"],
+                     "modis_raw": r[column] if from_modis else r["modis"],
+                     "viirs_raw": None if from_modis else r[column],
+                     "harmonized": h, "is_estimated": from_modis, "source": source,
                      "unc_low": max(0.0, h - half), "unc_high": h + half})
     return pd.DataFrame(rows)
 
@@ -255,14 +263,37 @@ def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict
     return out
 
 
+# --- Step 9: fire history per hex, for the sandbox grid ---------------------------------------
+
+def fire_history(hex_day: pd.DataFrame, monthly: pd.DataFrame, factors: dict) -> pd.DataFrame:
+    """hex_fire_history table (contracts/tables.md): one row per hex with at least one detection.
+
+    burn_count uses the same satellite and factor as the calendar does for each month, so the
+    hexes of a region add up to the region's harmonized series. years_since_last_fire counts from
+    the hex's last detection by any satellite to the latest data date.
+    """
+    df = _cell_days(hex_day)
+    epochs = pd.DataFrame([(r["year"], r["month"], *_epoch(r, factors)[:2]) for r in monthly.to_dict("records")],
+                          columns=["year", "month", "column", "factor"])
+    df = df.merge(epochs, on=["year", "month"])
+    counted = df[(df["satellite"] == df["column"]) | ((df["column"] == "modis") & (df["sensor"] == "modis"))]
+    counted = counted.drop_duplicates(["h3", "date"])  # Terra+Aqua on the same day count once
+    last_fire = df.groupby("h3")["date"].max()
+    out = pd.DataFrame({
+        "burn_count": counted.groupby("h3")["factor"].sum().reindex(last_fire.index, fill_value=0.0).round(2),
+        "years_since_last_fire": ((df["date"].max() - last_fire).dt.days / 365.25).round(2),
+    })
+    return out.reset_index()
+
+
 # --- Outputs ------------------------------------------------------------------------------------
 
 def _ym(year: int, month: int) -> str:
     return f"{year}-{month:02d}"
 
 
-def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple[dict, dict]:
-    """(calendar, calibration) dicts matching contracts/*.schema.json."""
+def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple[dict, dict, pd.DataFrame]:
+    """(calendar, calibration) dicts matching contracts/*.schema.json, and the hex_fire_history table."""
     dates = pd.to_datetime(hex_day["date"])
     first_day, last_day = dates.min(), dates.max()
     monthly = monthly_cell_days(hex_day)
@@ -340,7 +371,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
         if key in metrics:
             calibration[key] = round(metrics[key], digits)
     calibration["diagnostics"] = diagnostics
-    return calendar, calibration
+    return calendar, calibration, fire_history(hex_day, monthly, factors)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -362,11 +393,12 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(f"{path} not found (P2 has not landed it yet); use --synthetic --out <dir>")
         hex_day = pd.read_parquet(path)
 
-    calendar, calibration = build_outputs(hex_day, args.region, is_mock=args.synthetic)
+    calendar, calibration, history = build_outputs(hex_day, args.region, is_mock=args.synthetic)
     out = args.out or PROCESSED / args.region
     out.mkdir(parents=True, exist_ok=True)
     (out / "calendar.json").write_text(json.dumps(calendar, indent=1))
     (out / "calibration.json").write_text(json.dumps(calibration, indent=1))
+    history.to_parquet(out / "hex_fire_history.parquet", index=False)
 
     factors = [f["factor"] for f in calibration["monthly_factors"]]
     print(f"{args.region}{' (SYNTHETIC)' if args.synthetic else ''}: {len(calendar['months'])} months -> {out}")
@@ -374,6 +406,7 @@ def main(argv: list[str] | None = None) -> None:
           f"noaa20 {calibration['noaa20_factor']}, noaa21 {calibration['noaa21_factor']}")
     print(f"  test MAE {calibration['test_mae']} cell-days (MAPE {calibration.get('test_mape')}), 2012 step "
           f"raw x{calibration.get('raw_step_ratio')} -> harmonized x{calibration.get('harmonized_step_ratio')}")
+    print(f"  hex_fire_history: {len(history)} hexes, {history['burn_count'].sum():.0f} harmonized cell-days")
 
 
 if __name__ == "__main__":

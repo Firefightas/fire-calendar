@@ -8,7 +8,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Master plan + H3 mocks committed; PR #1 (P3) merged; P3 fit-window & `is_nrt` rules signed off. |
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
-| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json` + `calibration.json`, verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
+| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` and `hex_fire_history.parquet`, verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Not started (scaffold Vite first). |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
@@ -40,7 +40,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [ ] Río Negro: cell-days per satellite/month; `monthly_factors` (fit 2012–2020), `terra_only_factor`, `noaa20_factor`, `noaa21_factor`; Aqua/Terra orbit check in `diagnostics`
 - [ ] Held-out 2021–2025 → `test_mae` → `calibration.json`
 - [ ] `calendar.json`: harmonized series, IQR anomaly (floor 1.0), uncertainty, sparse fallback
-- [ ] `hex_fire_history.parquet` (burn_count, years_since_last_fire) for P2
+- [x] `hex_fire_history.parquet` (burn_count, years_since_last_fire) for P2 (code ready; real file once `hex_day.parquet` lands)
 - [ ] Method paragraph + raw-vs-harmonized validation chart for the pitch
 
 ## P4: Backend

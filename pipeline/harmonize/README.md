@@ -43,13 +43,14 @@ uv run python -m pipeline.harmonize.run --region rio_negro --synthetic --out <di
 uv run pytest            # validates the outputs against contracts automatically
 ```
 
-`run.py` writes `calendar.json` and `calibration.json` (`hex_fire_history.parquet` is not written yet). `--synthetic` refuses to write into `data/processed/` unless `--out` says so, because the backend treats a `calendar.json` there as real data.
+`run.py` writes `calendar.json`, `calibration.json` and `hex_fire_history.parquet`. `--synthetic` refuses to write into `data/processed/` unless `--out` says so, because the backend treats a `calendar.json` there as real data.
 
 Defaults chosen where the method above is silent (also in `DECISIONS.md`):
 
 - A monthly ratio counts only if its denominator has ≥ 5 cell-days and its numerator is > 0; a calendar month with < 3 such fit-year ratios takes the pooled median (`fallback: true`).
 - `terra_only_factor` and the orbit-check factors are fitted on Feb 2012 – Dec 2020; `noaa20_factor` on Apr 2018 – Dec 2020; `noaa21_factor` on Feb 2024 – Oct 2026 (no overlap inside the fit years). A factor with no overlap data is 1.0 and `diagnostics.<name>.measured` is false.
 - `unc_low/unc_high` = `H ± 1.96·sqrt(H + (cv·H)²)`, with `cv` 0 for S-NPP months.
+- `hex_fire_history.parquet` lists only hexes with at least one detection (a hex missing from it never burned: P2 left-joins and gets null). `burn_count` uses the same satellite and factor as the calendar for each month, so the hexes add up to the regional harmonized series; `years_since_last_fire` uses the last detection by any satellite.
 - `is_nrt` = the last data month and the 5 before it (`hex_day` has no `is_nrt` column).
 
 ## For the pitch

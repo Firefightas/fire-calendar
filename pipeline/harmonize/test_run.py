@@ -72,7 +72,7 @@ def test_iqr_anomaly_score():
 
 
 def test_outputs_match_contracts(hex_day):
-    calendar, calibration = run.build_outputs(hex_day, "rio_negro", is_mock=True)
+    calendar, calibration, _ = run.build_outputs(hex_day, "rio_negro", is_mock=True)
     for name, doc in (("calendar.schema.json", calendar), ("calibration.schema.json", calibration)):
         errors = list(Draft202012Validator(json.loads((CONTRACTS / name).read_text())).iter_errors(doc))
         assert not errors, [e.message for e in errors[:5]]
@@ -98,10 +98,44 @@ def test_outputs_match_contracts(hex_day):
     assert calibration["test_mape"] < 0.2
 
 
+def test_fire_history(hex_day, monthly):
+    factors = run.fit_factors(monthly)
+    history = run.fire_history(hex_day, monthly, factors)
+    assert list(history.columns) == ["h3", "burn_count", "years_since_last_fire"]
+    assert history["h3"].is_unique and set(history["h3"]) == set(hex_day["h3"])
+    # Hexes add up to the regional harmonized series.
+    assert history["burn_count"].sum() == pytest.approx(run.harmonize(monthly, factors)["harmonized"].sum(), rel=1e-3)
+    dates = pd.to_datetime(hex_day["date"])
+    some_hex = history["h3"].iloc[0]
+    expected = (dates.max() - dates[hex_day["h3"] == some_hex].max()).days / 365.25
+    assert history["years_since_last_fire"].iloc[0] == pytest.approx(expected, abs=0.01)
+    assert (history["years_since_last_fire"] >= 0).all()
+
+
+def test_fire_history_scales_modis_era_and_counts_terra_aqua_once(monthly):
+    factors = run.fit_factors(monthly)
+    hd = pd.DataFrame({
+        "h3": ["a", "a", "a", "b", "b"],
+        "date": ["2005-01-05", "2005-01-05", "2015-01-05", "2015-01-05", "2026-11-13"],
+        "sensor": ["modis", "modis", "viirs", "modis", "viirs"],
+        "satellite": ["terra", "aqua", "snpp", "aqua", "noaa21"],
+        "n_points": 1, "frp_sum": 1.0,
+    })
+    history = run.fire_history(hd, run.monthly_cell_days(hd), factors).set_index("h3")
+    january = factors["monthly"][0]["factor"]
+    assert history.loc["a", "burn_count"] == pytest.approx(january + 1, abs=0.01)  # 2005 MODIS scaled + 2015 S-NPP
+    assert history.loc["a", "years_since_last_fire"] == pytest.approx(11.86, abs=0.01)
+    # MODIS in the S-NPP epoch is not added on top of VIIRS; NOAA-21 stands in when NOAA-20 is absent.
+    assert history.loc["b", "burn_count"] == pytest.approx(factors["noaa21"]["factor"], abs=0.01)
+    assert history.loc["b", "years_since_last_fire"] == 0
+
+
 def test_cli_writes_files(tmp_path, capsys):
     run.main(["--region", "romania", "--synthetic", "--out", str(tmp_path)])
     assert json.loads((tmp_path / "calendar.json").read_text())["region_id"] == "romania"
     assert json.loads((tmp_path / "calibration.json").read_text())["is_mock"] is True
+    history = pd.read_parquet(tmp_path / "hex_fire_history.parquet")
+    assert list(history.columns) == ["h3", "burn_count", "years_since_last_fire"]
     assert "SYNTHETIC" in capsys.readouterr().out
     with pytest.raises(SystemExit):  # synthetic output must never land in data/processed by default
         run.main(["--region", "romania", "--synthetic"])
