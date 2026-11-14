@@ -9,7 +9,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Master plan + H3 mocks committed; PR #1 (P3) merged; P3 fit-window & `is_nrt` rules signed off. |
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
-| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
+| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Polygon calendars implemented and verified on synthetic/sample archives; UTF-8 loading fixed; CSV and NRT next; real data pending P2. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All five P5 items built and tested on mocks, online and offline; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check, polish. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
@@ -45,7 +45,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 ## P4: Backend
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)
-- [ ] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
+- [x] `POST /api/calendar` for a drawn polygon (DuckDB over `hex_day`, factors, < 5 cell-day fallback)
 - [ ] CSV exports (points, calendar)
 - [ ] Cached FIRMS NRT proxy, region or global bbox, NOAA-20/21 + MODIS NRT
 - [ ] Deploy to Render with P1
@@ -72,7 +72,9 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - [x] from P3 to P1: confirm the NOAA-21 exception (fitted on Feb 2024 – Oct 2026, outside `fit_years`, because it has no S-NPP overlap in 2012–2020) and that `terra_only_factor` is fitted on 2012–2020. → **Approved by P1** (matches `calibration.schema.json`).
 - [x] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date. → **Resolved by P1**: keep `hex_day.parquet` schema frozen (`contracts/tables.md` unchanged); P3's 5-month SP lag rule (`last_data_month` + 5 preceding months) is the official standard (or `MIN(date) WHERE is_nrt` from `points.parquet` if present in the same directory).
-- [ ] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
+- [x] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
 - [ ] from P5 to P4/P1: no endpoint gives per-hex historical values, so the map's `H3HexagonLayer` has no archive data source. Interim: P5 shows NRT hotspots binned to H3 res-7 in the browser and the sandbox grid's `burn_count`. Say if you want a per-hex endpoint instead.
 - [ ] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape.
-- [ ] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
+- [x] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
+
+- [ ] from P4 to P1: add h3>=4.0 and shapely>=2.1 to the root backend dependency group and refresh uv.lock; polygon queries use H3, Shapely validates geometry and will filter exact hotspot coordinates. Backend requirements already include both; clean CI needs the root dependencies too.

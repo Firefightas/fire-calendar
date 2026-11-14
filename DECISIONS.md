@@ -62,3 +62,9 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - The sandbox is mounted through `import.meta.glob('../features/sandbox/index.{ts,tsx}')` inside a host page that always shows `SANDBOX_BANNER`. Why: P5's build stays green before P6's entry exists, and the banner rule holds no matter what the module renders.
 - The map (MapLibre + deck.gl + h3-js) is a lazy chunk. Why: the calendar, which is the judged centerpiece, paints first.
 
+
+## P4 backend polygon calendars
+
+- Polygon monthly factors use P3's >=5 MODIS cell-days per ratio and >=3 fit-year ratios, restricted to Feb 2012-Dec 2020; sparse months inherit the regional factor/CV. Terra-only and NOAA factors stay regional. Why: stable small-area calibration without fitting held-out years.
+- Polygon calendars use regional archive month coverage, baseline years, NRT flags and post-S-NPP source availability, then recompute area medians/IQR before filtering the requested dates. Why: no-detection months are zeros, and neither date filtering nor a quiet area establishes satellite availability.
+- Area calendars read real hex_day.parquet first, else the labeled hex_day.sample.csv; any mock input keeps is_mock=true. Why: P5 can integrate honest polygon results before P2 delivers the archive.

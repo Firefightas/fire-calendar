@@ -1,6 +1,6 @@
 # backend/ (owner: P4)
 
-FastAPI service implementing `contracts/api.md`. Already working on mocks: `/api/health`, `/api/regions`, `/api/regions/{id}/calendar`, `/api/regions/{id}/calibration`, `/api/regions/{id}/sandbox-grid`, and a temporary `POST /api/calendar` (whole region trimmed to the date range).
+FastAPI service implementing `contracts/api.md`. Already working on mocks: `/api/health`, `/api/regions`, `/api/regions/{id}/calendar`, `/api/regions/{id}/calibration`, `/api/regions/{id}/sandbox-grid`, and polygon-specific `POST /api/calendar` (DuckDB aggregation, calibration, uncertainty and area IQR anomalies).
 
 ## Run
 
@@ -24,3 +24,11 @@ For every file the backend tries `data/processed/<region>/` first, then `contrac
 4. Deploy on Render: build `pip install -r backend/requirements.txt`, start `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`, env vars `FIRMS_MAP_KEY`, `CORS_ORIGINS`.
 
 FIRMS area API: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/<KEY>/<SOURCE>/<west,south,east,north>/<1..5>[/<YYYY-MM-DD>]`, max 5 days per call, 5,000 transactions per 10 minutes.
+
+## P4 implementation status
+
+Polygon calendars now validate closed, non-self-intersecting polygons and holes inside the region bbox. They select H3 res-7 cells by cell center, count distinct hex-days, apply the four epochs and recompute anomalies over the full regional baseline before date filtering. Until real Parquet files arrive, sample CSV tables are used with is_mock=true. JSON reads explicitly use UTF-8 on Windows.
+
+Local monthly factors require three fit-year ratios, each with at least five MODIS cell-days, from Feb 2012-Dec 2020. Sparse months inherit the region factor/CV. Terra-only and NOAA factors remain regional. Post-S-NPP satellite availability and NRT flags come from the regional calendar, including months with no area detections.
+
+Runtime dependencies are in backend/requirements.txt. Until P1 adds Shapely to the root group, install it with uv pip install -r backend/requirements.txt after uv sync. CSV and NRT endpoints are the next tasks.
