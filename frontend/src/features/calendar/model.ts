@@ -1,7 +1,7 @@
 // Pure calendar logic (no React). Everything shown in the calendar UI is derived here
 // from a contracts `Calendar`; nothing is hardcoded.
 import { rawValue } from '../../types/contracts.ts'
-import type { Calendar, CalendarMonth, CalendarSource } from '../../types/contracts.ts'
+import type { Calendar, CalendarMonth, CalendarSource, Calibration } from '../../types/contracts.ts'
 
 export type Mode = 'harmonized' | 'raw'
 
@@ -167,6 +167,65 @@ export function peakAnomaly(months: CalendarMonth[]): CalendarMonth | null {
 /** True when `m` is the calendar month we are currently in, so its count is still accumulating. */
 export function isMonthInProgress(m: { year: number; month: number }, now: Date = new Date()): boolean {
   return m.year === now.getUTCFullYear() && m.month === now.getUTCMonth() + 1
+}
+
+/** How finished the newest month of a calendar is. Every earlier month is complete. */
+export type MonthProgress =
+  | { kind: 'complete' }
+  /** The file says the data ends mid-month and the row is scored against the same days in the baseline years. */
+  | { kind: 'month_to_date'; through: string | null }
+  /** The file does not say; by the clock the month is still running. */
+  | { kind: 'in_progress' }
+
+const COMPLETE: MonthProgress = { kind: 'complete' }
+
+/**
+ * Status of the calendar's last month. P3 records it in `calibration.json` `diagnostics`
+ * (`last_month_complete`, `last_data_date`); that block is free-form, so it is read only when
+ * well-formed, and only for the whole-region calendar it was written with. Otherwise fall
+ * back to the clock, which can say "still running" but not how the row was scored.
+ */
+export function lastMonthProgress(
+  calendar: Calendar,
+  calibration: Calibration | null,
+  isArea: boolean,
+  now: Date = new Date(),
+): MonthProgress {
+  const last = latestMonth(calendar)
+  if (!last) return COMPLETE
+  const diagnostics = calibration?.diagnostics
+  if (!isArea && calibration?.region_id === calendar.region_id && diagnostics) {
+    const { last_month_complete: complete, last_data_date: date } = diagnostics
+    if (complete === true) return COMPLETE
+    if (complete === false) {
+      const inLastMonth = typeof date === 'string' && date.startsWith(`${monthKey(last)}-`)
+      return { kind: 'month_to_date', through: inLastMonth ? date : null }
+    }
+  }
+  return isMonthInProgress(last, now) ? { kind: 'in_progress' } : COMPLETE
+}
+
+/** Progress of any month: `last` for the calendar's newest month, complete for the rest. */
+export function progressOf(m: CalendarMonth, calendar: Calendar, last: MonthProgress): MonthProgress {
+  const newest = latestMonth(calendar)
+  return newest && monthKey(newest) === monthKey(m) ? last : COMPLETE
+}
+
+/** "2026-11-14" → "14 Nov 2026". Returns the input when it is not an ISO date. */
+export function fmtDay(iso: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  if (!match) return iso
+  const month = MONTH_NAMES[Number(match[2]) - 1]
+  return month ? `${Number(match[3])} ${month} ${match[1]}` : iso
+}
+
+/** One line for chips and tooltips, or null when the month is complete. */
+export function progressNote(p: MonthProgress): string | null {
+  if (p.kind === 'month_to_date') {
+    return `Month to date${p.through ? `, through ${fmtDay(p.through)}` : ''}: median, IQR and score use the same days in the baseline years`
+  }
+  if (p.kind === 'in_progress') return 'Month in progress: count still accumulating'
+  return null
 }
 
 const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })

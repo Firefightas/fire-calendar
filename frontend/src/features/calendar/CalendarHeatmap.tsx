@@ -11,10 +11,11 @@ import {
   fmtInt,
   monthKey,
   monthTitle,
+  progressOf,
   sharedMax,
   valueOf,
 } from './model.ts'
-import type { Mode } from './model.ts'
+import type { Mode, MonthProgress } from './model.ts'
 import { colorScale, inkOn, legendGradient } from './palettes.ts'
 import type { PaletteId } from './palettes.ts'
 
@@ -23,6 +24,8 @@ interface Props {
   mode: Mode
   palette: PaletteId
   startMonth: 1 | 7
+  /** Status of the calendar's newest month. */
+  lastProgress: MonthProgress
   selectedKey: string | null
   onSelect: (m: CalendarMonth) => void
 }
@@ -34,7 +37,7 @@ const ARROWS: Record<string, [number, number]> = {
   ArrowRight: [0, 1],
 }
 
-export function CalendarHeatmap({ calendar, mode, palette, startMonth, selectedKey, onSelect }: Props) {
+export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgress, selectedKey, onSelect }: Props) {
   const { months } = calendar
   const grid = useMemo(() => buildGrid(months, startMonth), [months, startMonth])
   const max = useMemo(() => sharedMax(months), [months])
@@ -112,7 +115,13 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, selectedK
               const ink = v === null ? '#898781' : inkOn(fill)
               const estimated = mode === 'harmonized' && m.is_estimated
               const selected = key === selectedKey
-              const notes = [estimated && 'estimated from MODIS', m.is_nrt && 'near-real-time']
+              const progress = progressOf(m, calendar, lastProgress)
+              const notes = [
+                estimated && 'estimated from MODIS',
+                m.is_nrt && 'near-real-time',
+                progress.kind === 'month_to_date' && 'month to date',
+                progress.kind === 'in_progress' && 'month in progress',
+              ]
                 .filter(Boolean)
                 .join(', ')
               return (
@@ -201,7 +210,15 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, selectedK
         </ul>
       </div>
 
-      {hover && <MonthTooltip m={hover.m} calendar={calendar} mode={mode} anchor={hover.anchor} />}
+      {hover && (
+        <MonthTooltip
+          m={hover.m}
+          calendar={calendar}
+          mode={mode}
+          progress={progressOf(hover.m, calendar, lastProgress)}
+          anchor={hover.anchor}
+        />
+      )}
     </div>
   )
 }

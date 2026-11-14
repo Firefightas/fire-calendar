@@ -9,11 +9,11 @@ import {
   anomalyBand,
   fmtCount,
   fmtSigned,
-  isMonthInProgress,
   monthTitle,
+  progressNote,
   valueOf,
 } from './model.ts'
-import type { Mode } from './model.ts'
+import type { Mode, MonthProgress } from './model.ts'
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -25,12 +25,22 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 /** Everything known about one month. Used by the heatmap tooltip and the selected-month card. */
-export function MonthDetails({ m, calendar, mode }: { m: CalendarMonth; calendar: Calendar; mode: Mode }) {
+interface DetailsProps {
+  m: CalendarMonth
+  calendar: Calendar
+  mode: Mode
+  /** How finished this month is; anything but the newest month is complete. */
+  progress: MonthProgress
+}
+
+export function MonthDetails({ m, calendar, mode, progress }: DetailsProps) {
   const [b0, b1] = calendar.baseline_years
   const flags: string[] = []
   if (m.is_estimated) flags.push('Estimated: converted from MODIS')
   if (m.is_nrt) flags.push('Near-real-time data, may still change')
-  if (isMonthInProgress(m)) flags.push('Month in progress: count still accumulating')
+  const note = progressNote(progress)
+  if (note) flags.push(note)
+  const toDate = progress.kind === 'month_to_date' ? ' to date' : ''
 
   return (
     <div className="space-y-2 text-xs">
@@ -48,8 +58,8 @@ export function MonthDetails({ m, calendar, mode }: { m: CalendarMonth; calendar
         </Row>
         <Row label="Raw MODIS">{fmtCount(m.modis_raw)}</Row>
         <Row label="Raw VIIRS">{fmtCount(m.viirs_raw)}</Row>
-        <Row label={`${MONTH_NAMES[m.month - 1]} median, ${b0}–${b1}`}>{fmtCount(m.median_m)}</Row>
-        <Row label={`${MONTH_NAMES[m.month - 1]} IQR`}>{fmtCount(m.iqr_m)}</Row>
+        <Row label={`${MONTH_NAMES[m.month - 1]} median${toDate}, ${b0}–${b1}`}>{fmtCount(m.median_m)}</Row>
+        <Row label={`${MONTH_NAMES[m.month - 1]} IQR${toDate}`}>{fmtCount(m.iqr_m)}</Row>
         <Row label={ANOMALY_LABEL}>{fmtSigned(m.anomaly_z)}</Row>
       </dl>
       <div className="border-t border-hairline pt-2 text-ink-2">
@@ -66,7 +76,7 @@ export function MonthDetails({ m, calendar, mode }: { m: CalendarMonth; calendar
 const WIDTH = 264
 
 /** Fixed-position tooltip anchored to a cell's bounding box; flips below when there is no room above. */
-export function MonthTooltip(props: { m: CalendarMonth; calendar: Calendar; mode: Mode; anchor: DOMRect }) {
+export function MonthTooltip(props: DetailsProps & { anchor: DOMRect }) {
   const { anchor } = props
   const center = anchor.left + anchor.width / 2
   const left = Math.min(Math.max(center - WIDTH / 2, 8), window.innerWidth - WIDTH - 8)
@@ -81,7 +91,7 @@ export function MonthTooltip(props: { m: CalendarMonth; calendar: Calendar; mode
         ...(above ? { bottom: window.innerHeight - anchor.top + 8 } : { top: anchor.bottom + 8 }),
       }}
     >
-      <MonthDetails m={props.m} calendar={props.calendar} mode={props.mode} />
+      <MonthDetails m={props.m} calendar={props.calendar} mode={props.mode} progress={props.progress} />
     </div>
   )
 }
