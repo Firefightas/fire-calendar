@@ -10,7 +10,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
-| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
+| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; an incomplete last month is labeled "month to date" from P3's diagnostics; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
@@ -57,6 +57,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] Raw ↔ Harmonized toggle, time-series chart, `test_mae` validation badge, IQR anomaly cards
 - [x] CSV export buttons, NRT overlay, "Launch Tactical Containment Sandbox" trigger
 - [x] Calibration panel under the calendar: 12 monthly factors with ±1 CV, Terra-only / NOAA-20 / NOAA-21 factors, fallback and not-measured flags (all from `calibration.json`)
+- [x] "Month to date" label on an incomplete last month (cards, heatmap cell, tooltip), from `calibration.json` `diagnostics.last_month_complete` / `last_data_date` (P3 request)
 
 ## P6: Tactical Containment Sandbox
 - [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
@@ -69,7 +70,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 _Format: `- [ ] from Px to Py: what and why`_
 
-- [x] from P3 to P1/P5: when the data ends mid-month, the last row of `calendar.json` is month-to-date: `harmonized` is the count so far and `median_m` / `iqr_m` / `anomaly_z` use the same days of that month in the baseline years (shape unchanged, but `median_m` is not the full-month median for that one row). P1: confirm this reading of the schema. P5: consider a "month to date" label on that cell (`calibration.json` → `diagnostics.last_month_complete`, `last_data_date`). → **Approved by P1** (schema preserved; P5 already shows an "in progress" badge and can optionally inspect `diagnostics.last_month_complete`).
+- [x] from P3 to P1/P5: when the data ends mid-month, the last row of `calendar.json` is month-to-date: `harmonized` is the count so far and `median_m` / `iqr_m` / `anomaly_z` use the same days of that month in the baseline years (shape unchanged, but `median_m` is not the full-month median for that one row). P1: confirm this reading of the schema. P5: consider a "month to date" label on that cell (`calibration.json` → `diagnostics.last_month_complete`, `last_data_date`). → **Approved by P1** (schema preserved; P5 already shows an "in progress" badge and can optionally inspect `diagnostics.last_month_complete`). → **Done by P5** (`feat/p5-month-to-date`): when `diagnostics.last_month_complete` is false the last month reads "Month to date, through <last_data_date>" and its median/IQR are marked "to date"; without those keys the wording stays a neutral "Month in progress".
 
 - [x] from P3 to P1: add `matplotlib` to the `pipeline` dependency group in `pyproject.toml`. `pipeline/harmonize/chart.py` needs it; until then it runs with `uv run --with matplotlib` and its PNG test is skipped in CI. → **Done by P1** (`matplotlib>=3.9` added to `pipeline` in `pyproject.toml` and locked in `uv.lock`).
 

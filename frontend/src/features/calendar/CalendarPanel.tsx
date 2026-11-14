@@ -6,7 +6,7 @@ import { CalendarTable } from './CalendarTable.tsx'
 import { CalibrationPanel } from './CalibrationPanel.tsx'
 import { ModeToggle, PaletteSwitcher, Segmented } from './Controls.tsx'
 import { TimeSeriesChart } from './TimeSeriesChart.tsx'
-import { MODE_LABEL, UNIT_LABEL, monthKey } from './model.ts'
+import { MODE_LABEL, UNIT_LABEL, lastMonthProgress, monthKey } from './model.ts'
 import type { Mode } from './model.ts'
 import type { PaletteId } from './palettes.ts'
 
@@ -34,6 +34,7 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
   // The selection is a month key, so it carries over when the region or area changes.
   const selected = selectedKey ? (calendar.months.find((m) => monthKey(m) === selectedKey) ?? null) : null
   const years = new Set(calendar.months.map((m) => m.year)).size
+  const lastProgress = lastMonthProgress(calendar, calibration, isArea)
 
   return (
     <div className={`space-y-4 transition-opacity ${stale ? 'opacity-50' : ''}`} aria-busy={stale}>
@@ -52,7 +53,13 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
         {actions && <div className="ml-auto">{actions}</div>}
       </div>
 
-      <AnomalyCards calendar={calendar} calibration={calibration} selected={selected} isArea={isArea} />
+      <AnomalyCards
+        calendar={calendar}
+        calibration={calibration}
+        selected={selected}
+        isArea={isArea}
+        lastProgress={lastProgress}
+      />
 
       <section className="rounded-lg border border-hairline bg-surface p-4">
         <header className="mb-3">
@@ -71,6 +78,7 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
           mode={mode}
           palette={palette}
           startMonth={startMonth}
+          lastProgress={lastProgress}
           selectedKey={selectedKey}
           onSelect={(m) => setSelectedKey((prev) => (prev === monthKey(m) ? null : monthKey(m)))}
         />
