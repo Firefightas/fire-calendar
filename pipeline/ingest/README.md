@@ -46,6 +46,42 @@ reads each matching path once even if arguments overlap.
 
 **Sanity check the printout:** S-NPP should start in 2012, Aqua mid-2002, NOAA-20 2018, and VIIRS counts should be several times MODIS. If a satellite code is unknown, it stops and tells you; pass `--satellite`.
 
+### Persistent thermal source screen
+
+After ordinary filtering, SP/NRT deduplication and H3 assignment, normalization
+screens H3 resolution-9 sites (about 0.1 km²). A site must have at least 20
+distinct detection days on one satellite, in at least four months spanning at
+least 120 days, in at least two distinct calendar years. Satellite counts are
+never added to reach the threshold. The common site/year mask then applies to
+every satellite, but only in qualifying years. Other years and locations in the
+same resolution-7 output hex remain. A wider-event safeguard preserves a point
+if at least three adjacent resolution-7 hexes are active within one day either
+side, counting unique neighbor cells, not detections.
+
+This is a conservative, retrospective **inferred persistent-source screen**,
+not a confirmed industrial mask. Fixed thresholds prioritize specificity;
+intermittent sources, shifted pixels and ambiguous recurrent vegetation fires
+can remain. Detection frequency depends on overpass availability. FRP and
+nighttime share support the audit but are not hardcoded classification cutoffs.
+The rule uses the historical archive for quality control, not calibration
+fitting or a forward prediction; no threshold was optimized against P3's
+held-out calibration error. A future location-validated industrial mask would
+be stronger evidence. Do not claim that this guarantees every real fire stays.
+
+`persistence_evidence.csv` records site/satellite/year counts and decisions
+outside the frozen output tables. `--no-persistence-filter` reproduces the
+baseline for review only. Retained points always generate `hex_day.parquet`.
+For reproducible diagnostics (run against a saved unfiltered points file):
+
+```bash
+uv run python -m pipeline.ingest.audit_persistence --points data/raw/rio_negro-pre-persistence/points.parquet --suspects data/processed/rio_negro/suspect_persistent_hexes.csv --out data/raw/rio_negro-persistence-audit
+```
+
+NASA documents that the FIRMS layer includes non-vegetation thermal anomalies
+and that static sources can be labeled type 0; this supports investigating the
+failure mode but does not confirm our individual sites or thresholds:
+[FIRMS static thermal anomalies](https://firms.modaps.eosdis.nasa.gov/descriptions/Static_Thermal_Anomalies_Mask.html).
+
 ## 3. Share
 
 Parquet over ~50 MB goes to the team Drive folder, not git. Tell P3 and P4 in `PLAN.md` when Río Negro lands.

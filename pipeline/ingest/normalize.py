@@ -22,6 +22,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from pipeline.ingest.persistence import screen_persistence
+
 ROOT = Path(__file__).resolve().parents[2]
 H3_RES = 7
 
@@ -119,6 +121,7 @@ def main() -> None:
     ap.add_argument("--region", required=True)
     ap.add_argument("--satellite", help="force satellite (terra/aqua/snpp/noaa20/noaa21) if codes are odd")
     ap.add_argument("--keep-low", action="store_true", help="keep low-confidence detections")
+    ap.add_argument("--no-persistence-filter", action="store_true", help="unfiltered baseline for audit only")
     ap.add_argument("csvs", nargs="+")
     args = ap.parse_args()
 
@@ -140,9 +143,14 @@ def main() -> None:
         frames.append(norm)
 
     points = add_h3(dedupe_nrt(pd.concat(frames, ignore_index=True).drop_duplicates()))
+    removed, evidence = screen_persistence(points)
+    if not args.no_persistence_filter:
+        print(f"Persistence screen: removed {int(removed.sum()):,} of {len(points):,} detections")
+        points = points.loc[~removed].copy()
     points = points.sort_values(["date", "time"]).reset_index(drop=True)
     out = ROOT / "data" / "processed" / args.region
     out.mkdir(parents=True, exist_ok=True)
+    evidence.to_csv(out / "persistence_evidence.csv", index=False)
     points.to_parquet(out / "points.parquet", index=False)
     hex_day(points).to_parquet(out / "hex_day.parquet", index=False)
 

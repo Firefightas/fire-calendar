@@ -7,7 +7,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | Role | Owner (name) | Agent | Current state |
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#13; Render backend & live FIRMS NRT verified (`200 OK`); signed off on all P3/P4/P5 requests. |
-| P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
+| P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Persistence review complete: 307,352 Rio Negro points / 143,233 hex-days; rerunnable sandbox join ready on mock terrain; P3 recalibration/history replacement pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Real Río Negro `calendar.json` + `calibration.json` committed (binding median-ratio method: held-out MAE 102 cell-days, MAPE 35 %; MODIS-era mega-fire months overstated). Power-law method requested from P1 (see Requests). Pitch chart + method note done for Río Negro. Next: California and Romania when P2 lands them. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports, cold-start handling and live NRT endpoint verified; next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
@@ -31,7 +31,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 ## P2: Data ingestion + sandbox inputs
 - [ ] FIRMS MAP_KEY; start Route A (yearly country files), B (archive request), C (area API for 2026)
-- [x] Normalize + filter (`type == 0`, `confidence != low`) + clip + H3 → **Río Negro first**: `points.parquet`, `hex_day.parquet` (317,938 points / 149,205 hex-days; local files, not on Drive; see `pipeline/ingest/RIO_NEGRO_STATUS.md`)
+- [x] Normalize + filter (`type == 0`, `confidence != low`) + clip + H3 → **Río Negro first**: `points.parquet`, `hex_day.parquet` (revised: 307,352 points / 143,233 hex-days; see pipeline/ingest/RIO_NEGRO_STATUS.md)
 - [ ] Same for California and Romania
 - [ ] Sandbox inputs: WorldCover → `landcover`, `asset_type`, `burnable`; Open-Meteo → `elevation_m`, `slope_deg`; join P3's `hex_fire_history` → `sandbox_grid.json`
 
@@ -115,3 +115,6 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [ ] from P4 to P1: the human confirmed P1 will upload the two gitignored Rio Negro Parquet files to data/processed/rio_negro/ on Render and deploy the P4 early NOAA handover follow-up. Regional JSON is already real, but live polygon requests still use samples until the Parquet files are present.
 
 - P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.
+
+- [x] P2: investigate persistent sources, add conservative res-9 site/year filter and fire-season safeguards, regenerate Rio Negro tables, implement/test rerunnable P3 history join (mock terrain remains labeled).
+- [ ] from P2 to P3/P4: revised pair is packaged in data/raw/rio_negro-p2-persistence-handoff.zip on David's laptop. P3: regenerate calibration/calendar/history; send replacement hex_fire_history.parquet. P4: deploy only with matching revised calibration. See pipeline/ingest/RIO_NEGRO_STATUS.md for hashes and limits; current sandbox history is provisional and terrain mock.

@@ -17,3 +17,29 @@ Scope: don't build the whole province. A sub-area of ~1,000–5,000 hexes around
 Until P3's history exists, use `contracts/mocks/<region>/hex_fire_history.sample.csv` to test the join.
 
 Honesty note for the pitch: hotspot history is a **proxy** for fuel depletion, not a fuel map; absence of hotspots can mean cropland, water or cloud. Land cover masks the obvious cases.
+
+## Rerunnable fire-history join
+
+```bash
+uv run python -m pipeline.sandbox_inputs.join_history --region rio_negro --grid contracts/mocks/rio_negro/sandbox_grid.json --history data/processed/rio_negro/hex_fire_history.parquet --out data/processed/rio_negro/sandbox_grid.json
+```
+
+Replace `--grid` with a real terrain/land-cover grid when available. The current
+Río Negro run uses 1,027 mock terrain cells and P3's real, pre-persistence-filter
+history: 628 matches and 399 missing cells. The output stays `is_mock: true`;
+this unblocks join/UI integration without claiming that the terrain is real.
+Real WorldCover/elevation preparation remains pending.
+
+The left join requires unique valid res-7 H3 IDs and finite non-negative values.
+A missing history row gets `burn_count=0` and `years_since_last_fire=null`.
+An existing row with zero burn count retains its recency (28 such matches in
+this grid; 3,050 in the supplied history). Every previous history value is
+overwritten, so the exact command can be rerun when P3 sends replacement history.
+The base grid is not changed and any mock input keeps the output marked mock.
+The output is validated against the frozen sandbox schema before atomic write.
+
+`sandbox_grid.provenance.json` records input hashes, row/match counts and mock
+state separately from the frozen schema. The current history has SHA-256
+`76b9e7640dda456126df0ad7595c15af17bfdc4259a5c987ade4944201c417e6`.
+It predates the persistence screen and must be replaced after P3 recalibrates;
+do not present its burn history as the corrected final result.
