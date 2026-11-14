@@ -89,3 +89,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render/real-data verification remains pending.
 
 - [ ] from P4 to P1: Render now reports FIRMS_MAP_KEY configured, but region/bbox one-day and seven-day NRT requests return 502. Review/deploy feat/p4-nrt-errors to identify the safe per-source cause; live NRT is not yet verified. Deployment verification is separately recorded in PR #10.
+
+- P4 NRT diagnostics PR: https://github.com/neamturazvan/fire-calendar/pull/11 (feat/p4-nrt-errors); 100 Python tests and Ruff passed. Live 502 cause awaits deployment.

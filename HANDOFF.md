@@ -44,7 +44,7 @@ P4 publishing note: resolved after the human added bwradu as a collaborator; the
 
 ## P4 NRT follow-up - 14 November 2026 - Codex
 Done: Render health now reports FIRMS key configured; live region/bbox one-day and seven-day requests were checked and returned 502. Added safe per-source diagnostics and environment-whitespace trimming on feat/p4-nrt-errors, with regression tests for key/quota/status/transport/CSV failures and credential redaction.
-In progress: diagnostics implementation complete and verified with 100 Python tests and Ruff; publishing the PR. PR #10 separately records the healthy mock-backed deployment.
+In progress: diagnostics implementation complete, 100 Python tests and Ruff passed, and pushed; PR: https://github.com/neamturazvan/fire-calendar/pull/11. PR #10 separately records the healthy mock-backed deployment.
 Known issue: the live upstream cause remains unknown until this diagnostics update is deployed; no successful live NRT response has been observed.
 Next 3 steps:
 1. Review/merge/deploy the diagnostics PR with P1.
