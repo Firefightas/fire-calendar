@@ -3,66 +3,16 @@
 import copy
 import json
 import math
-from datetime import date
 
-import duckdb
 import h3
 import jsonschema
 import pytest
 from fastapi.testclient import TestClient
 
 from backend.app import main
+from backend.tests.helpers import LAT, LON, body, square
 
 client = TestClient(main.app)
-CELL = h3.latlng_to_cell(-39.3, -65.6, 7)
-LAT, LON = h3.cell_to_latlng(CELL)
-
-
-def square(lon=LON, lat=LAT, size=0.025):
-    return {"type": "Polygon", "coordinates": [[
-        [lon - size, lat - size], [lon + size, lat - size],
-        [lon + size, lat + size], [lon - size, lat + size], [lon - size, lat - size],
-    ]]}
-
-
-def body(**kwargs):
-    return {"region_id": "rio_negro", "polygon": square(), "start": "2001-01", "end": "2026-11", **kwargs}
-
-
-@pytest.fixture
-def archive(tmp_path, monkeypatch):
-    processed = tmp_path / "processed"
-    region = processed / "rio_negro"
-    region.mkdir(parents=True)
-    monkeypatch.setattr(main, "PROCESSED", processed)
-    reference = main.load_json("rio_negro", "calendar.json")
-    calibration = main.load_json("rio_negro", "calibration.json")
-    reference["is_mock"] = calibration["is_mock"] = False
-    calibration.update(terra_only_factor=2.0, noaa20_factor=1.25, noaa21_factor=1.5)
-    for factor in calibration["monthly_factors"]:
-        factor.update(factor=2.0, cv=0.5)
-
-    rows = []
-
-    def add(year, month, satellite, days=1, cell=CELL):
-        sensor = "modis" if satellite in ("terra", "aqua") else "viirs"
-        rows.extend((cell, date(year, month, day), sensor, satellite, 99, 7.0) for day in range(1, days + 1))
-
-    def save():
-        with duckdb.connect() as connection:
-            connection.execute("""
-                CREATE TABLE input(h3 VARCHAR, date DATE, sensor VARCHAR, satellite VARCHAR,
-                                   n_points INTEGER, frp_sum DOUBLE)
-            """)
-            if rows:
-                connection.executemany("INSERT INTO input VALUES (?, ?, ?, ?, ?, ?)", rows)
-            connection.sql("SELECT * FROM input").write_parquet(str(region / "hex_day.parquet"))
-        (region / "calendar.json").write_text(json.dumps(reference), encoding="utf-8")
-        (region / "calibration.json").write_text(json.dumps(calibration), encoding="utf-8")
-
-    return add, save, reference, calibration, region
-
-
 def test_epochs_deduplication_and_sparse_uncertainty(archive):
     add, save, _, _, _ = archive
     add(2001, 1, "terra")

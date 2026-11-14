@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.area import AreaQuery, build_calendar, region_polygon
+from backend.app.exports import calendar_download, points_download
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = ROOT / "contracts"
@@ -110,12 +111,14 @@ def area_calendar(q: AreaQuery) -> dict:
 
 @app.post("/api/export/points")
 def export_points(q: AreaQuery):
-    raise HTTPException(501, "TODO(P4): CSV of points.parquet rows inside the polygon (contracts/api.md)")
+    geometry = region_polygon(q, get_region(q.region_id))
+    path, is_mock = resolve_table(q.region_id, "points")
+    return points_download(q, geometry, path, is_mock)
 
 
 @app.post("/api/export/calendar")
 def export_calendar(q: AreaQuery):
-    raise HTTPException(501, "TODO(P4): CSV of the area calendar months (contracts/api.md)")
+    return calendar_download(q, area_calendar(q))
 
 
 def nrt_bbox(region_id: str | None, bbox: str | None) -> list[float]:

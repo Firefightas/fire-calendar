@@ -31,4 +31,4 @@ Polygon calendars now validate closed, non-self-intersecting polygons and holes 
 
 Local monthly factors require three fit-year ratios, each with at least five MODIS cell-days, from Feb 2012-Dec 2020. Sparse months inherit the region factor/CV. Terra-only and NOAA factors remain regional. Post-S-NPP satellite availability and NRT flags come from the regional calendar, including months with no area detections.
 
-Runtime dependencies are in backend/requirements.txt. Until P1 adds Shapely to the root group, install it with uv pip install -r backend/requirements.txt after uv sync. CSV and NRT endpoints are the next tasks.
+Runtime dependencies are in backend/requirements.txt. The human authorized adding h3/Shapely to the root backend dependency group; uv sync --all-groups now installs them. Both CSV endpoints stream contract columns, expose download filenames via CORS, and report mock provenance in X-Data-Source. Points are filtered by exact coordinates, including holes and polygon boundaries. The NRT proxy is the next task.

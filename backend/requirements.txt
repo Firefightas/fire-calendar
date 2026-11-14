@@ -1,5 +1,5 @@
 # Runtime dependencies for Render and local backend-only installs.
-# P1: also add h3 and shapely to the root backend group (see PLAN.md).
+# Keep these aligned with the root backend dependency group.
 fastapi>=0.110
 uvicorn[standard]>=0.29
 duckdb>=1.0
