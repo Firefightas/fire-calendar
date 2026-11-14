@@ -85,3 +85,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [x] from P4 to P1: add h3>=4.0 and shapely>=2.1 to the root backend group and refresh uv.lock. The human explicitly authorized this dependency-only change; applied and locked.
 
 - [ ] from P4 to P1: deploy the tested backend with the repository-root build/start/health settings in backend/README.md; supply FIRMS_MAP_KEY securely and the frontend CORS origin in Render, then coordinate VITE_API_URL with P5. No local backend/.env or Render service is configured in this checkout.
+
+- P4 review: https://github.com/neamturazvan/fire-calendar/pull/9 (feat/p4-backend-api), pushed after collaborator access was granted; 87 Python tests and 35 frontend tests passed locally. Render/real-data verification remains pending.
