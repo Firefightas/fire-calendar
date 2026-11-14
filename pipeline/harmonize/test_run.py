@@ -88,10 +88,37 @@ def test_iqr_anomaly_score():
     assert flat["anomaly_z"].iloc[-1] == pytest.approx(2.0)  # IQR 0 -> floor 1.0
 
 
+def test_partial_last_month_is_scored_against_the_same_days(hex_day):
+    calendar, calibration, _ = run.build_outputs(hex_day, "rio_negro", is_mock=True)
+    last, year_before = calendar["months"][-1], calendar["months"][-13]
+    assert (last["year"], last["month"]) == (2026, 11) and not calibration["diagnostics"]["last_month_complete"]
+
+    # Independent month-to-date baseline: days 1-13 of every November 2001-2025, harmonized.
+    dates = pd.to_datetime(hex_day["date"])
+    first_13_days = hex_day[((dates.dt.month == 11) & (dates.dt.day <= 13)).to_numpy()]
+    factors = run.fit_factors(run.monthly_cell_days(hex_day))
+    to_date = run.harmonize(run.monthly_cell_days(first_13_days), factors)
+    values = to_date[(to_date["month"] == 11) & to_date["year"].between(2001, 2025)]["harmonized"]
+    assert len(values) == 25
+    assert last["median_m"] == pytest.approx(values.median(), abs=0.1)
+    assert last["anomaly_z"] == pytest.approx((last["harmonized"] - last["median_m"]) / max(last["iqr_m"], 1.0),
+                                              abs=0.02)
+    # Full Novembers keep the full-month baseline, which is about 30/13 times larger.
+    assert year_before["median_m"] > 1.8 * last["median_m"]
+
+
+def test_complete_last_month_keeps_the_full_month_baseline(hex_day):
+    complete = hex_day[pd.to_datetime(hex_day["date"]) <= "2026-10-31"]
+    calendar, calibration, _ = run.build_outputs(complete, "rio_negro", is_mock=True)
+    last, year_before = calendar["months"][-1], calendar["months"][-13]
+    assert calibration["diagnostics"]["last_month_complete"]
+    assert (last["median_m"], last["iqr_m"]) == (year_before["median_m"], year_before["iqr_m"])
+
+
 def test_outputs_match_contracts(hex_day):
     calendar, calibration, _ = run.build_outputs(hex_day, "rio_negro", is_mock=True)
     for name, doc in (("calendar.schema.json", calendar), ("calibration.schema.json", calibration)):
-        errors = list(Draft202012Validator(json.loads((CONTRACTS / name).read_text())).iter_errors(doc))
+        errors = list(Draft202012Validator(json.loads((CONTRACTS / name).read_text(encoding="utf-8"))).iter_errors(doc))
         assert not errors, [e.message for e in errors[:5]]
     assert calendar["is_mock"] and calibration["is_mock"]
     assert calendar["baseline_years"] == [2001, 2025]
@@ -150,10 +177,14 @@ def test_fire_history_scales_modis_era_and_counts_terra_aqua_once(monthly):
 
 def test_cli_writes_files(tmp_path, capsys):
     run.main(["--region", "romania", "--synthetic", "--out", str(tmp_path)])
-    assert json.loads((tmp_path / "calendar.json").read_text())["region_id"] == "romania"
-    assert json.loads((tmp_path / "calibration.json").read_text())["is_mock"] is True
+    assert json.loads((tmp_path / "calendar.json").read_text(encoding="utf-8"))["region_id"] == "romania"
+    assert json.loads((tmp_path / "calibration.json").read_text(encoding="utf-8"))["is_mock"] is True
     history = pd.read_parquet(tmp_path / "hex_fire_history.parquet")
     assert list(history.columns) == ["h3", "burn_count", "years_since_last_fire"]
     assert "SYNTHETIC" in capsys.readouterr().out
     with pytest.raises(SystemExit):  # synthetic output must never land in data/processed by default
         run.main(["--region", "romania", "--synthetic"])
+
+
+def test_region_names_are_read_as_utf8():
+    assert run.REGIONS["rio_negro"]["name"].startswith("Río Negro")  # not "RÃ­o" on Windows

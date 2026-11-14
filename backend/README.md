@@ -49,7 +49,7 @@ January 2012, S-NPP through October 2026, then the regional NOAA reference satel
 Zero detections inside a polygon do not establish that a satellite was unavailable.
 
 Coverage, baseline years and NRT flags come from the regional calendar. Area baseline
-statistics are recomputed before the requested date range is applied. Uncertainty uses
+statistics are recomputed before the requested date range is applied. When regional calibration diagnostics identify an incomplete last month, that row compares against the same days of that month in every baseline year, matching P3's month-to-date rule; observed counts are never extrapolated. Uncertainty uses
 the recorded factor CV plus Poisson count noise, following P3's formula.
 
 ## Live overlay

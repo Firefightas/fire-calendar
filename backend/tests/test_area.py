@@ -144,3 +144,20 @@ def test_is_mock_does_not_mutate_regional_payload(archive):
     save()
     client.post("/api/calendar", json=body())
     assert main.load_json("rio_negro", "calendar.json") == before
+
+def test_incomplete_last_month_uses_same_days_in_baseline_years(archive):
+    add, save, _, calibration, _ = archive
+    for year in range(2001, 2026):
+        add(year, 11, "terra" if year < 2012 else "snpp", 20)
+    add(2026, 11, "noaa20", 2)
+    calibration["diagnostics"] = {"last_data_date": "2026-11-02", "last_month_complete": False}
+    save()
+    query = body(start="2026-11")
+    result = client.post("/api/calendar", json=query).json()
+    row = result["months"][0]
+    assert row["harmonized"] == 2.5
+    assert row["median_m"] == 2 and row["iqr_m"] == 2 and row["anomaly_z"] == 0.25
+    full = client.post("/api/calendar", json=body()).json()
+    assert full["months"][-1] == row
+    previous = next(m for m in full["months"] if (m["year"], m["month"]) == (2025, 11))
+    assert previous["median_m"] == 20 and previous["iqr_m"] == 20

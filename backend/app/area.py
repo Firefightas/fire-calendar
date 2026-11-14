@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import re
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from statistics import fmean, median, pstdev
 
@@ -82,15 +82,19 @@ def table_connection(path: Path) -> duckdb.DuckDBPyConnection:
         raise
 
 
-def monthly_counts(path: Path, polygon: dict) -> dict[tuple[int, int], dict]:
+def monthly_counts(path: Path, polygon: dict, day_cutoff: tuple[int, int] | None = None) -> dict[tuple[int, int], dict]:
     cells = sorted(h3.geo_to_cells(polygon, res=7))
     if not cells:
         return {}
+    where, parameters = "", [cells]
+    if day_cutoff is not None:
+        where = " AND (month(CAST(date AS DATE)) != ? OR day(CAST(date AS DATE)) <= ?)"
+        parameters.extend(day_cutoff)
     with table_connection(path) as connection:
-        rows = connection.execute("""
+        rows = connection.execute(f"""
             WITH selected AS (
                 SELECT h3, CAST(date AS DATE) AS day, sensor, satellite
-                FROM archive WHERE h3 IN (SELECT unnest(?))
+                FROM archive WHERE h3 IN (SELECT unnest(?)){where}
             )
             SELECT year(day), month(day), satellite,
                    COUNT(DISTINCT (h3, day))
@@ -99,7 +103,7 @@ def monthly_counts(path: Path, polygon: dict) -> dict[tuple[int, int], dict]:
             SELECT year(day), month(day), 'modis',
                    COUNT(DISTINCT (h3, day))
             FROM selected WHERE sensor = 'modis' GROUP BY 1, 2
-        """, [cells]).fetchall()
+        """, parameters).fetchall()
     counts = {}
     for year, month, satellite, count in rows:
         counts.setdefault((year, month), dict.fromkeys((*SATELLITES, "modis"), 0))[satellite] = count
@@ -137,6 +141,28 @@ def quantile(values: list[float], p: float) -> float:
     return values[lo] + (values[hi] - values[lo]) * (index - lo)
 
 
+def epoch(row: dict, parent: dict, calibration: dict, factors: dict) -> tuple:
+    monthly = factors[parent["month"]]
+    ym = (parent["year"], parent["month"])
+    # Use regional source availability after S-NPP: zero area detections do
+    # not establish that a satellite was unavailable for the whole month.
+    if ym < (2002, 7):
+        column, source = "terra", "modis_terra"
+        factor = calibration["terra_only_factor"] * monthly["factor"]
+        terra_cv = calibration.get("diagnostics", {}).get("terra_only", {}).get("cv", 0.0)
+        cv = math.hypot(monthly["cv"], terra_cv)
+    elif ym < (2012, 2):
+        column, source = "modis", "modis_terra_aqua"
+        factor, cv = monthly["factor"], monthly["cv"]
+    elif ym <= (2026, 10):
+        column, source, factor, cv = "snpp", "viirs_snpp", 1.0, 0.0
+    else:
+        column = "noaa21" if parent["source"] == "viirs_noaa21" else "noaa20"
+        source, factor = f"viirs_{column}", calibration[f"{column}_factor"]
+        cv = calibration.get("diagnostics", {}).get(column, {}).get("cv", 0.0)
+    return column, source, factor, cv
+
+
 def build_calendar(query: AreaQuery, path: Path, reference: dict, calibration: dict, is_mock: bool) -> dict:
     counts = monthly_counts(path, query.polygon)
     factors = area_factors(counts, calibration)
@@ -144,24 +170,7 @@ def build_calendar(query: AreaQuery, path: Path, reference: dict, calibration: d
     for parent in reference["months"]:
         year, month = parent["year"], parent["month"]
         row = counts.get((year, month), dict.fromkeys((*SATELLITES, "modis"), 0))
-        monthly = factors[month]
-        ym = (year, month)
-        # Use regional source availability after S-NPP: zero area detections do
-        # not establish that a satellite was unavailable for the whole month.
-        if ym < (2002, 7):
-            column, source = "terra", "modis_terra"
-            factor = calibration["terra_only_factor"] * monthly["factor"]
-            terra_cv = calibration.get("diagnostics", {}).get("terra_only", {}).get("cv", 0.0)
-            cv = math.hypot(monthly["cv"], terra_cv)
-        elif ym < (2012, 2):
-            column, source = "modis", "modis_terra_aqua"
-            factor, cv = monthly["factor"], monthly["cv"]
-        elif ym <= (2026, 10):
-            column, source, factor, cv = "snpp", "viirs_snpp", 1.0, 0.0
-        else:
-            column = "noaa21" if parent["source"] == "viirs_noaa21" else "noaa20"
-            source, factor = f"viirs_{column}", calibration[f"{column}_factor"]
-            cv = calibration.get("diagnostics", {}).get(column, {}).get("cv", 0.0)
+        column, source, factor, cv = epoch(row, parent, calibration, factors)
         harmonized = row[column] * factor
         half = 1.96 * math.sqrt(harmonized + (cv * harmonized) ** 2)
         from_modis = source.startswith("modis")
@@ -186,6 +195,29 @@ def build_calendar(query: AreaQuery, path: Path, reference: dict, calibration: d
         for row in months:
             if row["month"] == month:
                 row.update(median_m=middle, iqr_m=iqr, anomaly_z=(row["harmonized"] - middle) / max(iqr, 1.0))
+
+    diagnostics = calibration.get("diagnostics", {})
+    if diagnostics.get("last_month_complete") is False and months:
+        try:
+            last_day = date.fromisoformat(diagnostics.get("last_data_date", ""))
+        except (ValueError, TypeError):
+            last_day = None
+        if last_day and (last_day.year, last_day.month) == (months[-1]["year"], months[-1]["month"]):
+            partial = monthly_counts(path, query.polygon, (last_day.month, last_day.day))
+            templates = {(r["year"], r["month"]): r for r in reference["months"]}
+            values = []
+            for year in range(baseline[0], baseline[1] + 1):
+                row = partial.get((year, last_day.month), dict.fromkeys((*SATELLITES, "modis"), 0))
+                template = templates[(year, last_day.month)]
+                column, _, factor, _ = epoch(row, template, calibration, factors)
+                values.append(row[column] * factor)
+            middle = median(values)
+            iqr = quantile(values, 0.75) - quantile(values, 0.25)
+            months[-1].update(
+                median_m=middle, iqr_m=iqr,
+                anomaly_z=(months[-1]["harmonized"] - middle) / max(iqr, 1.0),
+            )
+
     # Calculate baseline and calibration from the full archive BEFORE slicing.
     months = [r for r in months if query.start <= f"{r['year']:04d}-{r['month']:02d}" <= query.end]
     result = {
