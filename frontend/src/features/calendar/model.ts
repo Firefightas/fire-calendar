@@ -180,21 +180,21 @@ export type MonthProgress =
 const COMPLETE: MonthProgress = { kind: 'complete' }
 
 /**
- * Status of the calendar's last month. P3 records it in `calibration.json` `diagnostics`
- * (`last_month_complete`, `last_data_date`); that block is free-form, so it is read only when
- * well-formed, and only for the whole-region calendar it was written with. Otherwise fall
- * back to the clock, which can say "still running" but not how the row was scored.
+ * Status of the calendar's last month. P3 records it in the region's `calibration.json`
+ * `diagnostics` (`last_month_complete`, `last_data_date`); that block is free-form, so it is
+ * read only when well-formed. It also covers a drawn area inside that region: the backend
+ * scores an incomplete last month of an area calendar by the same month-to-date rule.
+ * Otherwise fall back to the clock, which can say "still running" but not how the row was scored.
  */
 export function lastMonthProgress(
   calendar: Calendar,
   calibration: Calibration | null,
-  isArea: boolean,
   now: Date = new Date(),
 ): MonthProgress {
   const last = latestMonth(calendar)
   if (!last) return COMPLETE
   const diagnostics = calibration?.diagnostics
-  if (!isArea && calibration?.region_id === calendar.region_id && diagnostics) {
+  if (calibration?.region_id === calendar.region_id && diagnostics) {
     const { last_month_complete: complete, last_data_date: date } = diagnostics
     if (complete === true) return COMPLETE
     if (complete === false) {

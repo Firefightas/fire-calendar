@@ -52,39 +52,40 @@ const DECEMBER = new Date(Date.UTC(2026, 11, 20))
 describe('lastMonthProgress', () => {
   it('reports month-to-date when the file says the last month is incomplete', () => {
     const c = calibration({ last_month_complete: false, last_data_date: '2026-11-13' })
-    expect(lastMonthProgress(calendar, c, false, MID_NOV)).toEqual({ kind: 'month_to_date', through: '2026-11-13' })
+    expect(lastMonthProgress(calendar, c, MID_NOV)).toEqual({ kind: 'month_to_date', through: '2026-11-13' })
     // The file wins over the clock: still month-to-date when viewed a month later.
-    expect(lastMonthProgress(calendar, c, false, DECEMBER)).toEqual({ kind: 'month_to_date', through: '2026-11-13' })
+    expect(lastMonthProgress(calendar, c, DECEMBER)).toEqual({ kind: 'month_to_date', through: '2026-11-13' })
   })
 
   it('drops a date that is missing, malformed or outside the last month', () => {
     for (const last_data_date of [undefined, 20261113, '2026-10-31']) {
       const c = calibration({ last_month_complete: false, last_data_date })
-      expect(lastMonthProgress(calendar, c, false, MID_NOV)).toEqual({ kind: 'month_to_date', through: null })
+      expect(lastMonthProgress(calendar, c, MID_NOV)).toEqual({ kind: 'month_to_date', through: null })
     }
   })
 
   it('trusts the file when it says the month is complete, whatever the clock says', () => {
     const c = calibration({ last_month_complete: true, last_data_date: '2026-11-30' })
-    expect(lastMonthProgress(calendar, c, false, MID_NOV)).toEqual({ kind: 'complete' })
+    expect(lastMonthProgress(calendar, c, MID_NOV)).toEqual({ kind: 'complete' })
   })
 
   it('falls back to the clock when the file does not say', () => {
     for (const c of [null, calibration(), calibration({ note: 'mock values' }), calibration({ last_month_complete: 'no' })]) {
-      expect(lastMonthProgress(calendar, c, false, MID_NOV)).toEqual({ kind: 'in_progress' })
-      expect(lastMonthProgress(calendar, c, false, DECEMBER)).toEqual({ kind: 'complete' })
+      expect(lastMonthProgress(calendar, c, MID_NOV)).toEqual({ kind: 'in_progress' })
+      expect(lastMonthProgress(calendar, c, DECEMBER)).toEqual({ kind: 'complete' })
     }
   })
 
-  it('does not apply regional diagnostics to a drawn area or to another region', () => {
+  it('covers a drawn area in the same region, but not another region', () => {
     const c = calibration({ last_month_complete: false, last_data_date: '2026-11-13' })
-    expect(lastMonthProgress(calendar, c, true, MID_NOV)).toEqual({ kind: 'in_progress' })
+    const area = { ...calendar, area_label: 'Drawn area' }
+    expect(lastMonthProgress(area, c, DECEMBER)).toEqual({ kind: 'month_to_date', through: '2026-11-13' })
     const other = calibration({ last_month_complete: false, last_data_date: '2026-11-13' }, 'romania')
-    expect(lastMonthProgress(calendar, other, false, DECEMBER)).toEqual({ kind: 'complete' })
+    expect(lastMonthProgress(calendar, other, DECEMBER)).toEqual({ kind: 'complete' })
   })
 
   it('is complete for an empty calendar', () => {
-    expect(lastMonthProgress({ ...calendar, months: [] }, null, false, MID_NOV)).toEqual({ kind: 'complete' })
+    expect(lastMonthProgress({ ...calendar, months: [] }, null, MID_NOV)).toEqual({ kind: 'complete' })
   })
 })
 

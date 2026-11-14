@@ -200,7 +200,12 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
         </p>
         {(isArea || calibration.is_mock) && (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {isArea && <Chip>Whole-region calibration, not this drawn area</Chip>}
+            {isArea && (
+              <Chip>
+                Whole-region factors: a drawn area gets its own monthly factors where it has enough fires, these
+                otherwise
+              </Chip>
+            )}
             {calibration.is_mock && <Chip>MOCK DATA</Chip>}
           </div>
         )}

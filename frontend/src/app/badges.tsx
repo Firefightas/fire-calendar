@@ -16,21 +16,25 @@ export function MockBadge() {
   )
 }
 
-export function OriginChip({ origin }: { origin: DataOrigin }) {
+/** Where the numbers on screen came from. `waking` = the backend has not answered yet. */
+export function OriginChip({ origin, waking = false }: { origin: DataOrigin; waking?: boolean }) {
   const live = origin === 'api'
+  const pending = !live && waking
   return (
     <span
       title={
         live
           ? 'Loaded from the backend API.'
-          : 'Backend unreachable: showing the JSON bundled with this page. Drawn-area queries, CSV export and live hotspots need the backend.'
+          : pending
+            ? 'Showing the JSON bundled with this page while the backend starts (up to a minute). Drawn-area queries, the hotspot CSV and live hotspots wait for it.'
+            : 'Backend unreachable: showing the JSON bundled with this page. Drawn-area queries, the hotspot CSV and live hotspots need the backend.'
       }
       className="inline-flex items-center gap-1.5 rounded-md border border-hairline px-2 py-1 text-xs text-ink-2"
     >
       <span aria-hidden="true" className={live ? 'text-good' : 'text-muted'}>
         {live ? '●' : '○'}
       </span>
-      {live ? 'Live API' : 'Offline bundle'}
+      {live ? 'Live API' : pending ? 'Backend waking up…' : 'Offline bundle'}
     </span>
   )
 }

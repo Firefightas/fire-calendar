@@ -40,14 +40,22 @@ export function explain(err: unknown): string {
   return err instanceof Error ? err.message : String(err)
 }
 
-const TIMEOUT_MS = 8000
+/** Reads that have a bundled copy give up quickly, so the page paints from the fallback. */
+const FAST_TIMEOUT_MS = 4000
+/**
+ * Backend-only calls wait much longer: the hosted backend sleeps when idle and takes up to
+ * about a minute to wake, and a 7-day live overlay is several upstream requests.
+ */
+const SLOW_TIMEOUT_MS = 90_000
 const RETRY_API_AFTER_MS = 30_000
 /** After a network failure, skip the backend for a while so the UI doesn't wait on every read. */
 let apiDownUntil = 0
+/** True once any whole-region read was served from the bundled copy. */
+let servedFallback = false
 
-async function request(path: string, init?: RequestInit): Promise<Response> {
+async function request(path: string, init?: RequestInit, timeoutMs: number = FAST_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   let res: Response
   try {
     res = await fetch(`${API_URL}${path}`, { ...init, signal: controller.signal })
@@ -91,7 +99,33 @@ async function withFallback<T>(apiPath: string, staticPath: string): Promise<Loa
       // fall through to the bundled copy
     }
   }
-  return { data: await staticJson<T>(staticPath), origin: 'static' }
+  const data = await staticJson<T>(staticPath)
+  servedFallback = true
+  return { data, origin: 'static' }
+}
+
+/** `GET /api/health` (contracts/api.md). */
+export interface Health {
+  status: string
+  using_mocks: string[]
+  firms_key_configured: boolean
+}
+
+export interface BackendUp {
+  health: Health
+  /** True when the page had already fallen back to bundled data before the backend answered. */
+  afterFallback: boolean
+}
+
+/**
+ * Waits for the backend to answer, however long a cold start takes. Resolving re-enables
+ * backend-first loading, so callers can reload what they took from the bundle.
+ */
+export async function waitForBackend(): Promise<BackendUp> {
+  const res = await request('/api/health', undefined, SLOW_TIMEOUT_MS)
+  const health = (await res.json()) as Health
+  apiDownUntil = 0
+  return { health, afterFallback: servedFallback }
 }
 
 export const loadRegions = () => withFallback<RegionsFile>('/api/regions', 'regions.json')
@@ -107,7 +141,7 @@ export const loadSandboxGrid = (id: RegionId) =>
 
 /** Calendar for a drawn polygon. Backend only: there is no static fallback for arbitrary areas. */
 export async function loadAreaCalendar(query: AreaQuery): Promise<Calendar> {
-  const res = await request('/api/calendar', postJson(query))
+  const res = await request('/api/calendar', postJson(query), SLOW_TIMEOUT_MS)
   return (await res.json()) as Calendar
 }
 
@@ -119,17 +153,23 @@ export async function loadNrt(
   days: number,
 ): Promise<NrtCollection> {
   const where = 'region_id' in area ? `region_id=${area.region_id}` : `bbox=${area.bbox.join(',')}`
-  const res = await request(`/api/nrt?${where}&days=${days}`)
+  const res = await request(`/api/nrt?${where}&days=${days}`, undefined, SLOW_TIMEOUT_MS)
   return (await res.json()) as NrtCollection
 }
 
-/** POST an export endpoint and hand back the CSV blob plus the server's filename, if any. */
-export async function exportCsv(
-  kind: 'points' | 'calendar',
-  query: AreaQuery,
-): Promise<{ blob: Blob; filename: string | null }> {
-  const res = await request(`/api/export/${kind}`, postJson(query))
+export interface CsvDownload {
+  blob: Blob
+  /** The server's filename, if it sent one. */
+  filename: string | null
+  /** True when the backend marks the rows as mock/sample data (`X-Data-Source: MOCK DATA`). */
+  isMock: boolean
+}
+
+/** POST an export endpoint and hand back the CSV blob with its filename and provenance. */
+export async function exportCsv(kind: 'points' | 'calendar', query: AreaQuery): Promise<CsvDownload> {
+  const res = await request(`/api/export/${kind}`, postJson(query), SLOW_TIMEOUT_MS)
   const disposition = res.headers.get('Content-Disposition') ?? ''
   const match = /filename="?([^";]+)"?/.exec(disposition)
-  return { blob: await res.blob(), filename: match ? match[1] : null }
+  const isMock = (res.headers.get('X-Data-Source') ?? '').trim().toUpperCase() === 'MOCK DATA'
+  return { blob: await res.blob(), filename: match ? match[1] : null, isMock }
 }
