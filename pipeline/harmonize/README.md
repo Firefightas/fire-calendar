@@ -35,12 +35,22 @@ hex_day.parquet ─▶ monthly cell-days per satellite ─▶ factors (fit 2012�
 
 `contracts/mocks/generate_mocks.py` implements a simplified version of steps 3–7 on fake numbers: a good reference for output shapes.
 
-## Run (to be written)
+## Run
 
 ```bash
-uv run python -m pipeline.harmonize.run --region rio_negro
+uv run python -m pipeline.harmonize.run --region rio_negro                          # needs P2's hex_day.parquet
+uv run python -m pipeline.harmonize.run --region rio_negro --synthetic --out <dir>  # known-ratio test input, is_mock: true
 uv run pytest            # validates the outputs against contracts automatically
 ```
+
+`run.py` writes `calendar.json` and `calibration.json` (`hex_fire_history.parquet` is not written yet). `--synthetic` refuses to write into `data/processed/` unless `--out` says so, because the backend treats a `calendar.json` there as real data.
+
+Defaults chosen where the method above is silent (also in `DECISIONS.md`):
+
+- A monthly ratio counts only if its denominator has ≥ 5 cell-days and its numerator is > 0; a calendar month with < 3 such fit-year ratios takes the pooled median (`fallback: true`).
+- `terra_only_factor` and the orbit-check factors are fitted on Feb 2012 – Dec 2020; `noaa20_factor` on Apr 2018 – Dec 2020; `noaa21_factor` on Feb 2024 – Oct 2026 (no overlap inside the fit years). A factor with no overlap data is 1.0 and `diagnostics.<name>.measured` is false.
+- `unc_low/unc_high` = `H ± 1.96·sqrt(H + (cv·H)²)`, with `cv` 0 for S-NPP months.
+- `is_nrt` = the last data month and the 5 before it (`hex_day` has no `is_nrt` column).
 
 ## For the pitch
 

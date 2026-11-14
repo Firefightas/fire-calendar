@@ -8,7 +8,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Master plan installed; repo, contracts and mocks aligned to it. |
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
-| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Not started. |
+| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json` + `calibration.json`, verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Not started (scaffold Vite first). |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
@@ -36,7 +36,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [ ] Sandbox inputs: WorldCover → `landcover`, `asset_type`, `burnable`; Open-Meteo → `elevation_m`, `slope_deg`; join P3's `hex_fire_history` → `sandbox_grid.json`
 
 ## P3: Harmonization
-- [ ] Method on synthetic/mock data while waiting for P2
+- [x] Method on synthetic/mock data while waiting for P2
 - [ ] Río Negro: cell-days per satellite/month; `monthly_factors` (fit 2012–2020), `terra_only_factor`, `noaa20_factor`, `noaa21_factor`; Aqua/Terra orbit check in `diagnostics`
 - [ ] Held-out 2021–2025 → `test_mae` → `calibration.json`
 - [ ] `calendar.json`: harmonized series, IQR anomaly (floor 1.0), uncertainty, sparse fallback
@@ -67,3 +67,6 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 ## Requests (cross-folder changes)
 
 _Format: `- [ ] from Px to Py: what and why`_
+
+- [ ] from P3 to P1: confirm the NOAA-21 exception (fitted on Feb 2024 – Oct 2026, outside `fit_years`, because it has no S-NPP overlap in 2012–2020) and that `terra_only_factor` is fitted on 2012–2020.
+- [ ] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date.
