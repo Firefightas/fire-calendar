@@ -1,4 +1,4 @@
-"""Harmonize one region: hex_day.parquet -> calendar.json + calibration.json.
+"""Harmonize one region: hex_day.parquet -> calendar.json, calibration.json, hex_fire_history.parquet.
 
 Method: pipeline/harmonize/README.md (binding) and TEAM_PLAN.md §2. Shapes: contracts/.
 
@@ -114,14 +114,20 @@ def _window(monthly: pd.DataFrame, start: tuple[int, int], end: tuple[int, int])
     return monthly[(t >= _t(*start)) & (t <= _t(*end))]
 
 
-def monthly_cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
-    """One row per month from the first to the last data month: cell-days per satellite, plus
-    `modis` = distinct (h3, date) over Terra+Aqua (a hex seen by both on one day counts once)."""
+def _cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
+    """One row per (hex, day, satellite) with year and month columns."""
     dates = pd.to_datetime(hex_day["date"])
     df = pd.DataFrame({"h3": hex_day["h3"].to_numpy(), "date": dates.to_numpy(),
                        "sensor": hex_day["sensor"].to_numpy(), "satellite": hex_day["satellite"].to_numpy(),
                        "year": dates.dt.year.to_numpy(), "month": dates.dt.month.to_numpy()})
-    df = df.drop_duplicates(["h3", "date", "satellite"])
+    return df.drop_duplicates(["h3", "date", "satellite"])
+
+
+def monthly_cell_days(hex_day: pd.DataFrame) -> pd.DataFrame:
+    """One row per month from the first to the last data month: cell-days per satellite, plus
+    `modis` = distinct (h3, date) over Terra+Aqua (a hex seen by both on one day counts once)."""
+    df = _cell_days(hex_day)
+    dates = df["date"]
     per_sat = df.groupby(["year", "month", "satellite"]).size().unstack("satellite", fill_value=0)
     modis = df[df["sensor"] == "modis"].drop_duplicates(["h3", "date"]).groupby(["year", "month"]).size()
 
@@ -152,22 +158,31 @@ def _single_factor(rows: pd.DataFrame, num: str, den: str) -> dict:
     return {"factor": float(r.median()), "cv": _cv(r), "n_months": int(len(r)), "measured": True}
 
 
-def fit_factors(monthly: pd.DataFrame) -> dict:
-    """All conversion factors to SNPP_VIIRS_EQ. Reads only fit-year rows, except noaa21 (see below)."""
-    fit = _window(monthly, max(SNPP_START, (FIT_YEARS[0], 1)), (FIT_YEARS[1], 12))
-    ratios = _ratios(fit, "snpp", "modis")
-    if ratios.empty:
-        raise ValueError(f"no usable S-NPP/MODIS overlap months in {FIT_YEARS}: cannot calibrate")
-    pooled, pooled_cv = float(ratios.median()), _cv(ratios)
+def _fit_window(monthly: pd.DataFrame) -> pd.DataFrame:
+    return _window(monthly, max(SNPP_START, (FIT_YEARS[0], 1)), (FIT_YEARS[1], 12))
 
-    monthly_factors = []
+
+def _monthly_factors(fit: pd.DataFrame, num: str, den: str) -> list[dict]:
+    """Median num/den per calendar month; a month with too few ratios takes the pooled median."""
+    ratios = _ratios(fit, num, den)
+    if ratios.empty:
+        return []
+    pooled, pooled_cv = float(ratios.median()), _cv(ratios)
+    out = []
     for m in range(1, 13):
         r = ratios[fit.loc[ratios.index, "month"] == m]
         fallback = len(r) < MIN_RATIO_YEARS
-        monthly_factors.append({"month": m, "factor": pooled if fallback else float(r.median()),
-                                "cv": pooled_cv if fallback else _cv(r), "n_years": int(len(r)),
-                                "fallback": bool(fallback)})
+        out.append({"month": m, "factor": pooled if fallback else float(r.median()),
+                    "cv": pooled_cv if fallback else _cv(r), "n_years": int(len(r)), "fallback": bool(fallback)})
+    return out
 
+
+def fit_factors(monthly: pd.DataFrame) -> dict:
+    """All conversion factors to SNPP_VIIRS_EQ. Reads only fit-year rows, except noaa21 (see below)."""
+    fit = _fit_window(monthly)
+    monthly_factors = _monthly_factors(fit, "snpp", "modis")
+    if not monthly_factors:
+        raise ValueError(f"no usable S-NPP/MODIS overlap months in {FIT_YEARS}: cannot calibrate")
     noaa20_fit = _window(monthly, NOAA20_START, (FIT_YEARS[1], 12))
     # NOAA-21 launched after the fit years, so its only overlap with S-NPP is 2024 -> Oct 2026.
     noaa21_fit = _window(monthly, NOAA21_START, SNPP_END)
@@ -176,39 +191,38 @@ def fit_factors(monthly: pd.DataFrame) -> dict:
         "terra_only": _single_factor(fit, "modis", "terra"),
         "noaa20": _single_factor(noaa20_fit, "snpp", "noaa20"),
         "noaa21": _single_factor(noaa21_fit, "snpp", "noaa21"),
-        # Orbit check (README step 3): afternoon Aqua vs. morning Terra against S-NPP.
-        "aqua_to_snpp": _single_factor(fit, "snpp", "aqua"),
-        "terra_to_snpp": _single_factor(fit, "snpp", "terra"),
     }
 
 
 # --- Steps 3, 6, 7: harmonized series, uncertainty, IQR Anomaly Score -------------------------
 
+def _epoch(r: dict, factors: dict) -> tuple[str, float, float, str]:
+    """(count column, factor, cv, source) that give one month its harmonized value (README table)."""
+    ym, f = (r["year"], r["month"]), factors["monthly"][r["month"] - 1]
+    terra, n20, n21 = factors["terra_only"], factors["noaa20"], factors["noaa21"]
+    if ym < AQUA_START:
+        return "terra", terra["factor"] * f["factor"], math.hypot(f["cv"], terra["cv"]), "modis_terra"
+    if ym < SNPP_START:
+        return "modis", f["factor"], f["cv"], "modis_terra_aqua"
+    if ym <= SNPP_END:
+        return "snpp", 1.0, 0.0, "viirs_snpp"
+    if r["noaa20"] == 0 and r["noaa21"] > 0:
+        return "noaa21", n21["factor"], n21["cv"], "viirs_noaa21"
+    return "noaa20", n20["factor"], n20["cv"], "viirs_noaa20"
+
+
 def harmonize(monthly: pd.DataFrame, factors: dict) -> pd.DataFrame:
     """Add modis_raw, viirs_raw, harmonized, source, is_estimated, unc_low, unc_high per month."""
-    mf = {f["month"]: f for f in factors["monthly"]}
-    terra, n20, n21 = factors["terra_only"], factors["noaa20"], factors["noaa21"]
     rows = []
     for r in monthly.to_dict("records"):
-        ym, f = (r["year"], r["month"]), mf[r["month"]]
-        if ym < AQUA_START:
-            h, cv = r["terra"] * terra["factor"] * f["factor"], math.hypot(f["cv"], terra["cv"])
-            modis_raw, viirs_raw, source = r["terra"], None, "modis_terra"
-        elif ym < SNPP_START:
-            h, cv = r["modis"] * f["factor"], f["cv"]
-            modis_raw, viirs_raw, source = r["modis"], None, "modis_terra_aqua"
-        elif ym <= SNPP_END:
-            h, cv = r["snpp"], 0.0
-            modis_raw, viirs_raw, source = r["modis"], r["snpp"], "viirs_snpp"
-        elif r["noaa20"] == 0 and r["noaa21"] > 0:
-            h, cv = r["noaa21"] * n21["factor"], n21["cv"]
-            modis_raw, viirs_raw, source = r["modis"], r["noaa21"], "viirs_noaa21"
-        else:
-            h, cv = r["noaa20"] * n20["factor"], n20["cv"]
-            modis_raw, viirs_raw, source = r["modis"], r["noaa20"], "viirs_noaa20"
+        column, factor, cv, source = _epoch(r, factors)
+        from_modis = source.startswith("modis")
+        h = r[column] * factor
         half = Z95 * math.sqrt(h + (cv * h) ** 2)  # Poisson count noise + factor spread
-        rows.append({"year": r["year"], "month": r["month"], "modis_raw": modis_raw, "viirs_raw": viirs_raw,
-                     "harmonized": h, "is_estimated": viirs_raw is None, "source": source,
+        rows.append({"year": r["year"], "month": r["month"],
+                     "modis_raw": r[column] if from_modis else r["modis"],
+                     "viirs_raw": None if from_modis else r[column],
+                     "harmonized": h, "is_estimated": from_modis, "source": source,
                      "unc_low": max(0.0, h - half), "unc_high": h + half})
     return pd.DataFrame(rows)
 
@@ -231,17 +245,49 @@ def add_anomaly(series: pd.DataFrame, baseline: tuple[int, int]) -> pd.DataFrame
 
 # --- Step 5: held-out validation ---------------------------------------------------------------
 
-def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict:
-    """Predict S-NPP from MODIS on the test years with the fit-year factors."""
-    test = _window(monthly, (TEST_YEARS[0], 1), min(SNPP_END, (TEST_YEARS[1], 12)))
-    if test.empty:
-        raise ValueError(f"no S-NPP months in test years {TEST_YEARS}: cannot compute test_mae")
-    factor = test["month"].map({f["month"]: f["factor"] for f in factors["monthly"]})
-    err = (test["modis"] * factor - test["snpp"]).abs()
+def _test_window(monthly: pd.DataFrame) -> pd.DataFrame:
+    return _window(monthly, (TEST_YEARS[0], 1), min(SNPP_END, (TEST_YEARS[1], 12)))
+
+
+def _test_error(test: pd.DataFrame, column: str, monthly_factors: list[dict]) -> dict:
+    """Error of `column` x its monthly factor as a prediction of S-NPP on the test months."""
+    factor = test["month"].map({f["month"]: f["factor"] for f in monthly_factors})
+    err = (test[column] * factor - test["snpp"]).abs()
     out = {"test_mae": float(err.mean())}
     seen = test["snpp"] > 0
     if seen.any():
         out["test_mape"] = float((err[seen] / test.loc[seen, "snpp"]).mean())
+    return out
+
+
+def orbit_check(monthly: pd.DataFrame) -> dict:
+    """Does afternoon Aqua track afternoon S-NPP better than morning Terra does? (TEAM_PLAN §2.2)
+
+    Each MODIS record (Aqua only, Terra only, both combined) gets its own monthly factors to
+    S-NPP on the fit years and is scored on the test years. Diagnostics only: the calendar
+    always uses the combined record.
+    """
+    fit, test = _fit_window(monthly), _test_window(monthly)
+    out = {}
+    for name, column in (("aqua_only", "aqua"), ("terra_only", "terra"), ("terra_aqua_combined", "modis")):
+        factors = _monthly_factors(fit, "snpp", column)
+        if not factors or test.empty:
+            continue
+        overall = _single_factor(fit, "snpp", column)
+        out[name] = {"factor": overall["factor"], "ratio_cv": overall["cv"], "n_months": overall["n_months"],
+                     "monthly_factors": [f["factor"] for f in factors], **_test_error(test, column, factors)}
+    scored = {name: r["test_mape"] for name, r in out.items() if "test_mape" in r}
+    if scored:
+        out["lowest_test_mape"] = min(scored, key=scored.get)
+    return out
+
+
+def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict:
+    """Predict S-NPP from MODIS on the test years with the fit-year factors."""
+    test = _test_window(monthly)
+    if test.empty:
+        raise ValueError(f"no S-NPP months in test years {TEST_YEARS}: cannot compute test_mae")
+    out = _test_error(test, "modis", factors["monthly"])
 
     naive = series["viirs_raw"].fillna(series["modis_raw"])  # what you get by just switching sensors
     before, after = series["year"].between(*STEP_BEFORE), series["year"].between(*STEP_AFTER)
@@ -255,14 +301,45 @@ def validate(monthly: pd.DataFrame, series: pd.DataFrame, factors: dict) -> dict
     return out
 
 
+# --- Step 9: fire history per hex, for the sandbox grid ---------------------------------------
+
+def fire_history(hex_day: pd.DataFrame, monthly: pd.DataFrame, factors: dict) -> pd.DataFrame:
+    """hex_fire_history table (contracts/tables.md): one row per hex with at least one detection.
+
+    burn_count uses the same satellite and factor as the calendar does for each month, so the
+    hexes of a region add up to the region's harmonized series. years_since_last_fire counts from
+    the hex's last detection by any satellite to the latest data date.
+    """
+    df = _cell_days(hex_day)
+    epochs = pd.DataFrame([(r["year"], r["month"], *_epoch(r, factors)[:2]) for r in monthly.to_dict("records")],
+                          columns=["year", "month", "column", "factor"])
+    df = df.merge(epochs, on=["year", "month"])
+    counted = df[(df["satellite"] == df["column"]) | ((df["column"] == "modis") & (df["sensor"] == "modis"))]
+    counted = counted.drop_duplicates(["h3", "date"])  # Terra+Aqua on the same day count once
+    last_fire = df.groupby("h3")["date"].max()
+    out = pd.DataFrame({
+        "burn_count": counted.groupby("h3")["factor"].sum().reindex(last_fire.index, fill_value=0.0).round(2),
+        "years_since_last_fire": ((df["date"].max() - last_fire).dt.days / 365.25).round(2),
+    })
+    return out.reset_index()
+
+
 # --- Outputs ------------------------------------------------------------------------------------
+
+def _rounded(x, digits: int = 3):
+    if isinstance(x, dict):
+        return {k: _rounded(v, digits) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_rounded(v, digits) for v in x]
+    return round(x, digits) if isinstance(x, float) else x
+
 
 def _ym(year: int, month: int) -> str:
     return f"{year}-{month:02d}"
 
 
-def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple[dict, dict]:
-    """(calendar, calibration) dicts matching contracts/*.schema.json."""
+def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple[dict, dict, pd.DataFrame]:
+    """(calendar, calibration) dicts matching contracts/*.schema.json, and the hex_fire_history table."""
     dates = pd.to_datetime(hex_day["date"])
     first_day, last_day = dates.min(), dates.max()
     monthly = monthly_cell_days(hex_day)
@@ -315,8 +392,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
         "terra_only": diag(factors["terra_only"]),
         "noaa20": diag(factors["noaa20"]),
         "noaa21": diag(factors["noaa21"]),
-        "orbit_check": {"aqua_to_snpp": diag(factors["aqua_to_snpp"]),
-                        "terra_to_snpp": diag(factors["terra_to_snpp"])},
+        "orbit_check": _rounded(orbit_check(monthly)),
     }
     if "noaa20_test_mae" in metrics:
         diagnostics["noaa20"]["test_mae"] = round(metrics["noaa20_test_mae"], 2)
@@ -340,7 +416,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool) -> tuple
         if key in metrics:
             calibration[key] = round(metrics[key], digits)
     calibration["diagnostics"] = diagnostics
-    return calendar, calibration
+    return calendar, calibration, fire_history(hex_day, monthly, factors)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -362,11 +438,12 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(f"{path} not found (P2 has not landed it yet); use --synthetic --out <dir>")
         hex_day = pd.read_parquet(path)
 
-    calendar, calibration = build_outputs(hex_day, args.region, is_mock=args.synthetic)
+    calendar, calibration, history = build_outputs(hex_day, args.region, is_mock=args.synthetic)
     out = args.out or PROCESSED / args.region
     out.mkdir(parents=True, exist_ok=True)
     (out / "calendar.json").write_text(json.dumps(calendar, indent=1))
     (out / "calibration.json").write_text(json.dumps(calibration, indent=1))
+    history.to_parquet(out / "hex_fire_history.parquet", index=False)
 
     factors = [f["factor"] for f in calibration["monthly_factors"]]
     print(f"{args.region}{' (SYNTHETIC)' if args.synthetic else ''}: {len(calendar['months'])} months -> {out}")
@@ -374,6 +451,7 @@ def main(argv: list[str] | None = None) -> None:
           f"noaa20 {calibration['noaa20_factor']}, noaa21 {calibration['noaa21_factor']}")
     print(f"  test MAE {calibration['test_mae']} cell-days (MAPE {calibration.get('test_mape')}), 2012 step "
           f"raw x{calibration.get('raw_step_ratio')} -> harmonized x{calibration.get('harmonized_step_ratio')}")
+    print(f"  hex_fire_history: {len(history)} hexes, {history['burn_count'].sum():.0f} harmonized cell-days")
 
 
 if __name__ == "__main__":
