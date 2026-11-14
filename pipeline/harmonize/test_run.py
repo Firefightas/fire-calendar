@@ -175,6 +175,10 @@ def test_outputs_match_contracts(hex_day):
     assert calibration["raw_step_ratio"] > 1.5
     assert calibration["harmonized_step_ratio"] < calibration["raw_step_ratio"]
     assert calibration["test_mape"] < 0.2
+    monthly = run.monthly_cell_days(hex_day)
+    modis = monthly.groupby("year")["modis"].sum()
+    assert calibration["diagnostics"]["modis_only_step_ratio"] == pytest.approx(
+        modis.loc[2013:2015].sum() / modis.loc[2009:2011].sum(), abs=0.01)
     assert {"aqua_only", "terra_only", "terra_aqua_combined"} <= set(calibration["diagnostics"]["orbit_check"])
 
 
