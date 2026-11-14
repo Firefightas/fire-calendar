@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+
+/* Dark-only UI. Chrome and series tokens follow one validated set (CVD-checked on #1a1a19). */
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --color-page: #0d0d0d;
+  --color-surface: #1a1a19;
+  --color-raised: #232322;
+  --color-ink: #f0efec;
+  --color-ink-2: #c3c2b7;
+  --color-muted: #898781;
+  --color-grid: #2c2c2a;
+  --color-axis: #383835;
+  --color-hairline: rgba(255, 255, 255, 0.1);
+
+  /* Categorical: fixed by entity, never by rank. */
+  --color-series-harmonized: #3987e5;
+  --color-series-raw: #d95926;
+
+  /* Status: always paired with an icon or label. */
+  --color-good: #0ca30c;
+  --color-warning: #fab219;
+  --color-serious: #ec835a;
+  --color-critical: #d03b3b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid #86b6ef;
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
