@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Calibration } from '../../types/contracts.ts'
 import { FloatingTip } from './FloatingTip.tsx'
-import { chainFactors, factorAxis, factorExtremes, monthlyRows } from './calibration.ts'
+import { chainFactors, factorAxis, factorExtremes, monthlyRows, snppReferenceUntil } from './calibration.ts'
 import type { FactorRow } from './calibration.ts'
-import { MONTH_NAMES, fmtFactor } from './model.ts'
+import { MONTH_NAMES, fmtFactor, fmtYm } from './model.ts'
 
 const SERIES = 'var(--color-series-harmonized)'
 const pct = (t: number) => `${(t * 100).toFixed(2)}%`
@@ -187,6 +187,7 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
   const rows = useMemo(() => monthlyRows(calibration), [calibration])
   const extremes = useMemo(() => factorExtremes(rows), [rows])
   const chain = useMemo(() => chainFactors(calibration), [calibration])
+  const snppUntil = snppReferenceUntil(calibration)
   const [f0, f1] = calibration.fit_years
   const anyFallback = rows.some((r) => r.fallback)
 
@@ -195,8 +196,8 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
       <header className="mb-3">
         <h2 className="text-sm font-semibold">How the conversion works: calibration factors</h2>
         <p className="text-xs text-ink-2">
-          MODIS cell-days × the factor for that calendar month = S-NPP-VIIRS-equivalent cell-days. Factors are learned
-          on {f0}–{f1} only. Method: {calibration.method}.
+          MODIS cell-days × the factor for that calendar month = S-NPP-VIIRS-equivalent cell-days. The monthly factors
+          are learned on {f0}–{f1} only. Method: {calibration.method}.
         </p>
         {(isArea || calibration.is_mock) && (
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -254,6 +255,7 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
             <div className="mt-1 text-xl font-semibold">{fmtFactor(c.value)}</div>
             <p className="mt-1 text-xs text-ink-2">{c.meaning}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
+              {c.key === 'noaa20_factor' && snppUntil && <Chip>S-NPP is the reference through {fmtYm(snppUntil)}</Chip>}
               {c.window && (
                 <Chip>
                   Fitted on {c.window[0]} to {c.window[1]}

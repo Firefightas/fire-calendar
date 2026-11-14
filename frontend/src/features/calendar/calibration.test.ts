@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { Calibration } from '../../types/contracts.ts'
-import { chainFactors, factorAxis, factorExtremes, monthlyRows } from './calibration.ts'
+import {
+  chainFactors,
+  factorAxis,
+  factorExtremes,
+  modisOnlyStepRatio,
+  monthlyRows,
+  snppReferenceUntil,
+} from './calibration.ts'
 
 function calibration(over: Partial<Calibration> = {}): Calibration {
   return {
@@ -99,5 +106,21 @@ describe('chainFactors', () => {
     expect(chainFactors(calibration()).every((c) => c.measured === null)).toBe(true)
     const odd = calibration({ diagnostics: { noaa20: 'n/a', fit_windows: [1, 2] } as Record<string, unknown> })
     expect(chainFactors(odd).every((c) => c.measured === null && c.window === null)).toBe(true)
+  })
+})
+
+describe('optional diagnostics', () => {
+  it('reads the S-NPP reference month and the MODIS-only step when well-formed', () => {
+    const c = calibration({ diagnostics: { snpp_reference_until: '2026-07', modis_only_step_ratio: 2.06 } })
+    expect(snppReferenceUntil(c)).toBe('2026-07')
+    expect(modisOnlyStepRatio(c)).toBe(2.06)
+  })
+
+  it('returns null when they are missing or malformed', () => {
+    for (const diagnostics of [undefined, { note: 'mock values' }, { snpp_reference_until: '2026-13', modis_only_step_ratio: '2.06' }, { snpp_reference_until: 202607, modis_only_step_ratio: -1 }]) {
+      const c = calibration(diagnostics ? { diagnostics } : {})
+      expect(snppReferenceUntil(c)).toBeNull()
+      expect(modisOnlyStepRatio(c)).toBeNull()
+    }
   })
 })

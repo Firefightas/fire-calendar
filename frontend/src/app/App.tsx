@@ -178,7 +178,8 @@ export default function App() {
             {areaCal?.is_mock && (
               <Banner tone="info">
                 MOCK DATA: the backend computed this drawn-area calendar from its sample hotspot table or mock
-                calibration, so its counts are not comparable with the mock whole-region calendar.
+                calibration, so its counts are not comparable with the {regionCal?.is_mock ? 'mock' : 'real'}{' '}
+                whole-region calendar.
               </Banner>
             )}
             {!shown && calendar.status === 'loading' && <p className="text-sm text-muted">Loading…</p>}

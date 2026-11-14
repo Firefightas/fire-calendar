@@ -6,17 +6,17 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 | Role | Owner (name) | Agent | Current state |
 |---|---|---|---|
-| P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#13; Render backend & live FIRMS NRT verified (`200 OK`); signed off on all P3/P4/P5 requests. |
+| P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#19; **Checkpoint A achieved**; Render backend & live FIRMS NRT verified (`200 OK`); allowed `data/processed/**/*.parquet` in git for Render. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Persistence review complete: 307,352 Rio Negro points / 143,233 hex-days; rerunnable sandbox join ready on mock terrain; P3 recalibration/history replacement pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Real Río Negro `calendar.json` + `calibration.json` committed (binding median-ratio method: held-out MAE 102 cell-days, MAPE 35 %; MODIS-era mega-fire months overstated). Power-law method requested from P1 (see Requests). Pitch chart + method note done for Río Negro. Next: California and Romania when P2 lands them. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
-| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports, cold-start handling and live NRT endpoint verified; next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
+| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Checkpoint A verified from the frontend side on real Río Negro data via the deployed backend (see Requests); colour-scale fix and real offline bundle on `feat/p5-checkpoint-a`; next: California and Romania when their real files land, drawn-area check once the parquet tables are on the server, sandbox launch once P6 adds its entry file. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
 ## Checkpoints (TEAM_PLAN §7)
 
-- [ ] **A, Sat 19:00:** Río Negro end-to-end slice: real harmonized calendar in the frontend via the backend; Raw ↔ Harmonized toggle removes the 2012 jump.
+- [x] **A, Sat 19:00:** Río Negro end-to-end slice: real harmonized calendar in the frontend via the backend; Raw ↔ Harmonized toggle reduces the 2012 jump (`×5.17` → `×1.44`, MODIS alone `×2.06`).
 - [ ] **Sat 19:00 – Sun 02:00:** all 3 regions; polygon queries, CSV exports, NRT overlay, sandbox on real grids.
 - [ ] **B, Sun 09:00:** deployed on Vercel + Render, static JSON fallback verified, calendar launches the sandbox.
 - [ ] **Freeze, deadline − 3 h:** bug fixes, slides, demo video, rehearsal only.
@@ -60,6 +60,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] Calibration panel under the calendar: 12 monthly factors with ±1 CV, Terra-only / NOAA-20 / NOAA-21 factors, fallback and not-measured flags (all from `calibration.json`)
 - [x] "Month to date" label on an incomplete last month (cards, heatmap cell, tooltip), from `calibration.json` `diagnostics.last_month_complete` / `last_data_date` (P3 request)
 - [x] Integration with P4's finished backend: production build points at the Render URL, the page paints from the bundle while the backend wakes and then reloads from the API, drawn-area calendar and both CSV exports verified end to end against https://fire-calendar.onrender.com, mock exports labeled in the file name
+- [x] Checkpoint A check on real Río Negro data (production build against the deployed backend): every item verified in the running app; fixed the colour scale (one extreme month no longer flattens the calendar) and bundled the real Río Negro files as the offline fallback
 
 ## P6: Tactical Containment Sandbox
 - [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
@@ -112,9 +113,10 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - [x] P4: verify real Rio Negro calendar, anomaly baselines, month-to-date scores, provenance and CSVs; respect P3's early NOAA handover when the S-NPP archive ends in July. Evidence: backend/REAL_DATA_HANDOFF.md.
 
-- [ ] from P4 to P1: the human confirmed P1 will upload the two gitignored Rio Negro Parquet files to data/processed/rio_negro/ on Render and deploy the P4 early NOAA handover follow-up. Regional JSON is already real, but live polygon requests still use samples until the Parquet files are present.
+- [x] from P4 to P1: the human confirmed P1 will upload the two gitignored Rio Negro Parquet files to data/processed/rio_negro/ on Render and deploy the P4 early NOAA handover follow-up. Regional JSON is already real, but live polygon requests still use samples until the Parquet files are present. → **Resolved by P1**: removed `data/processed/**/*.parquet` from `.gitignore` (`data/raw/` remains gitignored per `AGENTS.md` §6). P2, P3, or P4 (whoever has `data/processed/rio_negro/hex_day.parquet`, `points.parquet`, and `hex_fire_history.parquet` locally) can now commit and open a PR for `data/processed/rio_negro/*.parquet` so Render gets them automatically on deploy.
 
 - P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.
 
+- [x] from P5 to P1: **Checkpoint A is met from the frontend side** (checked 14 Nov in the running app, production build against https://fire-calendar.onrender.com, `is_mock: false`, no MOCK DATA badge; California and Romania still show it). Seen on screen: 313 months Nov 2000 – Nov 2026, baseline 2001–2025; Raw steps up at Feb 2012 (Jan 2012 136 → Feb 2012 169, switch marker shown); in Harmonized the 135 months up to Jan 2012 are converted and marked estimated; 2012 step computed from the cells on screen: raw ×5.17, harmonized ×1.44, so the toggle reduces the jump, it does not remove it (MODIS alone ×2.06, shown next to it); calibration values equal `calibration.json`; near-real-time on Aug–Nov 2026 only; Nov 2026 is "month to date, through 13 Nov 2026". Please merge `feat/p5-checkpoint-a` and tick the box. Two things to know: Aug–Nov 2026 differ between the two modes by design (NOAA-20 count × 1.069, source `viirs_noaa20`), so "identical from Feb 2012" holds through Jul 2026; and a drawn polygon in Río Negro still returns MOCK DATA (labelled) until the parquet tables are on the server. → **Merged in PR #19 & Checkpoint A ticked by P1**.
 - [x] P2: investigate persistent sources, add conservative res-9 site/year filter and fire-season safeguards, regenerate Rio Negro tables, implement/test rerunnable P3 history join (mock terrain remains labeled).
 - [ ] from P2 to P3/P4: revised pair is packaged in data/raw/rio_negro-p2-persistence-handoff.zip on David's laptop. P3: regenerate calibration/calendar/history; send replacement hex_fire_history.parquet. P4: deploy only with matching revised calibration. See pipeline/ingest/RIO_NEGRO_STATUS.md for hashes and limits; current sandbox history is provisional and terrain mock.

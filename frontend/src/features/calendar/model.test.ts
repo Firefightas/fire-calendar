@@ -4,9 +4,11 @@ import {
   annualTotals,
   anomalyBand,
   buildGrid,
+  colorDomain,
   firstViirsMonth,
   isMonthInProgress,
   peakAnomaly,
+  quantile,
   sharedMax,
   valueOf,
 } from './model.ts'
@@ -106,5 +108,42 @@ describe('anomaly helpers', () => {
     const now = new Date(Date.UTC(2026, 10, 14))
     expect(isMonthInProgress({ year: 2026, month: 11 }, now)).toBe(true)
     expect(isMonthInProgress({ year: 2026, month: 10 }, now)).toBe(false)
+  })
+})
+
+describe('quantile', () => {
+  it('interpolates between ranks and ignores input order', () => {
+    expect(quantile([40, 10, 30, 20], 0.5)).toBe(25)
+    expect(quantile([10, 20, 30, 40], 0)).toBe(10)
+    expect(quantile([10, 20, 30, 40], 1)).toBe(40)
+    expect(quantile([], 0.98)).toBe(0)
+  })
+})
+
+describe('colorDomain', () => {
+  const ordinary = Array.from({ length: 100 }, (_, i) => month(2013 + Math.floor(i / 12), (i % 12) + 1, { viirs_raw: 100 + i, harmonized: 100 + i }))
+
+  it('uses the full range when no month is far above the rest', () => {
+    expect(colorDomain(ordinary)).toEqual({ top: 199, max: 199, capped: false })
+  })
+
+  it('stops at the 98th percentile when one month dwarfs the others', () => {
+    const withOutlier = [...ordinary, month(2001, 1, { modis_raw: 2402, harmonized: 11490 })]
+    const d = colorDomain(withOutlier)
+    expect(d.capped).toBe(true)
+    expect(d.max).toBe(11490)
+    // The raw MODIS count of the outlier month (2,402) is above the cap too; ordinary months are not.
+    expect(d.top).toBeGreaterThan(190)
+    expect(d.top).toBeLessThan(2402)
+  })
+
+  it('counts raw and harmonized values together, so both modes share one scale', () => {
+    const d = colorDomain([month(2005, 1, { modis_raw: 40, harmonized: 60 }), month(2015, 1, { viirs_raw: 90, harmonized: 90 })])
+    expect(d).toEqual({ top: 90, max: 90, capped: false })
+  })
+
+  it('copes with an empty or all-zero calendar', () => {
+    expect(colorDomain([])).toEqual({ top: 0, max: 0, capped: false })
+    expect(colorDomain([month(2020, 1, { viirs_raw: 0, harmonized: 0 })])).toEqual({ top: 0, max: 0, capped: false })
   })
 })
