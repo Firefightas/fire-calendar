@@ -161,3 +161,26 @@ def test_incomplete_last_month_uses_same_days_in_baseline_years(archive):
     assert full["months"][-1] == row
     previous = next(m for m in full["months"] if (m["year"], m["month"]) == (2025, 11))
     assert previous["median_m"] == 20 and previous["iqr_m"] == 20
+
+
+@pytest.mark.parametrize(("month", "satellite", "factor"), [
+    (8, "noaa20", 1.25), (9, "noaa21", 1.5), (10, "noaa20", 1.25),
+])
+def test_regional_viirs_source_can_handover_before_nominal_snpp_end(archive, month, satellite, factor):
+    add, save, reference, _, _ = archive
+    add(2026, month, satellite, 2)
+    # Missing S-NPP archive coverage is not a zero-fire month. P3's regional
+    # source is authoritative even before the nominal November handover.
+    for row in reference["months"]:
+        if (row["year"], row["month"]) == (2026, month):
+            row["source"] = "viirs_" + satellite
+            row["is_nrt"] = True
+    save()
+    selected = f"2026-{month:02d}"
+    response = client.post("/api/calendar", json=body(start=selected, end=selected))
+    assert response.status_code == 200
+    row = response.json()["months"][0]
+    assert row["source"] == "viirs_" + satellite
+    assert row["viirs_raw"] == 2
+    assert row["harmonized"] == 2 * factor
+    assert row["is_nrt"] is True

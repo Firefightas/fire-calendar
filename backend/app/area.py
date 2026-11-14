@@ -144,8 +144,9 @@ def quantile(values: list[float], p: float) -> float:
 def epoch(row: dict, parent: dict, calibration: dict, factors: dict) -> tuple:
     monthly = factors[parent["month"]]
     ym = (parent["year"], parent["month"])
-    # Use regional source availability after S-NPP: zero area detections do
-    # not establish that a satellite was unavailable for the whole month.
+    # P3 may hand over to NOAA before the nominal S-NPP end when the SP
+    # archive stops early. Follow regional availability; a quiet polygon
+    # does not establish that a satellite was unavailable.
     if ym < (2002, 7):
         column, source = "terra", "modis_terra"
         factor = calibration["terra_only_factor"] * monthly["factor"]
@@ -154,7 +155,7 @@ def epoch(row: dict, parent: dict, calibration: dict, factors: dict) -> tuple:
     elif ym < (2012, 2):
         column, source = "modis", "modis_terra_aqua"
         factor, cv = monthly["factor"], monthly["cv"]
-    elif ym <= (2026, 10):
+    elif ym <= (2026, 10) and parent["source"] not in ("viirs_noaa20", "viirs_noaa21"):
         column, source, factor, cv = "snpp", "viirs_snpp", 1.0, 0.0
     else:
         column = "noaa21" if parent["source"] == "viirs_noaa21" else "noaa20"

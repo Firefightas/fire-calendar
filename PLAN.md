@@ -9,7 +9,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#13; Render backend & live FIRMS NRT verified (`200 OK`); signed off on all P3/P4/P5 requests. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Real Río Negro `calendar.json` + `calibration.json` committed (binding median-ratio method: held-out MAE 102 cell-days, MAPE 35 %; MODIS-era mega-fire months overstated). Power-law method requested from P1 (see Requests). Pitch chart + method note done for Río Negro. Next: California and Romania when P2 lands them. |
-| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT deployed and verified; Rio Negro P2 inputs installed and integrity/real hotspot export checks passed; P3's real `calendar.json` + `calibration.json` (`snpp_reference_until: 2026-07`) are now on `main`. |
+| P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports, cold-start handling and live NRT endpoint verified; next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
@@ -106,6 +106,12 @@ _Format: `- [ ] from Px to Py: what and why`_
 
 - P4 received-data evidence: backend/REAL_DATA_HANDOFF.md. P2's NOAA-21 SP start explanation resolves the earlier-than-NRT dates; no observations were discarded.
 
-- P4 integration boundary: P3's feat/p3-rio-negro-run is now pushed with SP-tail/provenance fixes but deliberately excludes real JSON outputs pending P1's calibration-method/possible-contract decision. P4 is paused at that boundary; any adopted reference-source change must also be reflected in backend polygon source selection.
+- P4 integration dependency resolved: P1 kept the binding method/frozen contracts and P3's real JSON outputs are on main via PR #15. Local full-history integration and the early NOAA handover fix are verified.
 
-- P4 real-data handoff review: https://github.com/neamturazvan/fire-calendar/pull/17; 105 Python tests, Ruff and frontend build passed; Parquet inputs remain gitignored; P1/P3 calibration decision and outputs still required.
+- P4 real-data handoff review: https://github.com/neamturazvan/fire-calendar/pull/17 (merged); input validation and placement completed. The early NOAA handover follow-up adds runtime compatibility and full real-calendar verification.
+
+- [x] P4: verify real Rio Negro calendar, anomaly baselines, month-to-date scores, provenance and CSVs; respect P3's early NOAA handover when the S-NPP archive ends in July. Evidence: backend/REAL_DATA_HANDOFF.md.
+
+- [ ] from P4 to P1: the human confirmed P1 will upload the two gitignored Rio Negro Parquet files to data/processed/rio_negro/ on Render and deploy the P4 early NOAA handover follow-up. Regional JSON is already real, but live polygon requests still use samples until the Parquet files are present.
+
+- P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.
