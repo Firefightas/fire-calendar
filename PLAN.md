@@ -8,7 +8,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#13; Render backend & live FIRMS NRT verified (`200 OK`); signed off on all P3/P4/P5 requests. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
-| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Real Río Negro `calendar.json` + `calibration.json` committed (binding median-ratio method: held-out MAE 102 cell-days, MAPE 35 %; MODIS-era mega-fire months overstated). Power-law method requested from P1 (see Requests). Next: pitch chart + method numbers; California and Romania when P2 lands them. |
+| P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Real Río Negro `calendar.json` + `calibration.json` committed (binding median-ratio method: held-out MAE 102 cell-days, MAPE 35 %; MODIS-era mega-fire months overstated). Power-law method requested from P1 (see Requests). Pitch chart + method note done for Río Negro. Next: California and Romania when P2 lands them. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend deployed at https://fire-calendar.onrender.com; live FIRMS NRT (`200 OK` after PR #11 deploy), polygon queries and CSV exports verified; real archives await P2/P3. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Integrated with P4's deployed backend: drawn-area calendars, both CSV exports, cold-start handling and live NRT endpoint verified; next: real Río Negro data check once P2/P3 files exist, sandbox launch once P6 adds its entry file. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
@@ -41,7 +41,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] Held-out 2021–2025 → `test_mae` → `calibration.json` (Río Negro: MAE 102 cell-days, MAPE 35 %)
 - [x] `calendar.json`: harmonized series, IQR anomaly (floor 1.0), uncertainty, sparse fallback (Río Negro committed in `data/processed/rio_negro/`)
 - [x] `hex_fire_history.parquet` (burn_count, years_since_last_fire) for P2 (code ready; real file once `hex_day.parquet` lands)
-- [ ] Method paragraph + raw-vs-harmonized validation chart for the pitch (chart script ready: `pipeline/harmonize/chart.py`; paragraph drafted in `pipeline/harmonize/METHOD.md`; real chart and the paragraph's numbers once real data lands)
+- [x] Method paragraph + raw-vs-harmonized validation chart for the pitch (Río Negro: `pipeline/harmonize/METHOD.md` + `pipeline/harmonize/pitch/rio_negro_validation_chart.png`; redo both if the method changes)
 
 ## P4: Backend
 - [x] Mock-serving endpoints (regions, calendar, calibration, sandbox grid, health)
