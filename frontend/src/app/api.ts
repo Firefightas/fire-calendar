@@ -30,6 +30,16 @@ export class ApiError extends Error {
   }
 }
 
+/** A short reason for the UI: why a backend-only feature is not available right now. */
+export function explain(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === null) return 'the backend is unreachable'
+    if (err.status === 501) return 'this endpoint is not implemented in the backend yet'
+    return err.message
+  }
+  return err instanceof Error ? err.message : String(err)
+}
+
 const TIMEOUT_MS = 8000
 const RETRY_API_AFTER_MS = 30_000
 /** After a network failure, skip the backend for a while so the UI doesn't wait on every read. */

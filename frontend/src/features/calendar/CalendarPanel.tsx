@@ -20,9 +20,11 @@ interface Props {
   southern: boolean
   /** Dim while a new calendar is loading, instead of flashing a skeleton. */
   stale: boolean
+  /** Rendered at the end of the controls row (CSV exports). */
+  actions?: React.ReactNode
 }
 
-export function CalendarPanel({ calendar, calibration, areaName, isArea, southern, stale }: Props) {
+export function CalendarPanel({ calendar, calibration, areaName, isArea, southern, stale, actions }: Props) {
   const [mode, setMode] = useState<Mode>('harmonized')
   const [palette, setPalette] = useState<PaletteId>('cividis')
   const [startMonth, setStartMonth] = useState<1 | 7>(1)
@@ -46,6 +48,7 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
             { value: 'season', label: southern ? 'Rows: Jul–Jun fire season' : 'Rows: Jul–Jun' },
           ]}
         />
+        {actions && <div className="ml-auto">{actions}</div>}
       </div>
 
       <AnomalyCards calendar={calendar} calibration={calibration} selected={selected} isArea={isArea} />

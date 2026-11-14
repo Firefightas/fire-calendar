@@ -10,7 +10,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json` + `calibration.json`, verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
-| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Map (draw polygon/rectangle, lat/lon, presets, H3 layers) and calendar (toggle, chart, anomaly cards) work end to end against the backend and offline; exports + sandbox launch next. |
+| P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All five P5 items built and tested on mocks, online and offline; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check, polish. |
 | P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
@@ -55,7 +55,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] MapLibre + deck.gl H3 layer + terra-draw + lat/lon + 3 region presets + static JSON fallback loader
 - [x] 26 × 12 calendar heatmap, palette switcher (Cividis default), `is_estimated` / `is_nrt` / MOCK badges, tooltips
 - [x] Raw ↔ Harmonized toggle, time-series chart, `test_mae` validation badge, IQR anomaly cards
-- [ ] CSV export buttons, NRT overlay, "Launch Tactical Containment Sandbox" trigger
+- [x] CSV export buttons, NRT overlay, "Launch Tactical Containment Sandbox" trigger
 
 ## P6: Tactical Containment Sandbox
 - [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
@@ -72,5 +72,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [ ] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date.
 - [ ] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
 - [ ] from P5 to P4/P1: no endpoint gives per-hex historical values, so the map's `H3HexagonLayer` has no archive data source. Interim: P5 shows NRT hotspots binned to H3 res-7 in the browser and the sandbox grid's `burn_count`. Say if you want a per-hex endpoint instead.
-- [ ] from P5 to P6: the app will lazy-load the default export of `frontend/src/features/sandbox/index.ts(x)` with props `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. Confirm or tell me the shape you want.
+- [ ] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape.
 - [ ] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).

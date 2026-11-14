@@ -8,12 +8,11 @@ import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TerraDraw, TerraDrawPolygonMode, TerraDrawRectangleMode } from 'terra-draw'
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter'
-import { loadNrt } from '../../app/api.ts'
+import { explain, loadNrt } from '../../app/api.ts'
 import type { NrtCollection } from '../../app/api.ts'
 import type { NrtHotspotProps, Region, SandboxCell, SandboxGrid } from '../../types/contracts.ts'
 import { loadBasemap } from './basemap.ts'
 import {
-  binHotspots,
   boxAround,
   bboxPolygon,
   clampBbox,
@@ -22,7 +21,8 @@ import {
   polygonAreaKm2,
   polygonInBbox,
 } from './geo.ts'
-import type { HexBin } from './geo.ts'
+import { binHotspots } from './hexbin.ts'
+import type { HexBin } from './hexbin.ts'
 
 // MapLibre 6 looks for its worker next to its own module file, which a bundler moves.
 // Hand it the worker as an emitted asset instead.
@@ -346,7 +346,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid, acti
       const data = await loadNrt({ bbox: clampBbox([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]) }, nrtDays)
       setNrt({ status: 'ready', data, days: nrtDays })
     } catch (err) {
-      setNrt({ status: 'error', message: err instanceof Error ? err.message : String(err) })
+      setNrt({ status: 'error', message: explain(err) })
     }
   }
 
@@ -496,7 +496,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid, acti
             {nrt.status === 'idle' && 'NOAA-20, NOAA-21 and MODIS near-real-time, anywhere on Earth.'}
             {nrt.status === 'ready' &&
               `${nrt.data.features.length} detections in ${nrtBins.length} hexes (last ${nrt.days} d).`}
-            {nrt.status === 'error' && <span className="text-serious">Unavailable: {nrt.message}</span>}
+            {nrt.status === 'error' && <span className="text-serious">Unavailable: {nrt.message}.</span>}
           </div>
         </div>
       </div>

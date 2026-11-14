@@ -1,11 +1,16 @@
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { CalendarPanel } from '../features/calendar/CalendarPanel.tsx'
 import { sameSeries } from '../features/calendar/model.ts'
-import { MapPanel } from '../features/map/MapPanel.tsx'
+import { ExportButtons } from '../features/export/ExportButtons.tsx'
+import { bboxPolygon } from '../features/map/geo.ts'
 import type { RegionId } from '../types/contracts.ts'
-import { ApiError, loadAreaCalendar, loadCalendar, loadCalibration, loadRegions, loadSandboxGrid } from './api.ts'
+import { explain, loadAreaCalendar, loadCalendar, loadCalibration, loadRegions, loadSandboxGrid } from './api.ts'
 import { MockBadge, OriginChip } from './badges.tsx'
+import { SandboxHost } from './SandboxHost.tsx'
 import { useAsync } from './useAsync.ts'
+
+// MapLibre + deck.gl are most of the bundle: load them after the calendar is on screen.
+const MapPanel = lazy(() => import('../features/map/MapPanel.tsx').then((m) => ({ default: m.MapPanel })))
 
 const DEFAULT_REGION: RegionId = 'rio_negro'
 const AREA_LABEL = 'Drawn area'
@@ -27,6 +32,7 @@ function Banner({ tone, children }: { tone: 'info' | 'warning'; children: React.
 export default function App() {
   const [regionId, setRegionId] = useState<RegionId>(DEFAULT_REGION)
   const [polygon, setPolygon] = useState<GeoJSON.Polygon | null>(null)
+  const [sandboxOpen, setSandboxOpen] = useState(false)
 
   const regions = useAsync(loadRegions, 'regions')
   const calendar = useAsync(() => loadCalendar(regionId), `calendar:${regionId}`)
@@ -78,7 +84,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1600px] space-y-4 px-4 py-4">
+      {sandboxOpen && region && <SandboxHost region={region} area={polygon} onClose={() => setSandboxOpen(false)} />}
+
+      <main className="mx-auto max-w-[1600px] space-y-4 px-4 py-4" hidden={sandboxOpen}>
         <nav aria-label="Region" className="flex flex-wrap items-center gap-2">
           {regions.data?.data.regions.map((r) => (
             <button
@@ -105,13 +113,30 @@ export default function App() {
         <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <div className="xl:sticky xl:top-4">
             {region && regions.data && (
-              <MapPanel
-                regions={regions.data.data.regions}
-                region={region}
-                polygon={polygon}
-                onPolygonChange={setPolygon}
-                grid={grid.status === 'ready' ? grid.data.data : null}
-              />
+              <Suspense
+                fallback={
+                  <div className="rounded-lg border border-hairline bg-surface p-4 text-sm text-muted">
+                    Loading the map…
+                  </div>
+                }
+              >
+                <MapPanel
+                  regions={regions.data.data.regions}
+                  region={region}
+                  polygon={polygon}
+                  onPolygonChange={setPolygon}
+                  grid={grid.status === 'ready' ? grid.data.data : null}
+                  actions={
+                    <button
+                      type="button"
+                      onClick={() => setSandboxOpen(true)}
+                      className="rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-page hover:bg-ink-2"
+                    >
+                      Launch Tactical Containment Sandbox
+                    </button>
+                  }
+                />
+              </Suspense>
             )}
           </div>
 
@@ -122,10 +147,7 @@ export default function App() {
             {areaLoading && <Banner tone="info">Computing the calendar for the drawn area…</Banner>}
             {polygon && area.status === 'error' && (
               <Banner tone="warning">
-                {area.error instanceof ApiError && area.error.status === null
-                  ? 'A calendar for a drawn area needs the backend, which is unreachable.'
-                  : `The backend could not compute a calendar for the drawn area: ${area.error.message}.`}{' '}
-                The numbers below are for the whole region.
+                No calendar for the drawn area: {explain(area.error)}. The numbers below are for the whole region.
               </Banner>
             )}
             {areaCal && regionCal && sameSeries(areaCal, regionCal) && (
@@ -143,6 +165,20 @@ export default function App() {
                 isArea={Boolean(areaCal)}
                 southern={region?.hemisphere === 'south'}
                 stale={calendar.status === 'loading' || areaLoading}
+                actions={
+                  region && (
+                    <ExportButtons
+                      query={{
+                        region_id: regionId,
+                        polygon: polygon ?? bboxPolygon(region.bbox),
+                        start: shown.first_month,
+                        end: shown.last_month,
+                      }}
+                      calendar={shown}
+                      calendarIsArea={Boolean(areaCal)}
+                    />
+                  )
+                }
               />
             )}
           </div>

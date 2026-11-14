@@ -56,4 +56,7 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - The map's `H3HexagonLayer` shows (a) `burn_count` from the region's sandbox grid and (b) live NRT hotspots binned to H3 res-7 in the browser, loaded on demand for the current map view via `GET /api/nrt?bbox=`. Why: no contract endpoint returns per-hex archive values; NRT by view bbox keeps the overlay global (TEAM_PLAN §0.1).
 - MapLibre 6 gets its worker through `setWorkerUrl()` with a Vite `?url` asset import. Why: it resolves the worker relative to its own module at runtime, which breaks once Vite bundles it.
 - When an area calendar comes back identical to the whole-region series, the UI says so. Why: the interim `POST /api/calendar` ignores the polygon, and region totals must not be presented as a drawn area's numbers.
+- "Export calendar (CSV)" falls back to a CSV built in the browser from the calendar on screen (contract column order) when the backend export fails, and says so; "Export hotspots (CSV)" has no fallback. Why: the monthly table is already in the page, the point archive is not.
+- The sandbox is mounted through `import.meta.glob('../features/sandbox/index.{ts,tsx}')` inside a host page that always shows `SANDBOX_BANNER`. Why: P5's build stays green before P6's entry exists, and the banner rule holds no matter what the module renders.
+- The map (MapLibre + deck.gl + h3-js) is a lazy chunk. Why: the calendar, which is the judged centerpiece, paints first.
 
