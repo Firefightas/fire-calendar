@@ -15,6 +15,7 @@ import {
   progressOf,
 } from './model.ts'
 import type { MonthProgress } from './model.ts'
+import { modisOnlyStepRatio } from './calibration.ts'
 
 function Tile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -72,6 +73,7 @@ function AnomalyTile({ label, m, calendar, progress }: TileProps) {
 function ValidationTile({ calibration, regional }: { calibration: Calibration; regional: boolean }) {
   const [f0, f1] = calibration.fit_years
   const [t0, t1] = calibration.test_years
+  const modisOnly = modisOnlyStepRatio(calibration)
   return (
     <Tile label={`Held-out validation, ${t0}–${t1}`}>
       <div className="mt-1 flex items-baseline gap-2">
@@ -93,6 +95,12 @@ function ValidationTile({ calibration, regional }: { calibration: Calibration; r
           2012 step (mean 2013–2015 ÷ mean 2009–2011): raw{' '}
           <span className="text-ink">{fmtFactor(calibration.raw_step_ratio)}</span>, harmonized{' '}
           <span className="text-ink">{fmtFactor(calibration.harmonized_step_ratio)}</span>.
+          {modisOnly !== null && (
+            <>
+              {' '}
+              MODIS alone over the same years: <span className="text-ink">{fmtFactor(modisOnly)}</span>.
+            </>
+          )}
         </p>
       )}
       <div className="mt-2 flex flex-wrap gap-1.5">

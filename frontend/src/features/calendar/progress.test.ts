@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Calendar, CalendarMonth, Calibration } from '../../types/contracts.ts'
-import { fmtDay, lastMonthProgress, progressNote, progressOf } from './model.ts'
+import { fmtDay, fmtYm, lastMonthProgress, progressNote, progressOf } from './model.ts'
 
 const month = (year: number, m: number): CalendarMonth => ({
   year,
@@ -102,6 +102,8 @@ describe('progress wording', () => {
     expect(fmtDay('2026-11-03')).toBe('3 Nov 2026')
     expect(fmtDay('2026-13-03')).toBe('2026-13-03')
     expect(fmtDay('yesterday')).toBe('yesterday')
+    expect(fmtYm('2026-07')).toBe('Jul 2026')
+    expect(fmtYm('2026-7')).toBe('2026-7')
   })
 
   it('says how a month-to-date row was scored, and nothing about scoring otherwise', () => {

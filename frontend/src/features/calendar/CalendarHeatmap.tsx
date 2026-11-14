@@ -6,13 +6,13 @@ import {
   MONTH_NAMES,
   UNIT_LABEL,
   buildGrid,
+  colorDomain,
   firstViirsMonth,
   fmtCount,
   fmtInt,
   monthKey,
   monthTitle,
   progressOf,
-  sharedMax,
   valueOf,
 } from './model.ts'
 import type { Mode, MonthProgress } from './model.ts'
@@ -40,8 +40,13 @@ const ARROWS: Record<string, [number, number]> = {
 export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgress, selectedKey, onSelect }: Props) {
   const { months } = calendar
   const grid = useMemo(() => buildGrid(months, startMonth), [months, startMonth])
-  const max = useMemo(() => sharedMax(months), [months])
-  const color = useMemo(() => colorScale(palette, max), [palette, max])
+  const domain = useMemo(() => colorDomain(months), [months])
+  const color = useMemo(() => colorScale(palette, domain.top), [palette, domain.top])
+  // Months above the colour scale in the mode on screen (only when the scale is capped).
+  const offScale = useMemo(() => {
+    const values = domain.capped ? months.map((m) => valueOf(m, mode) ?? 0).filter((v) => v > domain.top) : []
+    return { count: values.length, max: values.reduce((a, b) => Math.max(a, b), 0) }
+  }, [months, mode, domain])
   const switchMonth = useMemo(() => firstViirsMonth(months), [months])
   const switchKey = switchMonth ? monthKey(switchMonth) : null
 
@@ -81,7 +86,7 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
     }
   }
 
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * max)
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * domain.top)
 
   return (
     <div>
@@ -114,6 +119,7 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
               const fill = v === null ? 'transparent' : color(v)
               const ink = v === null ? '#898781' : inkOn(fill)
               const estimated = mode === 'harmonized' && m.is_estimated
+              const above = domain.capped && v !== null && v > domain.top
               const selected = key === selectedKey
               const progress = progressOf(m, calendar, lastProgress)
               const notes = [
@@ -160,6 +166,16 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
                       style={{ background: ink }}
                     />
                   )}
+                  {above && (
+                    <span
+                      aria-hidden="true"
+                      data-off-scale=""
+                      className="absolute bottom-[3px] left-[3px] text-[7px] leading-none"
+                      style={{ color: ink }}
+                    >
+                      ▲
+                    </span>
+                  )}
                   {mode === 'raw' && key === switchKey && (
                     <span
                       aria-hidden="true"
@@ -177,8 +193,11 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
         <div className="w-64">
           <div className="h-2.5 rounded-sm" style={{ background: legendGradient(palette) }} />
           <div className="tabular mt-1 flex justify-between text-muted">
-            {ticks.map((t) => (
-              <span key={t}>{fmtInt(t)}</span>
+            {ticks.map((t, i) => (
+              <span key={t}>
+                {domain.capped && i === ticks.length - 1 && '≥ '}
+                {fmtInt(t)}
+              </span>
             ))}
           </div>
           <div className="mt-0.5">{UNIT_LABEL} per month (same scale in both views)</div>
@@ -199,6 +218,17 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
             />
             Near-real-time data, may still change
           </li>
+          {offScale.count > 0 && (
+            <li className="flex items-center gap-2">
+              <span className="relative inline-block h-4 w-6 shrink-0 rounded-[3px] bg-axis">
+                <span className="absolute bottom-[3px] left-[3px] text-[7px] leading-none text-white">▲</span>
+              </span>
+              <span>
+                Above the colour scale: {offScale.count} {offScale.count === 1 ? 'month' : 'months'} in this view, up
+                to {fmtInt(offScale.max)}. Exact values are in the tooltip and table.
+              </span>
+            </li>
+          )}
           {mode === 'raw' && switchMonth && (
             <li className="flex items-center gap-2">
               <span className="inline-flex h-4 w-6 items-center">
