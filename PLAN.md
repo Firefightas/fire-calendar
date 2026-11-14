@@ -105,3 +105,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - P4 received-data evidence: backend/REAL_DATA_HANDOFF.md. P2's NOAA-21 SP start explanation resolves the earlier-than-NRT dates; no observations were discarded.
 
 - P4 integration boundary: P3's feat/p3-rio-negro-run is now pushed with SP-tail/provenance fixes but deliberately excludes real JSON outputs pending P1's calibration-method/possible-contract decision. P4 is paused at that boundary; any adopted reference-source change must also be reflected in backend polygon source selection.
+
+- P4 real-data handoff review: https://github.com/neamturazvan/fire-calendar/pull/17; 105 Python tests, Ruff and frontend build passed; Parquet inputs remain gitignored; P1/P3 calibration decision and outputs still required.

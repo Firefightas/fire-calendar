@@ -72,3 +72,5 @@ Next 3 steps:
 2. Verify production lookup, real point CSV, and region/polygon/calendar results once those dependencies arrive.
 3. Coordinate gitignored Parquet delivery to Render with P1; frontend integration belongs to P5.
 Gotchas: do not commit supplied Parquet inputs, fabricate factors or treat missing S-NPP coverage as zero. Initial verification used a temporary TestClient resolver override; final verification passed with normal production lookup. 105 Python tests, Ruff and frontend build passed.
+
+- P4 real-data handoff review: https://github.com/neamturazvan/fire-calendar/pull/17; 105 Python tests, Ruff and frontend build passed; Parquet inputs remain gitignored; P1/P3 calibration decision and outputs still required.
