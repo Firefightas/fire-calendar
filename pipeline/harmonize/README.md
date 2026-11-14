@@ -59,11 +59,11 @@ Defaults chosen where the method above is silent (also in `DECISIONS.md`):
 
 ## For the pitch
 
-One chart: raw (naive switch) vs. harmonized monthly series 2000–2026 with the 2012 line marked, plus the held-out test error. Give P1 a one-paragraph method note: draft in `METHOD.md`, with the error and step values left as placeholders until the real Río Negro run.
+One chart: raw (naive switch) vs. harmonized monthly series 2000–2026 with the 2012 line marked, plus the held-out test error. Give P1 a one-paragraph method note: `METHOD.md`, with the Río Negro numbers and the limits to state with them.
 
 ```bash
-uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro   # -> data/processed/rio_negro/validation_chart.png
-uv run --with matplotlib python -m pipeline.harmonize.chart --region rio_negro --dir <dir> --out chart.png
+uv run python -m pipeline.harmonize.chart --region rio_negro   # -> data/processed/rio_negro/validation_chart.png
+uv run python -m pipeline.harmonize.chart --region rio_negro --dir <dir> --out chart.png
 ```
 
-`chart.py` reads `calendar.json` + `calibration.json` and draws two panels: the 12-month running mean of the raw and harmonized series with the Feb 2012 switch marked, and observed vs. predicted S-NPP on the test years with `test_mae`. Mock inputs are labeled "MOCK DATA" on the chart. matplotlib is not a project dependency yet (requested in `PLAN.md`), hence `--with`.
+`chart.py` reads `calendar.json` + `calibration.json` and draws two panels: the 12-month running mean of the raw and harmonized series with the Feb 2012 switch marked, and observed vs. predicted S-NPP on the test years with `test_mae`. Mock inputs are labeled "MOCK DATA" on the chart. The Río Negro chart for the pitch is committed as `pitch/rio_negro_validation_chart.png`.
