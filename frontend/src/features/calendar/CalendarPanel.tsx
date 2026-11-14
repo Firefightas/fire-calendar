@@ -34,7 +34,7 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
   // The selection is a month key, so it carries over when the region or area changes.
   const selected = selectedKey ? (calendar.months.find((m) => monthKey(m) === selectedKey) ?? null) : null
   const years = new Set(calendar.months.map((m) => m.year)).size
-  const lastProgress = lastMonthProgress(calendar, calibration, isArea)
+  const lastProgress = lastMonthProgress(calendar, calibration)
 
   return (
     <div className={`space-y-4 transition-opacity ${stale ? 'opacity-50' : ''}`} aria-busy={stale}>

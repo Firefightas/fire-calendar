@@ -4,7 +4,15 @@ import { sameSeries } from '../features/calendar/model.ts'
 import { ExportButtons } from '../features/export/ExportButtons.tsx'
 import { bboxPolygon } from '../features/map/geo.ts'
 import type { RegionId } from '../types/contracts.ts'
-import { explain, loadAreaCalendar, loadCalendar, loadCalibration, loadRegions, loadSandboxGrid } from './api.ts'
+import {
+  explain,
+  loadAreaCalendar,
+  loadCalendar,
+  loadCalibration,
+  loadRegions,
+  loadSandboxGrid,
+  waitForBackend,
+} from './api.ts'
 import { MockBadge, OriginChip } from './badges.tsx'
 import { SandboxHost } from './SandboxHost.tsx'
 import { useAsync } from './useAsync.ts'
@@ -34,10 +42,16 @@ export default function App() {
   const [polygon, setPolygon] = useState<GeoJSON.Polygon | null>(null)
   const [sandboxOpen, setSandboxOpen] = useState(false)
 
-  const regions = useAsync(loadRegions, 'regions')
-  const calendar = useAsync(() => loadCalendar(regionId), `calendar:${regionId}`)
-  const calibration = useAsync(() => loadCalibration(regionId), `calibration:${regionId}`)
-  const grid = useAsync(() => loadSandboxGrid(regionId), `grid:${regionId}`)
+  // The hosted backend sleeps when idle. The page paints from the bundled JSON meanwhile;
+  // once the backend answers, everything taken from the bundle is loaded again from the API.
+  const backend = useAsync(waitForBackend, 'backend')
+  const waking = backend.status === 'loading'
+  const live = backend.status === 'ready' && backend.data.afterFallback ? 'live' : 'first'
+
+  const regions = useAsync(loadRegions, `regions:${live}`)
+  const calendar = useAsync(() => loadCalendar(regionId), `calendar:${regionId}:${live}`)
+  const calibration = useAsync(() => loadCalibration(regionId), `calibration:${regionId}:${live}`)
+  const grid = useAsync(() => loadSandboxGrid(regionId), `grid:${regionId}:${live}`)
 
   const region = regions.data?.data.regions.find((r) => r.id === regionId)
   const regionCal = calendar.status === 'ready' ? calendar.data.data : null
@@ -80,7 +94,7 @@ export default function App() {
             </p>
           </div>
           {isMock && <MockBadge />}
-          {calendar.data && <OriginChip origin={areaCal ? 'api' : calendar.data.origin} />}
+          {calendar.data && <OriginChip origin={areaCal ? 'api' : calendar.data.origin} waking={waking} />}
         </div>
       </header>
 
@@ -144,7 +158,12 @@ export default function App() {
             {calendar.status === 'error' && (
               <Banner tone="warning">Could not load the calendar: {calendar.error.message}</Banner>
             )}
-            {areaLoading && <Banner tone="info">Computing the calendar for the drawn area…</Banner>}
+            {areaLoading && (
+              <Banner tone="info">
+                Computing the calendar for the drawn area…
+                {waking && ' The backend is waking up, which can take up to a minute.'}
+              </Banner>
+            )}
             {polygon && area.status === 'error' && (
               <Banner tone="warning">
                 No calendar for the drawn area: {explain(area.error)}. The numbers below are for the whole region.
@@ -154,6 +173,12 @@ export default function App() {
               <Banner tone="warning">
                 The backend returned exactly the whole-region series for this area, so the numbers below are not specific
                 to the polygon.
+              </Banner>
+            )}
+            {areaCal?.is_mock && (
+              <Banner tone="info">
+                MOCK DATA: the backend computed this drawn-area calendar from its sample hotspot table or mock
+                calibration, so its counts are not comparable with the mock whole-region calendar.
               </Banner>
             )}
             {!shown && calendar.status === 'loading' && <p className="text-sm text-muted">Loading…</p>}

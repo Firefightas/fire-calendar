@@ -19,14 +19,14 @@ Gotchas:
 ---
 
 ## P5 Frontend — Sat 14 Nov 2026 — Claude (Fable)
-Done: all P5 items in PLAN.md (merged in PR #3); calibration panel (branch `feat/p5-calibration-panel`); "month to date" label for an incomplete last month (branch `feat/p5-month-to-date`, which also contains the calibration panel). Both branches are pushed with all checks green.
+Done: all P5 items in PLAN.md, including the calibration panel, the month-to-date label and the integration with P4's deployed backend (drawn-area calendar, both CSV exports, cold-start handling; verified end to end on mocks against https://fire-calendar.onrender.com).
 In progress (files + exact state): nothing half-written.
-Broken / known issues: none in P5 code. Drawn-area numbers, CSV exports and the NRT overlay still depend on P4 endpoints (see P5's requests in PLAN.md).
+Broken / known issues: the live overlay shows "Unavailable" because the backend's FIRMS requests return 502 (P4/P1 are on it; the frontend needs no change). The sandbox button opens a placeholder until P6 adds `frontend/src/features/sandbox/index.tsx`.
 Next 3 steps:
-1. Merge the two pull requests (calibration panel first, then month to date).
-2. When P2/P3 land real Río Negro files: `cd frontend && npm run sync-data`, commit `public/data/`, check the page (Checkpoint A).
-3. Re-check the drawn-area calendar, exports and NRT overlay as P4's endpoints stop returning 501.
-Gotchas: `gh` is not installed on this laptop. After switching branches restart `npm run dev` (a stale dev server served the page unstyled). MapLibre 6 needs `setWorkerUrl` (already done in `MapPanel.tsx`). Every append to DECISIONS.md conflicts with other roles' appends: keep both sides.
+1. When P2/P3 land real Río Negro files: `cd frontend && npm run sync-data`, commit `public/data/`, check the page (Checkpoint A).
+2. Re-check the live overlay once `/api/nrt` returns 200.
+3. Check the sandbox launch once P6's entry file exists.
+Gotchas: `gh` is not installed on this laptop. `npm run build` reads `frontend/.env.production`, so a local production build or `vite preview` talks to the Render backend; `npm run dev` still uses `http://localhost:8000`. After switching branches restart `npm run dev` (a stale dev server served the page unstyled). MapLibre 6 needs `setWorkerUrl` (already done in `MapPanel.tsx`). Every append to DECISIONS.md conflicts with other roles' appends: keep both sides.
 
 
 ## P4 Backend - 14 November 2026 - Codex

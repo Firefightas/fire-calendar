@@ -47,7 +47,9 @@ frontend/
 
 ## Data
 
-- API base: `VITE_API_URL` (default `http://localhost:8000`). Endpoints: `contracts/api.md`.
+- API base: `VITE_API_URL`. `npm run dev` defaults to `http://localhost:8000`; production builds read `.env.production`, which points at the deployed backend `https://fire-calendar.onrender.com` (a `VITE_API_URL` set in the Vercel dashboard overrides it). Endpoints: `contracts/api.md`.
+- **Sleeping backend:** the hosted backend takes up to a minute to wake. The page paints from the bundle after 4 s (header chip "Backend waking up…"), then reloads from the API when `/api/health` answers ("Live API"). Drawn-area calendars, exports and the live overlay wait up to 90 s.
+- **Exports:** the hotspot CSV always comes from the backend. The calendar CSV comes from the backend for a drawn area and from the calendar on screen for the whole region. Mock exports are named `MOCK_DATA_…`.
 - **Static fallback (TEAM_PLAN §1):** the build bundles `public/data/<region_id>/calendar.json`, `calibration.json` and `sandbox_grid.json` for the 3 regions (copy from `data/processed/`, or from `contracts/mocks/` until real data exists). If the API fails, load these. The demo must work offline.
 - Region ids: `rio_negro`, `california`, `romania`.
 

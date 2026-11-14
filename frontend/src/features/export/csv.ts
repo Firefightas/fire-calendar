@@ -37,6 +37,10 @@ export function exportFilename(kind: 'hotspots' | 'calendar', regionId: string, 
   return `${kind}_${regionId}_${start}_${end}.csv`
 }
 
+/** Mock exports carry the label in the file name too, so a saved file cannot pass for results. */
+export const labelMockFile = (filename: string, isMock: boolean): string =>
+  isMock && !filename.startsWith('MOCK_DATA_') ? `MOCK_DATA_${filename}` : filename
+
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

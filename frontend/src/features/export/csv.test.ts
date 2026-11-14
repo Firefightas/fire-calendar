@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Calendar } from '../../types/contracts.ts'
-import { CALENDAR_COLUMNS, calendarToCsv, exportFilename } from './csv.ts'
+import { CALENDAR_COLUMNS, calendarToCsv, exportFilename, labelMockFile } from './csv.ts'
 
 const calendar: Calendar = {
   region_id: 'rio_negro',
@@ -59,5 +59,15 @@ describe('exportFilename', () => {
   it('follows contracts/api.md', () => {
     expect(exportFilename('calendar', 'rio_negro', '2001-01', '2026-11')).toBe('calendar_rio_negro_2001-01_2026-11.csv')
     expect(exportFilename('hotspots', 'romania', '2001-01', '2026-11')).toBe('hotspots_romania_2001-01_2026-11.csv')
+  })
+})
+
+describe('labelMockFile', () => {
+  it('prefixes mock exports once and leaves real ones alone', () => {
+    expect(labelMockFile('hotspots_rio_negro_2000-11_2026-11.csv', true)).toBe(
+      'MOCK_DATA_hotspots_rio_negro_2000-11_2026-11.csv',
+    )
+    expect(labelMockFile('MOCK_DATA_calendar.csv', true)).toBe('MOCK_DATA_calendar.csv')
+    expect(labelMockFile('calendar_romania_2000-11_2026-11.csv', false)).toBe('calendar_romania_2000-11_2026-11.csv')
   })
 })
