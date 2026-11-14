@@ -63,14 +63,16 @@ Gotchas: data/raw in the P2 worktree is a junction to the original checkout; do 
 
 Publishing: commit 9d83e55 pushed on feat/p2-rio-negro-status. PR creation remains pending: GitHub connector returned 403 (Resource not accessible by integration); automatic review blocked a local-credential API fallback; browser control was not approved. Open https://github.com/neamturazvan/fire-calendar/compare/main...feat/p2-rio-negro-status?expand=1 to create the PR.
 
-## P4 real-data handoff - 14 November 2026 - Codex
-Done: received root-level data/processed/points.parquet and hex_day.parquet; verified matching P2 sizes/counts, schemas, region bounds, H3 integrity, filtering, no duplicate cell-days or point-to-hex mismatches; tested a real hotspot export (22 rows matching DuckDB). Evidence and input hashes are in backend/REAL_DATA_HANDOFF.md.
-In progress: feat/p4-real-data-integration records completed validation. The human authorized organizing inputs under data/processed/rio_negro/; moved with hashes preserved, and normal backend lookup plus real hotspot CSV verified. P3's feat/p3-rio-negro-run branch is pushed, but real JSON outputs are withheld pending P1's calibration-method/possible-contract decision. The human has been asked for that decision.
-Known issues: real calendar.json/calibration.json absent. P3 must handle S-NPP's documented August-October 2026 coverage gap before harmonized integration can be verified. NOAA-21's early January 2024 SP observations are explained by P2's provenance note and should be retained.
+## P4 real-data integration - 14 November 2026 - Codex
+Done: P2 inputs installed under data/processed/rio_negro/ with explicit human authorization and SHA-256 preserved. Ingestion integrity, real hotspot export, 313-month calendar, raw counts, provenance, NumPy anomaly baselines, November 13 month-to-date baseline and calendar CSV verified against P3's real outputs. P1 kept the binding method/frozen contracts; the dependency is resolved.
+In progress: Input verification merged in PR #17; publishing the backend early NOAA handover follow-up with three regressions and evidence in backend/REAL_DATA_HANDOFF.md. P3's coverage-aware source now drives polygon conversion even before the nominal November handover.
+Known issues: Render has the real regional JSON but live polygon requests still fall back to samples because real Parquet files are absent there. The human assigned that file upload to P1. California/Romania and sandbox inputs remain mock/pending their owners.
 Next 3 steps:
-1. Wait for P1's calibration-method decision and P3's real calendar/calibration outputs; preserve frozen contracts until explicitly approved.
-2. Verify production lookup, real point CSV, and region/polygon/calendar results once those dependencies arrive.
-3. Coordinate gitignored Parquet delivery to Render with P1; frontend integration belongs to P5.
-Gotchas: do not commit supplied Parquet inputs, fabricate factors or treat missing S-NPP coverage as zero. Initial verification used a temporary TestClient resolver override; final verification passed with normal production lookup. 105 Python tests, Ruff and frontend build passed.
+1. P1 reviews/merges/deploys the early NOAA handover follow-up and uploads both Parquet inputs to data/processed/rio_negro/ on Render.
+2. Verify non-mock drawn-area calendars/hotspot exports and recent NOAA months on Render.
+3. P5 refreshes/rechecks the real calendar UI; P2 continues remaining regions and sandbox inputs.
+Gotchas: do not commit Parquet inputs or change the P1-approved calibration method. Polygon H3-center selection can exclude region-edge hexes; the whole-region JSON export remains distinct by design. Evidence hashes, coverage, observed limits and validation steps are in backend/REAL_DATA_HANDOFF.md.
 
-- P4 real-data handoff review: https://github.com/neamturazvan/fire-calendar/pull/17; 105 Python tests, Ruff and frontend build passed; Parquet inputs remain gitignored; P1/P3 calibration decision and outputs still required.
+Validation after the real-data source fix: 110 Python tests and Ruff passed. The frontend baseline build passed; final CI builds against the newly available P3 JSON.
+
+- P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.

@@ -92,10 +92,11 @@ both CSV exports (including filenames and MOCK DATA provenance); invalid-query 4
 responses; and the localhost CORS preflight. Calendar CSV values matched the
 corresponding polygon response.
 
-The service currently uses mocks for all three regions. Health reports
-firms_key_configured=false, and NRT returns 503 with a missing-key message.
-P1 must set FIRMS_MAP_KEY in Render's Environment settings and save/redeploy
-before live NRT can be verified. Keep credentials out of Git and chat.
+Render now serves P3's real Rio Negro regional calendar/calibration. California
+and Romania remain on mocks. P1 has verified live NRT after configuring the key
+and deploying PR #11. Drawn-area queries still use the sample archive until P1
+uploads both Rio Negro Parquet files and deploys the early handover fix.
+Keep credentials out of Git and chat.
 
 P5 should configure VITE_API_URL=https://fire-calendar.onrender.com in the frontend
 deployment and coordinate its origin with CORS_ORIGINS (the current backend allows
@@ -122,6 +123,7 @@ Leading/trailing whitespace is stripped from the configured key. After merging
 this diagnostics fix and redeploying Render, recheck the live NRT error before
 deciding whether key activation, quota, network access or parsing needs attention.
 
-P2's received Rio Negro inputs and the P4 verification evidence are documented in
-[REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md). Real harmonized integration awaits
-P3's calendar/calibration outputs and the documented S-NPP coverage decision.
+Real Rio Negro inputs, the early NOAA handover fix, independent calendar/CSV
+verification and the remaining Render file-upload handoff are documented in
+[REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md). P1 will provide the gitignored
+Parquet files to Render; local integration is verified with P3's approved outputs.
