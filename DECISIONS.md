@@ -40,3 +40,4 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Uncertainty band = `H ± 1.96·sqrt(H + (cv·H)²)`. Why: Poisson count noise plus factor spread, same as the mocks.
 - `is_nrt` = last data month and the 5 before it. Why: `hex_day` has no `is_nrt` column; standard processing lags ~5 months.
 - Synthetic runs need an explicit `--out`. Why: the backend reports a region as real once `data/processed/<region>/calendar.json` exists.
+- P1 sign-off on P3 requests: approved `terra_only_factor` fit on 2012–2020, `noaa21_factor` fit on Feb 2024 – Oct 2026 (only S-NPP overlap window), and the 5-month `is_nrt` lag rule so `hex_day.parquet` stays frozen. Why: zero contract churn across P2/P3/P4 while honoring TEAM_PLAN §2.2 and §2.4.

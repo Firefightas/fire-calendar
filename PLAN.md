@@ -6,7 +6,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 | Role | Owner (name) | Agent | Current state |
 |---|---|---|---|
-| P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Master plan installed; repo, contracts and mocks aligned to it. |
+| P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Master plan + H3 mocks committed; PR #1 (P3) merged; P3 fit-window & `is_nrt` rules signed off. |
 | P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json` + `calibration.json`, verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Stub serves mocks (regions, calendar, calibration, sandbox grid); NRT params parsed. |
@@ -24,7 +24,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 ## P1: Integrator + pitch
 - [x] Repo, `AGENTS.md`, contracts, mocks, CI; master plan installed and reconciled
 - [ ] Fill in names above; add collaborators on GitHub
-- [ ] Generate h3 mocks (`uv run python contracts/mocks/generate_mocks.py`) and commit: sandbox grid, sample tables
+- [x] Generate h3 mocks (`uv run python contracts/mocks/generate_mocks.py`) and commit: sandbox grid, sample tables
 - [ ] Merge PRs every 30–60 min; run the full app after each merge; keep `PLAN.md`/`DECISIONS.md` current
 - [ ] Deploy frontend (Vercel) + backend (Render)
 - [ ] Slides, demo script, demo video, submission page, pitch rehearsal
@@ -68,5 +68,5 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 _Format: `- [ ] from Px to Py: what and why`_
 
-- [ ] from P3 to P1: confirm the NOAA-21 exception (fitted on Feb 2024 – Oct 2026, outside `fit_years`, because it has no S-NPP overlap in 2012–2020) and that `terra_only_factor` is fitted on 2012–2020.
-- [ ] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date.
+- [x] from P3 to P1: confirm the NOAA-21 exception (fitted on Feb 2024 – Oct 2026, outside `fit_years`, because it has no S-NPP overlap in 2012–2020) and that `terra_only_factor` is fitted on 2012–2020. → **Approved by P1** (matches `calibration.schema.json`).
+- [x] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date. → **Resolved by P1**: keep `hex_day.parquet` schema frozen (`contracts/tables.md` unchanged); P3's 5-month SP lag rule (`last_data_month` + 5 preceding months) is the official standard (or `MIN(date) WHERE is_nrt` from `points.parquet` if present in the same directory).
