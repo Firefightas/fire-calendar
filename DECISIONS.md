@@ -30,3 +30,13 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - `CLAUDE.md` / `GEMINI.md` import `AGENTS.md` (`@AGENTS.md`) instead of symlinks. Why: symlinks break on Windows and in zips.
 - `burnable` includes villages (50) with low flammability. Why: village triage needs fire to be able to reach village hexes; water (80) never burns.
 - P5 also owns frontend config (`package.json`, vite config); P1 owns `frontend/src/types/contracts.ts`. Why: the plan left these unowned.
+
+## P3 harmonization defaults (`pipeline/harmonize/run.py`)
+
+- A monthly ratio is used only if its denominator has ≥ 5 cell-days and its numerator is > 0; a calendar month with < 3 usable fit-year ratios takes the pooled median (`fallback: true`). Why: the README names a sparse fallback without a threshold; 5 matches the polygon rule.
+- `terra_only_factor` is fitted on Feb 2012 – Dec 2020, `noaa20_factor` on Apr 2018 – Dec 2020. Why: keeps every factor that can be inside the fit years inside them.
+- `noaa21_factor` is fitted on Feb 2024 – Oct 2026. Why: NOAA-21 has no S-NPP overlap in 2012–2020; the exception is recorded in `diagnostics.fit_windows`.
+- A NOAA factor with no overlap data is written as 1.0 with `diagnostics.<name>.measured: false`. Why: the schema requires a positive number.
+- Uncertainty band = `H ± 1.96·sqrt(H + (cv·H)²)`. Why: Poisson count noise plus factor spread, same as the mocks.
+- `is_nrt` = last data month and the 5 before it. Why: `hex_day` has no `is_nrt` column; standard processing lags ~5 months.
+- Synthetic runs need an explicit `--out`. Why: the backend reports a region as real once `data/processed/<region>/calendar.json` exists.
