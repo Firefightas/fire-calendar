@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "calendar.schema.json",
+  "title": "Burning activity calendar for one region or drawn area",
+  "description": "Producer: P3 (pipeline/harmonize) for whole regions; P4 (backend) for drawn areas. One entry per year-month. Counts are in 'active fire cell-days' (H3 res-7 hexes with >=1 detection per day).",
+  "type": "object",
+  "required": ["region_id", "unit", "scale", "is_mock", "generated_at", "first_month", "last_month", "months"],
+  "properties": {
+    "region_id": { "type": "string" },
+    "area_label": { "description": "Optional label for a user-drawn area", "type": "string" },
+    "unit": { "const": "active_fire_cell_days" },
+    "scale": { "const": "viirs_snpp_equivalent" },
+    "is_mock": { "type": "boolean" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "first_month": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$" },
+    "last_month": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$" },
+    "baseline_years": {
+      "description": "Years used for median/IQR, e.g. [2001, 2025]",
+      "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2
+    },
+    "months": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["year", "month", "modis_raw", "viirs_raw", "harmonized", "is_estimated", "is_nrt", "median_m", "iqr_m", "anomaly_z", "unc_low", "unc_high", "source"],
+        "properties": {
+          "year": { "type": "integer", "minimum": 2000 },
+          "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "modis_raw": { "description": "Raw MODIS cell-days (Terra+Aqua), null if no MODIS", "type": ["number", "null"], "minimum": 0 },
+          "viirs_raw": { "description": "Raw VIIRS cell-days from the reference satellite for that month, null before 2012", "type": ["number", "null"], "minimum": 0 },
+          "harmonized": { "description": "Value on the common scale. What the calendar shows by default.", "type": "number", "minimum": 0 },
+          "is_estimated": { "description": "True when converted from MODIS (no VIIRS that month)", "type": "boolean" },
+          "is_nrt": { "description": "True when based on near-real-time (not yet standard) data", "type": "boolean" },
+          "median_m": { "description": "Median of harmonized for this calendar month over baseline_years", "type": "number", "minimum": 0 },
+          "iqr_m": { "description": "Interquartile range for this calendar month over baseline_years", "type": "number", "minimum": 0 },
+          "anomaly_z": { "description": "(harmonized - median_m) / max(iqr_m, floor)", "type": "number" },
+          "unc_low": { "type": "number", "minimum": 0 },
+          "unc_high": { "type": "number", "minimum": 0 },
+          "source": {
+            "description": "Which satellite record the harmonized value comes from",
+            "enum": ["modis_terra", "modis_terra_aqua", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

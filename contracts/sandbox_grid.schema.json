@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sandbox_grid.schema.json",
+  "title": "Sandbox input grid for one region (or a sub-area)",
+  "description": "Producer: P2 + P3. Consumer: P6. One cell per H3 res-7 hex.",
+  "type": "object",
+  "required": ["region_id", "is_mock", "h3_resolution", "cells"],
+  "properties": {
+    "region_id": { "type": "string" },
+    "is_mock": { "type": "boolean" },
+    "h3_resolution": { "const": 7 },
+    "landcover_classes": {
+      "description": "ESA WorldCover class codes used in 'landcover'",
+      "type": "object", "additionalProperties": { "type": "string" }
+    },
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["h3", "landcover", "burnable", "elevation_m", "burn_count", "years_since_last_fire"],
+        "properties": {
+          "h3": { "type": "string", "pattern": "^[0-9a-f]{15}$" },
+          "landcover": { "description": "ESA WorldCover code (10 tree, 20 shrub, 30 grass, 40 crop, 50 built, 60 bare, 80 water, ...)", "type": "integer" },
+          "burnable": { "type": "boolean" },
+          "elevation_m": { "type": "number" },
+          "burn_count": { "description": "Harmonized fire cell-days in this hex, whole record", "type": "number", "minimum": 0 },
+          "years_since_last_fire": { "description": "null if never detected", "type": ["number", "null"], "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

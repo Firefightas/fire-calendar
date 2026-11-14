@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "calibration.schema.json",
+  "title": "Sensor calibration for one region",
+  "description": "Producer: P3. Factors convert a sensor's cell-days to the common S-NPP-VIIRS-equivalent scale: harmonized = raw * factor.",
+  "type": "object",
+  "required": ["region_id", "is_mock", "generated_at", "method", "reference_sensor", "fit_years", "test_years", "sensors", "validation"],
+  "properties": {
+    "region_id": { "type": "string" },
+    "is_mock": { "type": "boolean" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "method": { "description": "Short human-readable method name", "type": "string" },
+    "reference_sensor": { "const": "viirs_snpp" },
+    "fit_years": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+    "test_years": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+    "sensors": {
+      "description": "One entry per sensor converted to the reference",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sensor", "monthly"],
+        "properties": {
+          "sensor": { "enum": ["modis_terra", "modis_aqua", "modis_terra_aqua", "viirs_noaa20", "viirs_noaa21"] },
+          "overlap": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
+          "monthly": {
+            "type": "array", "minItems": 12, "maxItems": 12,
+            "items": {
+              "type": "object",
+              "required": ["month", "factor", "cv", "n_years"],
+              "properties": {
+                "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+                "factor": { "type": "number", "exclusiveMinimum": 0 },
+                "cv": { "description": "Coefficient of variation of the yearly ratios (uncertainty)", "type": "number", "minimum": 0 },
+                "n_years": { "type": "integer", "minimum": 0 },
+                "fallback": { "description": "True if the factor came from a larger region because data was sparse", "type": "boolean" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["test_mae", "test_mape", "raw_step_ratio", "harmonized_step_ratio"],
+      "properties": {
+        "test_mae": { "description": "Mean absolute error on test years, cell-days", "type": "number", "minimum": 0 },
+        "test_mape": { "description": "Mean absolute percentage error on test years (0-1)", "type": "number", "minimum": 0 },
+        "raw_step_ratio": { "description": "Mean 2012-2014 / mean 2009-2011 using raw counts (shows the jump)", "type": "number", "minimum": 0 },
+        "harmonized_step_ratio": { "description": "Same ratio after harmonization (should be near 1)", "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

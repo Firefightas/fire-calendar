@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "regions.schema.json",
+  "title": "Regions",
+  "type": "object",
+  "required": ["regions"],
+  "properties": {
+    "regions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "country", "hemisphere", "bbox", "center", "default_zoom"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "country": { "type": "string" },
+          "hemisphere": { "enum": ["north", "south"] },
+          "bbox": {
+            "description": "[west, south, east, north] in degrees, same order as the FIRMS area API",
+            "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4
+          },
+          "center": { "description": "[lon, lat]", "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+          "default_zoom": { "type": "number" },
+          "note": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
