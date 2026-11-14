@@ -53,7 +53,8 @@ Defaults chosen where the method above is silent (also in `DECISIONS.md`):
 - `hex_fire_history.parquet` lists only hexes with at least one detection (a hex missing from it never burned: P2 left-joins and gets null). `burn_count` uses the same satellite and factor as the calendar for each month, so the hexes add up to the regional harmonized series; `years_since_last_fire` uses the last detection by any satellite.
 - Orbit check (`diagnostics.orbit_check`): Aqua only, Terra only and Terra+Aqua combined each get their own monthly factors to S-NPP on the fit years and a `test_mae` / `test_mape` on the test years; `lowest_test_mape` names the best one. The calendar always uses the combined record.
 - An incomplete last month (data ends before the month does) is scored month-to-date: its `median_m`, `iqr_m` and `anomaly_z` use the same days of that calendar month in the baseline years, and `harmonized` stays the observed count so far. `diagnostics.last_month_complete` and `last_data_date` say when this applies.
-- `is_nrt` = the last data month and the 5 before it (`hex_day` has no `is_nrt` column).
+- `is_nrt`: if `points.parquet` sits next to `hex_day.parquet`, a month is NRT when the satellite that supplies its harmonized value has NRT detections that month; otherwise the last data month and the 5 before it (`hex_day` has no `is_nrt` column). `diagnostics.is_nrt_rule` says which was used.
+- S-NPP is the reference only up to its last complete month of data (`diagnostics.snpp_reference_until`), at most Oct 2026. The standard-processing archive can stop earlier (Río Negro: 31 Jul 2026) and S-NPP NRT is never used, so NOAA-20 × `noaa20_factor` takes over from the next month; the missing months are not zero fire.
 
 ## For the pitch
 
