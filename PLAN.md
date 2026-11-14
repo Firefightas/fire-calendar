@@ -7,7 +7,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | Role | Owner (name) | Agent | Current state |
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#6 (P3 + P5); added `matplotlib` to `pyproject.toml`; signed off on month-to-date anomaly & H3 map layer rules. |
-| P2 Data ingestion | _fill in_ | ChatGPT Plus #1 (Codex) | Not started. `normalize.py` + `download_api.py` ready to use. |
+| P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Rio Negro processed locally (SP + requested NRT; S-NPP through July); California annual downloads running; Drive transfer pending. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | `run.py` writes `calendar.json`, `calibration.json` (with orbit check) and `hex_fire_history.parquet`; `chart.py` draws the validation chart; all verified on synthetic known-ratio data; waiting for P2's Río Negro `hex_day.parquet`. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend deployed at https://fire-calendar.onrender.com and verified on labeled mocks; live NRT awaits Render key configuration; real archives await P2/P3. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | All P5 items plus a calibration-factors panel built and tested on mocks, online and offline; an incomplete last month is labeled "month to date" from P3's diagnostics; exports, NRT overlay and drawn-area numbers light up as P4's endpoints land; next: real Río Negro data check once P2/P3 files exist. |
@@ -31,7 +31,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 ## P2: Data ingestion + sandbox inputs
 - [ ] FIRMS MAP_KEY; start Route A (yearly country files), B (archive request), C (area API for 2026)
-- [ ] Normalize + filter (`type == 0`, `confidence != low`) + clip + H3 → **Río Negro first**: `points.parquet`, `hex_day.parquet`
+- [x] Normalize + filter (`type == 0`, `confidence != low`) + clip + H3 → **Río Negro first**: `points.parquet`, `hex_day.parquet` (317,938 points / 149,205 hex-days; local files, not on Drive; see `pipeline/ingest/RIO_NEGRO_STATUS.md`)
 - [ ] Same for California and Romania
 - [ ] Sandbox inputs: WorldCover → `landcover`, `asset_type`, `burnable`; Open-Meteo → `elevation_m`, `slope_deg`; join P3's `hex_fire_history` → `sandbox_grid.json`
 
@@ -93,3 +93,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [ ] from P4 to P1: Render now reports FIRMS_MAP_KEY configured, but region/bbox one-day and seven-day NRT requests return 502. Review/deploy feat/p4-nrt-errors to identify the safe per-source cause; live NRT is not yet verified. Deployment verification is separately recorded in PR #10.
 
 - P4 NRT diagnostics PR: https://github.com/neamturazvan/fire-calendar/pull/11 (feat/p4-nrt-errors); 100 Python tests and Ruff passed. Live 502 cause awaits deployment.
+
+- [ ] from P2 to P3/P4: Rio Negro tables are ready locally; coordinate cross-laptop transfer (no data committed). See `pipeline/ingest/RIO_NEGRO_STATUS.md` for sizes and counts. S-NPP SP stops 2026-07-31; NOAA-20/21 and MODIS include NRT through November 13. Read per-satellite provenance from points.parquet; NOAA-21 retained NRT starts May 6.

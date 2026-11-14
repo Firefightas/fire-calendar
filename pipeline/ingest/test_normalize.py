@@ -1,5 +1,6 @@
 import pandas as pd
 
+from pipeline.ingest import normalize
 from pipeline.ingest.normalize import dedupe_nrt, filter_and_clip, hex_day, normalize_frame
 
 BBOX = [-71.9, -42.0, -62.8, -37.5]
@@ -53,3 +54,22 @@ def test_hex_day_counts_per_satellite():
     hd = hex_day(pts)
     assert list(hd.columns) == ["h3", "date", "sensor", "satellite", "n_points", "frp_sum"]
     assert set(hd["satellite"]) == {"terra", "aqua"} and hd["n_points"].sum() == 4
+
+
+def test_cli_expands_windows_glob_and_deduplicates_paths(tmp_path, monkeypatch):
+    import json
+    import sys
+
+    (tmp_path / "contracts").mkdir()
+    (tmp_path / "contracts" / "regions.json").write_text(
+        json.dumps({"regions": [{"id": "rio_negro", "bbox": BBOX}]}), encoding="utf-8")
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    csv = raw / "modis.csv"
+    modis_raw().to_csv(csv, index=False)
+    monkeypatch.setattr(normalize, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["normalize", "--region", "rio_negro", str(raw / "*.csv"), str(csv)])
+    normalize.main()
+    points = pd.read_parquet(tmp_path / "data/processed/rio_negro/points.parquet")
+    assert len(points) == 1
+    assert points.iloc[0]["satellite"] == "aqua"
