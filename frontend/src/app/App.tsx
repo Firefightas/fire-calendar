@@ -85,6 +85,12 @@ export default function App() {
 
   return (
     <div className="min-h-full">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-ink focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-page"
+      >
+        Skip to the calendar
+      </a>
       <header className="border-b border-hairline bg-surface">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
           <div className="mr-auto">
@@ -100,7 +106,7 @@ export default function App() {
 
       {sandboxOpen && region && <SandboxHost region={region} area={polygon} onClose={() => setSandboxOpen(false)} />}
 
-      <main className="mx-auto max-w-[1600px] space-y-4 px-4 py-4" hidden={sandboxOpen}>
+      <main id="main" className="mx-auto max-w-[1600px] space-y-4 px-4 py-4" hidden={sandboxOpen}>
         <nav aria-label="Region" className="flex flex-wrap items-center gap-2">
           {regions.data?.data.regions.map((r) => (
             <button
