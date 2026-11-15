@@ -61,6 +61,9 @@ const SURFACE: Rgba = [13, 13, 13, 255]
 const AREA_COLOR = '#86b6ef'
 const BOX_HALF_KM = 10
 
+/** Camera moves are instant for people who ask the system for reduced motion. */
+const moveMs = () => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700)
+
 function ramp([a, b]: [Rgba, Rgba], t: number): Rgba {
   const k = Math.sqrt(Math.min(Math.max(t, 0), 1))
   return [0, 1, 2, 3].map((i) => Math.round(a[i] + (b[i] - a[i]) * k)) as Rgba
@@ -267,7 +270,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
         [w, s],
         [e, n],
       ],
-      { padding: 28, duration: 700 },
+      { padding: 28, duration: moveMs() },
     )
   }, [ready, region.id, region.bbox])
 
@@ -361,7 +364,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
     if (!map || !pointValid) return
     markerRef.current?.remove()
     markerRef.current = new Marker({ color: '#f0efec' }).setLngLat([point.lon, point.lat]).addTo(map)
-    map.flyTo({ center: [point.lon, point.lat], zoom: Math.max(map.getZoom(), 9), duration: 700 })
+    map.flyTo({ center: [point.lon, point.lat], zoom: Math.max(map.getZoom(), 9), duration: moveMs() })
   }
 
   const zoomToHistory = () => {
@@ -379,7 +382,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
         [w, s],
         [e, n],
       ],
-      { padding: 60, duration: 700 },
+      { padding: 60, duration: moveMs() },
     )
   }
 
@@ -516,43 +519,47 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
             <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
         </summary>
-      <form onSubmit={goToPoint} className="mt-2 flex flex-wrap items-end gap-2">
-        <label className="flex flex-col gap-1 text-muted">
-          Latitude
-          <input
-            inputMode="decimal"
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
-            placeholder={region.center[1].toFixed(2)}
-            className="tabular w-24 rounded-md border border-hairline bg-page px-2 py-1.5 text-ink"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-muted">
-          Longitude
-          <input
-            inputMode="decimal"
-            value={lon}
-            onChange={(e) => setLon(e.target.value)}
-            placeholder={region.center[0].toFixed(2)}
-            className="tabular w-24 rounded-md border border-hairline bg-page px-2 py-1.5 text-ink"
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={!ready || !pointValid}
-          className="rounded-md border border-hairline px-3 py-1.5 text-ink hover:bg-raised disabled:opacity-50"
-        >
-          Go to point
-        </button>
-        <button
-          type="button"
-          disabled={!ready || !pointValid}
-          onClick={() => commitArea(boxAround(point.lat, point.lon, BOX_HALF_KM))}
-          className="rounded-md border border-hairline px-3 py-1.5 text-ink hover:bg-raised disabled:opacity-50"
-        >
-          Use a {BOX_HALF_KM * 2} km box here as the area
-        </button>
-      </form>
+        <form onSubmit={goToPoint} className="mt-2 flex flex-wrap items-end gap-2">
+          <label className="flex flex-col gap-1 text-muted">
+            Latitude
+            <input
+              inputMode="decimal"
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              name="latitude"
+              autoComplete="off"
+              placeholder={`${region.center[1].toFixed(2)}…`}
+              className="tabular w-24 rounded-md border border-hairline bg-page px-2 py-1.5 text-ink"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-muted">
+            Longitude
+            <input
+              inputMode="decimal"
+              value={lon}
+              onChange={(e) => setLon(e.target.value)}
+              name="longitude"
+              autoComplete="off"
+              placeholder={`${region.center[0].toFixed(2)}…`}
+              className="tabular w-24 rounded-md border border-hairline bg-page px-2 py-1.5 text-ink"
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={!ready || !pointValid}
+            className="rounded-md border border-hairline px-3 py-1.5 text-ink hover:bg-raised disabled:opacity-50"
+          >
+            Go to point
+          </button>
+          <button
+            type="button"
+            disabled={!ready || !pointValid}
+            onClick={() => commitArea(boxAround(point.lat, point.lon, BOX_HALF_KM))}
+            className="rounded-md border border-hairline px-3 py-1.5 text-ink hover:bg-raised disabled:opacity-50"
+          >
+            Use a {BOX_HALF_KM * 2} km box here as the area
+          </button>
+        </form>
       </details>
     </section>
   )

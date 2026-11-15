@@ -227,7 +227,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
         {loading && failed.length === 0 && (
           <div role="status" className="absolute inset-x-0 bottom-2 flex justify-center">
             <span className="flex items-center gap-2 rounded bg-page/85 px-2 py-1 text-[11px] text-ink">
-              <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full border-2 border-ink-2 border-t-transparent" />
+              <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full motion-reduce:animate-none border-2 border-ink-2 border-t-transparent" />
               Loading imagery from NASA GIBS…
             </span>
           </div>
