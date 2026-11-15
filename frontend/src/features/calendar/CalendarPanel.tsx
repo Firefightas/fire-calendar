@@ -56,10 +56,12 @@ export function CalendarPanel({
 
   return (
     <div className={`space-y-4 transition-opacity ${stale ? 'opacity-50' : ''}`} aria-busy={stale}>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <ModeToggle mode={mode} onChange={setMode} />
-        <PaletteSwitcher palette={palette} onChange={setPalette} />
-        {actions && <div className="ml-auto">{actions}</div>}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <ModeToggle mode={mode} onChange={setMode} />
+          <PaletteSwitcher palette={palette} onChange={setPalette} />
+        </div>
+        {actions && <div className="ml-auto flex justify-end">{actions}</div>}
       </div>
 
       <AnomalyCards
