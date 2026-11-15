@@ -11,7 +11,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Río Negro re-run on P2's screened tables and committed: `calendar.json`, `calibration.json`, `hex_fire_history.parquet` (binding median-ratio method: held-out MAE 91 cell-days, MAPE 33 %; MODIS-era mega-fire months still overstated). Chart and `METHOD.md` updated. Next: California and Romania when P2 lands them. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Checkpoint A verified from the frontend side on real Río Negro data via the deployed backend (see Requests); colour-scale fix and real offline bundle on `feat/p5-checkpoint-a`; next: California and Romania when their real files land, drawn-area check once the parquet tables are on the server, sandbox launch once P6 adds its entry file. |
-| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
+| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | First demo-able state on `feat/p6-sandbox-engine`: hex map, spread engine in a Web Worker (README formula, seeded), click-to-ignite and 72 h playback on the mock grids; next: wind, the four interventions, scoreboard, optimizer. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
 ## Checkpoints (TEAM_PLAN §7)
@@ -63,7 +63,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] Checkpoint A check on real Río Negro data (production build against the deployed backend): every item verified in the running app; fixed the colour scale (one extreme month no longer flattens the calendar) and bundled the real Río Negro files as the offline fallback
 
 ## P6: Tactical Containment Sandbox
-- [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
+- [x] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation), click-to-ignite, 72 h playback
 - [ ] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
 - [ ] 8-step UI: drone perimeter, terrain, fuel, weather, attack, 4 interventions, asset triage, exit route
 - [ ] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard
@@ -85,7 +85,7 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [x] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date. → **Resolved by P1**: keep `hex_day.parquet` schema frozen (`contracts/tables.md` unchanged); P3's 5-month SP lag rule (`last_data_month` + 5 preceding months) is the official standard (or `MIN(date) WHERE is_nrt` from `points.parquet` if present in the same directory).
 - [x] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
 - [x] from P5 to P4/P1: no endpoint gives per-hex historical values, so the map's `H3HexagonLayer` has no archive data source. Interim: P5 shows NRT hotspots binned to H3 res-7 in the browser and the sandbox grid's `burn_count`. Say if you want a per-hex endpoint instead. → **Approved by P1**: keep `contracts/api.md` frozen; `sandbox_grid.json` `burn_count` + browser-binned NRT hexes is the official `H3HexagonLayer` design.
-- [ ] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape.
+- [x] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape. → **Done by P6** (`feat/p6-sandbox-engine`): `frontend/src/features/sandbox/index.tsx` exists with that shape; P5 please check the launch from the calendar after P1 merges.
 - [x] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
 - [ ] from P5 to P3: FYI, no change needed. The calibration panel reads three optional things from `calibration.json` `diagnostics` if present: `terra_only.measured`, `noaa20.measured`, `noaa21.measured` (to flag a neutral ×1 placeholder) and `fit_windows.<factor name>` (shown as "Fitted on …"). It works without them; tell me if you rename these keys.
 
