@@ -26,6 +26,9 @@ export interface EnsembleOutput {
   mean: MeanScore
   /** Share of the runs in which each cell burned, 0…1. */
   burnProbability: Float32Array
+  /** Earliest and latest hour each cell caught fire across the runs in which it burned, else NEVER. */
+  earliestIgnition: Int16Array
+  latestIgnition: Int16Array
 }
 
 export function runOnce(model: SpreadModel, scenario: Scenario): RunOutput {
@@ -36,14 +39,22 @@ export function runOnce(model: SpreadModel, scenario: Scenario): RunOutput {
 /** The same plan, wind and ignitions under each seed. */
 export function runEnsemble(model: SpreadModel, scenario: Scenario, seeds: number[]): EnsembleOutput {
   const burnProbability = new Float32Array(model.n)
+  const earliestIgnition = new Int16Array(model.n).fill(NEVER)
+  const latestIgnition = new Int16Array(model.n).fill(NEVER)
   const scores: Score[] = []
   for (const seed of seeds) {
     const result = simulate(model, { ...scenario, seed })
     scores.push(scoreRun(model, result))
-    for (let i = 0; i < model.n; i++) if (result.ignitedAt[i] !== NEVER) burnProbability[i] += 1
+    for (let i = 0; i < model.n; i++) {
+      const at = result.ignitedAt[i]
+      if (at === NEVER) continue
+      burnProbability[i] += 1
+      if (earliestIgnition[i] === NEVER || at < earliestIgnition[i]) earliestIgnition[i] = at
+      if (at > latestIgnition[i]) latestIgnition[i] = at
+    }
   }
   if (seeds.length > 0) for (let i = 0; i < model.n; i++) burnProbability[i] /= seeds.length
-  return { seeds, scores, mean: meanScore(scores), burnProbability }
+  return { seeds, scores, mean: meanScore(scores), burnProbability, earliestIgnition, latestIgnition }
 }
 
 /** The optimizer's plan with the same readouts a human plan gets. */

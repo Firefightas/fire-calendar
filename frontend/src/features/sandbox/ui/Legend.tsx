@@ -70,6 +70,14 @@ function LegendItems({ showLandcover }: { showLandcover: boolean }) {
         <Swatch colour={FIRE_COLOURS.burned} ring={FIRE_COLOURS.burnedEdge} />
         Burned
       </li>
+      <li className="inline-flex items-center gap-1.5">
+        <span aria-hidden="true" className="inline-block h-0.5 w-4 bg-[#7ef0a0]" />
+        Crew exit route
+      </li>
+      <li className="inline-flex items-center gap-1.5">
+        <span aria-hidden="true" className="inline-block h-3 w-3 rounded-full border-2 border-[#ff4d4d]" />
+        Crew with no exit
+      </li>
     </ul>
   )
 }

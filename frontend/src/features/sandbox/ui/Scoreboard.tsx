@@ -1,5 +1,6 @@
 // Protocol step 7: asset triage scoreboard. Every number is read from finished simulation runs.
 import type { ReactNode } from 'react'
+import type { ExitSummary } from '../advisory/exitRoute.ts'
 import type { EnsembleOutput, RunOutput } from '../engine/service.ts'
 import type { Placement } from '../engine/tools.ts'
 import { planCost } from '../engine/tools.ts'
@@ -17,6 +18,8 @@ export interface ScoreColumn {
   title: string
   subtitle?: string
   outcome: Outcome
+  /** Crew exit route check for the run on the map. */
+  exit: ExitSummary
 }
 
 const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
@@ -33,7 +36,7 @@ interface Props {
 export function Scoreboard({ columns, seed, shown, onShow, children }: Props) {
   if (columns.length === 0) return null
   const runs = columns[0].outcome.ensemble.seeds.length
-  const rows: { label: string; hint?: string; cell: (o: Outcome) => [string, string] }[] = [
+  const rows: { label: string; hint?: string; cell: (o: Outcome, c: ScoreColumn) => [string, string] }[] = [
     {
       label: 'Villages protected',
       cell: (o) => [
@@ -56,6 +59,11 @@ export function Scoreboard({ columns, seed, shown, onShow, children }: Props) {
       label: 'Containment',
       hint: 'Share of the fire edge that can no longer advance at hour 72.',
       cell: (o) => [`${nf0.format(o.run.score.containmentPct)} %`, `${nf0.format(o.ensemble.mean.containmentPct)} %`],
+    },
+    {
+      label: 'Crew exit routes',
+      hint: 'Ground crews (trench, clearing, backfire) that can reach a river or bare-ground hex without crossing burning hexes, in the run on the map.',
+      cell: (_o, c) => [c.exit.total === 0 ? 'no ground crews' : `${c.exit.clear} of ${c.exit.total} clear`, ''],
     },
     {
       label: 'Budget used',
@@ -85,7 +93,7 @@ export function Scoreboard({ columns, seed, shown, onShow, children }: Props) {
                   {row.label}
                 </th>
                 {columns.map((c) => {
-                  const [main, mean] = row.cell(c.outcome)
+                  const [main, mean] = row.cell(c.outcome, c)
                   return (
                     <td key={c.key} className="px-2 py-1.5 text-right align-top text-ink">
                       {main}

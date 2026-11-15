@@ -32,7 +32,7 @@ export default function Sandbox({ regionId, area }: SandboxProps) {
           {origin === 'api' ? 'grid from the backend' : 'grid from the offline bundle'}
         </span>
       </div>
-      <SandboxView key={data.region_id} grid={data} area={area} />
+      <SandboxView key={data.region_id} grid={data} area={area} regionId={regionId} />
     </section>
   )
 }

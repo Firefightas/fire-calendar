@@ -22,6 +22,9 @@ interface Props {
   fire?: FireFrame | null
   ignitions?: ReadonlySet<number>
   marks?: ReadonlyMap<number, HexMark>
+  /** Crew exit routes: lines through hex centres, plus crews with no route. */
+  routes?: readonly { path: readonly number[]; colour: string }[]
+  blocked?: readonly number[]
   /** The drawn area of interest, outlined if given. */
   area?: GeoJSON.Polygon | null
   onCellClick?: (index: number) => void
@@ -41,6 +44,8 @@ export function HexMap({
   fire,
   ignitions,
   marks,
+  routes,
+  blocked,
   area,
   onCellClick,
   onHover,
@@ -160,6 +165,39 @@ export function HexMap({
       }
     }
 
+    // 4b. Crew exit routes.
+    if (routes) {
+      ctx.lineJoin = 'round'
+      ctx.lineCap = 'round'
+      for (const route of routes) {
+        if (route.path.length < 2) continue
+        ctx.beginPath()
+        route.path.forEach((i, k) => {
+          const x = sx(geo.centres[i * 2])
+          const y = sx(geo.centres[i * 2 + 1])
+          if (k === 0) ctx.moveTo(x, y)
+          else ctx.lineTo(x, y)
+        })
+        ctx.lineWidth = 4
+        ctx.strokeStyle = '#0d0d0d'
+        ctx.stroke()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = route.colour
+        ctx.stroke()
+      }
+    }
+    if (blocked) {
+      for (const i of blocked) {
+        const cx = sx(geo.centres[i * 2])
+        const cy = sx(geo.centres[i * 2 + 1])
+        ctx.beginPath()
+        ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2)
+        ctx.lineWidth = 2.5
+        ctx.strokeStyle = '#ff4d4d'
+        ctx.stroke()
+      }
+    }
+
     // 5. Drawn area of interest.
     if (area) {
       ctx.save()
@@ -181,7 +219,7 @@ export function HexMap({
       }
       ctx.restore()
     }
-  }, [cells, geo, colours, fire, ignitions, marks, area, villageInk, inner, cssW, cssH])
+  }, [cells, geo, colours, fire, ignitions, marks, routes, blocked, area, villageInk, inner, cssW, cssH])
 
   const locate = (e: React.MouseEvent<HTMLCanvasElement>): number => {
     if (inner <= 0) return -1

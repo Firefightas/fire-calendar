@@ -11,7 +11,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Río Negro re-run on P2's screened tables and committed: `calendar.json`, `calibration.json`, `hex_fire_history.parquet` (binding median-ratio method: held-out MAE 91 cell-days, MAPE 33 %; MODIS-era mega-fire months still overstated). Chart and `METHOD.md` updated. Next: California and Romania when P2 lands them. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Checkpoint A verified from the frontend side on real Río Negro data via the deployed backend (see Requests); colour-scale fix and real offline bundle on `feat/p5-checkpoint-a`; next: California and Romania when their real files land, drawn-area check once the parquet tables are on the server, sandbox launch once P6 adds its entry file. |
-| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Steps 1–9 of the P6 build order are on `feat/p6-sandbox-engine` (mock grids): hex map with fuel/elevation/slope layers, seeded spread engine in a Web Worker, live Open-Meteo wind with gust/shift sliders, four interventions on a 24-unit budget, scoreboard, greedy simulation-scored optimizer side by side. Next: crew exit route, draft advisory, ignition from live hotspots. Needs a human to judge whether the spread looks believable. |
+| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Steps 1–12 of the P6 build order are on `feat/p6-sandbox-engine` (mock grids): hex map with layers, seeded spread engine in a Web Worker, live wind, four interventions on a 24-unit budget, scoreboard, greedy simulation-scored optimizer, crew exit routes, draft advisory, ignition from live hotspots. Open: min-cut + Monte Carlo optimizer (stretch), real grids from P2. Needs a human to judge whether the spread looks believable. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
 ## Checkpoints (TEAM_PLAN §7)
@@ -65,9 +65,9 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 ## P6: Tactical Containment Sandbox
 - [x] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation), click-to-ignite, 72 h playback
 - [x] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
-- [ ] 8-step UI: drone perimeter, terrain, fuel, weather, attack, 4 interventions, asset triage, exit route (done: terrain and fuel layers, weather, attack plan, 4 interventions, asset triage; open: drone perimeter from live hotspots, exit route)
+- [x] 8-step UI: drone perimeter (live hotspots inside the drawn area), terrain, fuel, weather, attack, 4 interventions, asset triage, exit route
 - [ ] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard (done so far: side-by-side scoreboard and a greedy simulation-scored optimizer with the identical budget, seeds and wind; min-cut is not built)
-- [ ] Draft RO-ALERT-style advisory modal; permanent banner; wire to real grid
+- [ ] Draft RO-ALERT-style advisory modal; permanent banner; wire to real grid (done: draft advisory modal; the banner is shown by the host page; the sandbox reads whatever `loadSandboxGrid` returns, so real grids need no code change, only P2's files)
 
 ## Requests (cross-folder changes)
 
@@ -124,3 +124,5 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [x] from P2 to P3/P4: revised pair is packaged in data/raw/rio_negro-p2-persistence-handoff.zip on David's laptop. P3: regenerate calibration/calendar/history; send replacement hex_fire_history.parquet. P4: deploy only with matching revised calibration. See pipeline/ingest/RIO_NEGRO_STATUS.md for hashes and limits; current sandbox history is provisional and terrain mock. → **P3 part done**: P3 reproduced the revised pair from the original points with `pipeline/ingest/persistence.py` (SHA-256 of both files matches the table in `RIO_NEGRO_STATUS.md`), re-ran the harmonization and committed the replacement `data/processed/rio_negro/hex_fire_history.parquet` (27,405 hexes, total burn_count 130,382) with the matching `calendar.json` / `calibration.json`. P2: re-run the sandbox join. P4: the revised `hex_day.parquet` / `points.parquet` are still not in git. → **Now in git**: committed by P3 on P2's behalf at the human's request (`data/processed/rio_negro/`, SHA-256 equal to the table in `RIO_NEGRO_STATUS.md`). P4: Render can now serve real Río Negro polygons and exports.
 
 - [x] P2: verified P3 PR #21 history/calendar/calibration against screened tables and refreshed sandbox_grid.json (474 history changes; 628 matches / 399 defaults; mock terrain retained). Updated local ZIP contains the matching P4/P6 inputs; real terrain preparation and P4 deployment remain pending.
+
+- [ ] from P6 to P4/P1: on Sun 15 Nov about 10:00 the deployed `GET /api/nrt?bbox=...&days=7` answered with "FIRMS rejected MAP_KEY" for MODIS_NRT and VIIRS_NOAA21_NRT, so the sandbox's "Ignite from live hotspots" could not be checked end to end against live data (it falls back to manual ignition and says so). Please check the key or its transaction quota on Render before the demo.

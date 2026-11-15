@@ -1,6 +1,9 @@
 // The sandbox screen for one loaded grid.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SandboxGrid } from '../../../types/contracts.ts'
+import { draftAdvisory } from '../advisory/draft.ts'
+import type { DraftAdvisory } from '../advisory/draft.ts'
+import { crewExitRoutes } from '../advisory/exitRoute.ts'
 import { SimClient } from '../engine/client.ts'
 import { buildModel } from '../engine/model.ts'
 import { ensembleSeeds } from '../engine/service.ts'
@@ -13,6 +16,7 @@ import { windSchedule } from '../engine/wind.ts'
 import type { WindSettings } from '../engine/wind.ts'
 import { OPTIMIZER_LABEL } from '../optimizer/greedy.ts'
 import { fetchCurrentWind, scenarioCentre } from '../weather/openMeteo.ts'
+import { AdvisoryModal } from './AdvisoryModal.tsx'
 import { buildGeometry } from './geometry.ts'
 import { HexMap } from './HexMap.tsx'
 import type { HexMark } from './HexMap.tsx'
@@ -20,6 +24,7 @@ import { CellReadout, Legend } from './Legend.tsx'
 import { layerView, MAP_LAYERS, TOOL_MARK } from './palette.ts'
 import type { MapLayer } from './palette.ts'
 import { Button, Panel } from './parts.tsx'
+import { ReconPanel } from './ReconPanel.tsx'
 import { Scoreboard } from './Scoreboard.tsx'
 import type { Outcome, ScoreColumn } from './Scoreboard.tsx'
 import { ToolsPanel } from './ToolsPanel.tsx'
@@ -31,6 +36,7 @@ import type { WindSource } from './WindPanel.tsx'
 interface Props {
   grid: SandboxGrid
   area: GeoJSON.Polygon | null
+  regionId: string
 }
 
 const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
@@ -46,7 +52,7 @@ interface Results {
   optimizer: (Outcome & { simulatedRuns: number }) | null
 }
 
-export function SandboxView({ grid, area }: Props) {
+export function SandboxView({ grid, area, regionId }: Props) {
   const cells = grid.cells
   const geo = useMemo(() => buildGeometry(cells, grid.h3_resolution), [cells, grid.h3_resolution])
   const model = useMemo(() => buildModel(cells), [cells])
@@ -75,6 +81,7 @@ export function SandboxView({ grid, area }: Props) {
   const generation = useRef(0)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [advisory, setAdvisory] = useState<DraftAdvisory | null>(null)
   const playback = usePlayback(RUN_HOURS)
 
   /** Any change to the scenario makes the finished runs stale. */
@@ -226,13 +233,16 @@ export function SandboxView({ grid, area }: Props) {
 
   const columns: ScoreColumn[] = useMemo(() => {
     if (!results) return []
-    const out: ScoreColumn[] = [
-      { key: 'baseline', title: 'No intervention', outcome: results.baseline },
-      { key: 'human', title: 'Your plan', outcome: results.human },
-    ]
-    if (results.optimizer) out.push({ key: 'optimizer', title: OPTIMIZER_LABEL, outcome: results.optimizer })
+    const column = (key: string, title: string, outcome: Outcome): ScoreColumn => ({
+      key,
+      title,
+      outcome,
+      exit: crewExitRoutes(model, outcome.run.result, outcome.plan),
+    })
+    const out = [column('baseline', 'No intervention', results.baseline), column('human', 'Your plan', results.human)]
+    if (results.optimizer) out.push(column('optimizer', OPTIMIZER_LABEL, results.optimizer))
     return out
-  }, [results])
+  }, [results, model])
   const shownColumn = columns.find((c) => c.key === shown) ?? null
   const shownOutcome = shownColumn?.outcome ?? null
   const shownTitle = shownColumn?.title ?? null
@@ -247,6 +257,40 @@ export function SandboxView({ grid, area }: Props) {
     for (const p of shownOutcome ? shownOutcome.plan : plan) out.set(p.cell, TOOL_MARK[p.kind])
     return out
   }, [shownOutcome, plan])
+  const routes = useMemo(
+    () =>
+      shownColumn
+        ? shownColumn.exit.crews.filter((c) => c.status === 'clear').map((c) => ({ path: c.path, colour: '#7ef0a0' }))
+        : undefined,
+    [shownColumn],
+  )
+  const blocked = useMemo(
+    () => (shownColumn ? shownColumn.exit.crews.filter((c) => c.status !== 'clear').map((c) => c.cell) : undefined),
+    [shownColumn],
+  )
+
+  const openAdvisory = () => {
+    if (!shownColumn) return
+    setAdvisory(
+      draftAdvisory({
+        regionId,
+        isMock: grid.is_mock,
+        cells,
+        planTitle: shownColumn.title,
+        plan: shownColumn.outcome.plan,
+        run: shownColumn.outcome.run,
+        ensemble: shownColumn.outcome.ensemble,
+        exit: shownColumn.exit,
+        seed,
+        hours: RUN_HOURS,
+        ignitions,
+        wind,
+        schedule,
+        generatedAt: new Date().toISOString(),
+      }),
+    )
+  }
+
   const live = useMemo(() => {
     if (!frame) return null
     let burning = 0
@@ -291,6 +335,8 @@ export function SandboxView({ grid, area }: Props) {
             fire={frame}
             ignitions={results ? undefined : ignitionSet}
             marks={marks}
+            routes={routes}
+            blocked={blocked}
             area={area}
             onCellClick={onCellClick}
             onHover={setHovered}
@@ -304,6 +350,9 @@ export function SandboxView({ grid, area }: Props) {
             <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-hairline pt-3">
               <Button onClick={startOptimizer} disabled={optimizing !== null || busy}>
                 {results.optimizer ? 'Run the optimizer again' : 'Run the optimizer on the same scenario'}
+              </Button>
+              <Button onClick={openAdvisory} title="Builds a draft from the plan shown on the map. Never an official alert.">
+                Draft advisory for the plan on the map
               </Button>
               <p className="tabular min-w-0 flex-1 text-xs text-ink-2" role="status">
                 {optimizing === 'starting' && 'Optimizer: scoring the first candidates…'}
@@ -320,9 +369,24 @@ export function SandboxView({ grid, area }: Props) {
             </div>
           </Scoreboard>
         )}
+        {advisory && <AdvisoryModal draft={advisory} isMock={grid.is_mock} onClose={() => setAdvisory(null)} />}
       </div>
 
       <div className="space-y-3">
+        <ReconPanel
+          area={area}
+          cells={cells}
+          indexOf={geo.indexOf}
+          burnable={model.burnable}
+          resolution={grid.h3_resolution}
+          isMock={grid.is_mock}
+          onIgnitions={(found) => {
+            invalidate()
+            setIgnitions(found)
+            // A backfire cannot sit on a hex that is now on fire at t = 0.
+            setPlan((prev) => dropUnanchored(model, prev.filter((p) => !(p.kind === 'backfire' && found.includes(p.cell)))))
+          }}
+        />
         <ToolsPanel
           mode={mode}
           onMode={(m) => {
