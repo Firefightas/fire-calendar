@@ -6,7 +6,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 | Role | Owner (name) | Agent | Current state |
 |---|---|---|---|
-| P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#19; **Checkpoint A achieved**; Render backend & live FIRMS NRT verified (`200 OK`); allowed `data/processed/**/*.parquet` in git for Render. |
+| P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#33; **Checkpoint A achieved**; added optional `peak_event?: FireEventWindow` to `contracts/calendar.schema.json` and `frontend/src/types/contracts.ts` for the NASA GIBS Before/After Burn Scar Slider. |
 | P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | California PR #24 hashes and persistence screen reproduced; California sandbox history joined on mock terrain; Romania downloads active, delivery cut-off 12:30 local. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Río Negro and **California** run on P2's real tables and committed (`calendar.json`, `calibration.json`, `hex_fire_history.parquet`; binding median-ratio method). Río Negro: held-out MAE 91 cell-days, MAPE 33 %. California: MAE 152 cell-days, MAPE 17.5 %, 2012 step ×3.13 → ×1.52 (MODIS alone ×1.53). Charts and `METHOD.md` cover both. Next: Romania when P2 lands it. **Also, in P2's folder with approval:** real sandbox terrain grids for Río Negro and California (`pipeline/sandbox_inputs/terrain.py`). |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Real Rio Negro/California reverified on Render 3636a0e with PR #27; all 2,049,536 California points export in 108.457 s, sampled memory max 270.9 MiB / 512 MiB; performance deployment check complete. |

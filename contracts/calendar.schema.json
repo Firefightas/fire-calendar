@@ -39,6 +39,26 @@
           "source": {
             "description": "Which satellite record the harmonized value comes from",
             "enum": ["modis_terra", "modis_terra_aqua", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"]
+          },
+          "peak_event": {
+            "description": "Optional dominant fire cluster in this month for NASA GIBS before/after imagery comparison",
+            "type": "object",
+            "required": ["bbox", "first_date", "last_date"],
+            "properties": {
+              "bbox": {
+                "description": "[west, south, east, north] padded cluster bounding box in degrees",
+                "type": "array",
+                "items": { "type": "number" },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "first_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+              "last_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+              "verified_before_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+              "verified_after_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+              "label": { "type": "string" }
+            },
+            "additionalProperties": false
           }
         },
         "additionalProperties": false

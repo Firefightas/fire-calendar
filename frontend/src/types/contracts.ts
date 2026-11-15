@@ -27,6 +27,21 @@ export type CalendarSource =
   | "viirs_noaa20"
   | "viirs_noaa21";
 
+export interface FireEventWindow {
+  /** [west, south, east, north] padded cluster bounding box in degrees */
+  bbox: [number, number, number, number];
+  /** First detected hotspot date in this month's dominant cluster ("YYYY-MM-DD") */
+  first_date: string;
+  /** Last detected hotspot date in this month's dominant cluster ("YYYY-MM-DD") */
+  last_date: string;
+  /** Optional curated cloud-free pre-fire imagery date ("YYYY-MM-DD") */
+  verified_before_date?: string;
+  /** Optional curated cloud-free post-fire imagery date ("YYYY-MM-DD") */
+  verified_after_date?: string;
+  /** Optional human-readable event label */
+  label?: string;
+}
+
 export interface CalendarMonth {
   year: number;
   month: number; // 1..12
@@ -45,6 +60,8 @@ export interface CalendarMonth {
   unc_low: number;
   unc_high: number;
   source: CalendarSource;
+  /** Optional dominant fire cluster for NASA GIBS before/after burn scar imagery. */
+  peak_event?: FireEventWindow;
 }
 
 export interface Calendar {

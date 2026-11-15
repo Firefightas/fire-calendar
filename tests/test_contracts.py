@@ -53,6 +53,11 @@ def test_calendar(region_id):
             assert m["unc_low"] <= m["harmonized"] <= m["unc_high"], (path, m["year"], m["month"])
             if m["viirs_raw"] is None:
                 assert m["is_estimated"], "a month without VIIRS must be marked is_estimated"
+            if "peak_event" in m:
+                pe = m["peak_event"]
+                w, s, e, n = pe["bbox"]
+                assert w < e and s < n, (path, m["year"], m["month"], pe["bbox"])
+                assert pe["first_date"] <= pe["last_date"], (path, m["year"], m["month"])
 
 
 @pytest.mark.parametrize("region_id", REGION_IDS)
