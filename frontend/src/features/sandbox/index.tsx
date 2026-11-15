@@ -4,8 +4,9 @@ import { loadSandboxGrid } from '../../app/api.ts'
 import { MockBadge } from '../../app/badges.tsx'
 import type { SandboxProps } from '../../app/SandboxHost.tsx'
 import { useAsync } from '../../app/useAsync.ts'
+import { SandboxView } from './ui/SandboxView.tsx'
 
-export default function Sandbox({ regionId }: SandboxProps) {
+export default function Sandbox({ regionId, area }: SandboxProps) {
   const grid = useAsync(() => loadSandboxGrid(regionId), regionId)
 
   if (grid.status === 'loading') {
@@ -31,6 +32,7 @@ export default function Sandbox({ regionId }: SandboxProps) {
           {origin === 'api' ? 'grid from the backend' : 'grid from the offline bundle'}
         </span>
       </div>
+      <SandboxView key={data.region_id} grid={data} area={area} />
     </section>
   )
 }
