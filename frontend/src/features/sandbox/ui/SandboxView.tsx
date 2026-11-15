@@ -17,7 +17,8 @@ import { buildGeometry } from './geometry.ts'
 import { HexMap } from './HexMap.tsx'
 import type { HexMark } from './HexMap.tsx'
 import { CellReadout, Legend } from './Legend.tsx'
-import { landcoverColours, TOOL_MARK } from './palette.ts'
+import { layerView, MAP_LAYERS, TOOL_MARK } from './palette.ts'
+import type { MapLayer } from './palette.ts'
 import { Button, Panel } from './parts.tsx'
 import { Scoreboard } from './Scoreboard.tsx'
 import type { Outcome, ScoreColumn } from './Scoreboard.tsx'
@@ -49,7 +50,8 @@ export function SandboxView({ grid, area }: Props) {
   const cells = grid.cells
   const geo = useMemo(() => buildGeometry(cells, grid.h3_resolution), [cells, grid.h3_resolution])
   const model = useMemo(() => buildModel(cells), [cells])
-  const colours = useMemo(() => landcoverColours(cells), [cells])
+  const [layer, setLayer] = useState<MapLayer>('landcover')
+  const view = useMemo(() => layerView(layer, cells, model.fuel), [layer, cells, model])
   const [hovered, setHovered] = useState(-1)
 
   // The engine lives in a Web Worker for as long as this grid is on screen.
@@ -231,7 +233,9 @@ export function SandboxView({ grid, area }: Props) {
     if (results.optimizer) out.push({ key: 'optimizer', title: OPTIMIZER_LABEL, outcome: results.optimizer })
     return out
   }, [results])
-  const shownOutcome = columns.find((c) => c.key === shown)?.outcome ?? null
+  const shownColumn = columns.find((c) => c.key === shown) ?? null
+  const shownOutcome = shownColumn?.outcome ?? null
+  const shownTitle = shownColumn?.title ?? null
 
   const frame = useMemo(
     () => (shownOutcome ? frameAt(shownOutcome.run.result, playback.hour) : null),
@@ -258,10 +262,32 @@ export function SandboxView({ grid, area }: Props) {
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
       <div className="space-y-3">
         <div className="rounded-lg border border-hairline bg-surface p-3">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-ink-2">Map layer</span>
+            {MAP_LAYERS.map((l) => (
+              <button
+                key={l.key}
+                type="button"
+                aria-pressed={layer === l.key}
+                onClick={() => setLayer(l.key)}
+                className={`rounded-md border px-2 py-0.5 text-xs ${
+                  layer === l.key
+                    ? 'border-series-harmonized bg-series-harmonized/20 text-ink'
+                    : 'border-hairline text-ink-2 hover:bg-raised'
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
+            <span className="ml-auto text-xs text-ink-2" role="status">
+              {shownTitle ? `On the map: ${shownTitle}` : 'Planning: no run yet'}
+            </span>
+          </div>
           <HexMap
             cells={cells}
             geo={geo}
-            colours={colours}
+            colours={view.colours}
+            villageInk={layer === 'landcover' ? undefined : '#ffffff'}
             fire={frame}
             ignitions={results ? undefined : ignitionSet}
             marks={marks}
@@ -271,7 +297,7 @@ export function SandboxView({ grid, area }: Props) {
             ariaLabel="Hex map of the sandbox area, coloured by land cover, with the simulated fire and deployed resources"
           />
           <CellReadout cell={hovered >= 0 ? cells[hovered] : null} classes={grid.landcover_classes} />
-          <Legend />
+          <Legend ramp={view.legend} />
         </div>
         {results && (
           <Scoreboard columns={columns} seed={seed} shown={shown} onShow={setShown}>

@@ -26,6 +26,8 @@ interface Props {
   area?: GeoJSON.Polygon | null
   onCellClick?: (index: number) => void
   onHover?: (index: number) => void
+  /** Colour of the village mark; pick one that reads on the current layer's village fill. */
+  villageInk?: string
   maxHeight?: number
   ariaLabel: string
 }
@@ -42,6 +44,7 @@ export function HexMap({
   area,
   onCellClick,
   onHover,
+  villageInk = '#1a1a19',
   maxHeight = 640,
   ariaLabel,
 }: Props) {
@@ -119,7 +122,7 @@ export function HexMap({
         ctx.strokeStyle = state === 0 ? '#ffffff' : '#ff8f8f'
         ctx.stroke()
         ctx.font = `700 ${Math.max(9, r * 1.15)}px system-ui, sans-serif`
-        ctx.fillStyle = state === 0 ? '#1a1a19' : '#ffb3b3'
+        ctx.fillStyle = state === 0 ? villageInk : '#ffb3b3'
         ctx.fillText(state === 0 ? '⌂' : '✕', sx(geo.centres[i * 2]), sx(geo.centres[i * 2 + 1]) + 0.5)
       }
     }
@@ -178,7 +181,7 @@ export function HexMap({
       }
       ctx.restore()
     }
-  }, [cells, geo, colours, fire, ignitions, marks, area, inner, cssW, cssH])
+  }, [cells, geo, colours, fire, ignitions, marks, area, villageInk, inner, cssW, cssH])
 
   const locate = (e: React.MouseEvent<HTMLCanvasElement>): number => {
     if (inner <= 0) return -1
