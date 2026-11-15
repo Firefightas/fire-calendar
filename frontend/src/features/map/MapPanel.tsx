@@ -428,7 +428,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
         </div>
 
         {drawMode !== 'static' && (
-          <p className="absolute top-12 left-2 max-w-64 rounded-md bg-raised/95 px-2.5 py-1.5 text-[11px] text-ink-2">
+          <p className="absolute top-12 left-2 max-w-64 rounded-md bg-raised/95 px-2.5 py-1.5 text-xs text-ink-2">
             {drawMode === 'polygon'
               ? 'Click to add corners. Click the first corner again to finish.'
               : 'Click one corner, then the opposite corner.'}
@@ -437,7 +437,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
 
       </div>
 
-      <div className="mt-3 grid gap-x-6 gap-y-2 text-[11px] text-ink-2 sm:grid-cols-2">
+      <div className="mt-3 grid gap-x-6 gap-y-2 text-xs text-ink-2 sm:grid-cols-2">
         <div className="flex items-center gap-2 sm:col-span-2">
           <span className="w-5 border-t border-dashed border-ink-2" />
           Precomputed regions (26-year calendars exist only inside these boxes)
@@ -452,7 +452,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
               disabled={historyCells.length === 0}
             />
             Fire history per H3 hex (burn count)
-            {grid?.is_mock && <span className="rounded border border-warning/60 px-1 text-[10px] text-ink">MOCK</span>}
+            {grid?.is_mock && <span className="rounded border border-warning/60 px-1 text-xs text-ink">MOCK</span>}
           </label>
           {historyCells.length > 0 ? (
             <div className="mt-1 flex items-center gap-2 pl-5">

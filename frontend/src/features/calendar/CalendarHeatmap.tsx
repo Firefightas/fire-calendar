@@ -111,7 +111,7 @@ export function CalendarHeatmap({
         <div role="row" className="contents">
           <span />
           {grid.columns.map((month) => (
-            <span key={month} role="columnheader" className="pb-1 text-center text-[11px] text-muted">
+            <span key={month} role="columnheader" className="pb-1 text-center text-xs text-muted">
               {MONTH_NAMES[month - 1]}
             </span>
           ))}
@@ -119,7 +119,7 @@ export function CalendarHeatmap({
 
         {grid.rows.map((row, r) => (
           <div key={row.label} role="row" className="contents">
-            <span role="rowheader" className="tabular pr-2 text-right text-[11px] leading-5 text-muted">
+            <span role="rowheader" className="tabular pr-2 text-right text-xs leading-5 text-muted">
               {row.label}
             </span>
             {row.cells.map((m, c) => {
@@ -199,7 +199,7 @@ export function CalendarHeatmap({
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-3 text-[11px] text-ink-2">
+      <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-3 text-xs text-ink-2">
         <div className="w-64">
           <div className="h-2.5 rounded-sm" style={{ background: legendGradient(palette) }} />
           <div className="tabular mt-1 flex justify-between text-muted">

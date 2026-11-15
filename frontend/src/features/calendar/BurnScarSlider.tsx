@@ -26,7 +26,7 @@ const BBOX_ORIGIN_NOTE: Record<BboxOrigin, string> = {
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
-  return <span className="rounded border border-hairline px-1.5 py-0.5 text-[11px] text-ink-2">{children}</span>
+  return <span className="rounded border border-hairline px-1.5 py-0.5 text-xs text-ink-2">{children}</span>
 }
 
 /** One GIBS image with its own loading and error state. A new URL starts loading again. */
@@ -62,7 +62,7 @@ function DateStepper({ side, date, min, max, onStep }: StepperProps) {
         onClick={() => onStep(days)}
         disabled={target === date}
         aria-label={`${name} image: ${days > 0 ? 'forward' : 'back'} ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'}`}
-        className="rounded-md border border-hairline px-1.5 py-0.5 text-[11px] text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-md border border-hairline px-1.5 py-0.5 text-xs text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:cursor-not-allowed disabled:opacity-40"
       >
         {label}
       </button>
@@ -138,7 +138,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
   }
 
   const sensorNames = [...new Set([sensors.before, sensors.after])].map((s) => SENSOR_LABEL[s])
-  const badge = 'absolute top-2 rounded bg-page/85 px-2 py-1 text-[11px] font-medium text-ink'
+  const badge = 'absolute top-2 rounded bg-page/85 px-2 py-1 text-xs font-medium text-ink'
 
   return (
     <section className="rounded-lg border border-hairline bg-surface p-4">
@@ -178,7 +178,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
           <button
             type="button"
             onClick={() => setShift({ before: 0, after: 0 })}
-            className="rounded-md border border-hairline px-2 py-0.5 text-[11px] text-ink transition-colors hover:border-ink-2/40 hover:bg-raised"
+            className="rounded-md border border-hairline px-2 py-0.5 text-xs text-ink transition-colors hover:border-ink-2/40 hover:bg-raised"
           >
             Reset dates
           </button>
@@ -226,7 +226,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
         </span>
         {loading && failed.length === 0 && (
           <div role="status" className="absolute inset-x-0 bottom-2 flex justify-center">
-            <span className="flex items-center gap-2 rounded bg-page/85 px-2 py-1 text-[11px] text-ink">
+            <span className="flex items-center gap-2 rounded bg-page/85 px-2 py-1 text-xs text-ink">
               <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full motion-reduce:animate-none border-2 border-ink-2 border-t-transparent" />
               Loading imagery from NASA GIBS…
             </span>
@@ -252,7 +252,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
         )}
       </div>
 
-      <label className="mt-2 flex items-center gap-2 text-[11px] text-ink-2">
+      <label className="mt-2 flex items-center gap-2 text-xs text-ink-2">
         <span>Before</span>
         <input
           type="range"
@@ -266,10 +266,10 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
         <span>After</span>
       </label>
 
-      <p className="tabular mt-2 text-[11px] text-muted">
+      <p className="tabular mt-2 text-xs text-muted">
         Box [minLon, minLat, maxLon, maxLat]: [{bbox.join(', ')}]
       </p>
-      <p className="mt-1 text-[11px] text-muted">
+      <p className="mt-1 text-xs text-muted">
         Cloudy or black orbital swath gap? Step ±1d / ±7d to inspect an adjacent satellite overpass. In SWIR mode,
         fresh burn scars appear deep red/magenta and unburned vegetation appears bright green.
       </p>

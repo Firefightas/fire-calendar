@@ -48,7 +48,7 @@ function Tile({ label, info, children, wide }: TileFrame) {
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
-  return <span className="rounded border border-hairline px-1.5 py-0.5 text-[11px] text-ink-2">{children}</span>
+  return <span className="rounded border border-hairline px-1.5 py-0.5 text-xs text-ink-2">{children}</span>
 }
 
 interface TileProps {
@@ -195,12 +195,12 @@ function SeasonTile({ calendar }: { calendar: Calendar }) {
             </span>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            <span className="rounded border border-hairline px-1.5 py-0.5 text-[11px] text-ink-2">
+            <span className="rounded border border-hairline px-1.5 py-0.5 text-xs text-ink-2">
               Peak <span className="font-semibold text-ink">{name(peakMonth.month)}</span> ·{' '}
               <span className="tabular">{pct(peakMonth.share)}</span>
             </span>
             {nextMonth.entersCriticalWindow ? (
-              <span className="rounded border border-warning/70 px-1.5 py-0.5 text-[11px] text-ink">
+              <span className="rounded border border-warning/70 px-1.5 py-0.5 text-xs text-ink">
                 <span aria-hidden="true" className="text-warning">
                   ▲
                 </span>{' '}
@@ -239,7 +239,7 @@ function SeasonTile({ calendar }: { calendar: Calendar }) {
             {months.map((m) => (
               <span
                 key={m.month}
-                className={`flex-1 text-center text-[10px] ${windowMonths.includes(m.month) ? 'font-semibold text-ink' : 'text-muted'}`}
+                className={`flex-1 text-center text-xs ${windowMonths.includes(m.month) ? 'font-semibold text-ink' : 'text-muted'}`}
               >
                 {name(m.month)}
               </span>
