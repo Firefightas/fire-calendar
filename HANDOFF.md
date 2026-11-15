@@ -79,3 +79,4 @@ Validation after the real-data source fix: 110 Python tests and Ruff passed. The
 
 ## P3 working in P2's folder - 15 November 2026 - Claude
 With approval from the humans of P3 and P2, P3 is writing `pipeline/sandbox_inputs/terrain.py` on `feat/p3-sandbox-terrain` (real land cover from ESA WorldCover, elevation and slope from Open-Meteo) to replace the mock sandbox terrain, Río Negro first. P2 keeps Romania and everything in `pipeline/ingest/`. State and results are reported in the PR and in `pipeline/sandbox_inputs/README.md`.
+Done (11:05): `terrain.py` + tests; real grids committed for Río Negro and California (`is_mock: false`). Not done: Romania (needs P3's fire history first, then one command). Gotchas: `rasterio` is supplied with `uv run --with rasterio`, it is not in `pyproject.toml`; Open-Meteo rate-limits the elevation calls (the script waits and retries); the land-cover rule is not a plain majority (README).
