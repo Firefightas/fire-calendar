@@ -278,6 +278,96 @@ export function progressNote(p: MonthProgress): string | null {
   return null
 }
 
+export interface SeasonMonth {
+  /** Calendar month, 1..12. */
+  month: number
+  /** Full-month baseline median and IQR, as carried by the calendar rows of that month. */
+  median_m: number
+  iqr_m: number
+  /** Harmonized cell-days in that calendar month, summed over the baseline years. */
+  baselineTotal: number
+  /** `baselineTotal` as a fraction (0..1) of all baseline-year harmonized cell-days. */
+  share: number
+}
+
+export interface SeasonalProfile {
+  /** 12 entries in column order (`startMonth` first). */
+  months: SeasonMonth[]
+  /** The three consecutive months (wrapping over the year end) with the most burning. */
+  windowMonths: [number, number, number]
+  /** "Dec–Feb". */
+  windowLabel: string
+  /** Fraction (0..1) of baseline-year harmonized cell-days that fell inside the window. */
+  windowShare: number
+  /** True when the window was ranked by medians; false when every median is 0 and baseline totals decided. */
+  rankedByMedian: boolean
+  peakMonth: SeasonMonth
+  /** The calendar month right after the newest month of the record. */
+  nextMonth: SeasonMonth & { entersCriticalWindow: boolean }
+}
+
+/**
+ * Seasonal baseline of a calendar: for each calendar month its full-month median and IQR and
+ * its share of the baseline-year harmonized cell-days, plus the critical 3-month window.
+ *
+ * - Median and IQR come from a row of that month other than the calendar's newest row, which
+ *   may be month-to-date; the newest row is used only when it is the only one for its month.
+ * - The window is the run of three consecutive months (wrapping, so Dec–Feb counts) with the
+ *   largest sum of medians. Ties, including a small area where every median is 0, go to the
+ *   larger baseline total, then to the earlier starting month. The peak month is picked the same way.
+ * - Returns null when the baseline years hold no burning at all or a month has no row, so no
+ *   share is ever a division by zero.
+ */
+export function seasonalProfile(calendar: Calendar, startMonth: 1 | 7 = 1): SeasonalProfile | null {
+  const newest = latestMonth(calendar)
+  if (!newest) return null
+  const [b0, b1] = calendar.baseline_years
+
+  const byMonth: SeasonMonth[] = []
+  let total = 0
+  for (let month = 1; month <= 12; month++) {
+    const rows = calendar.months.filter((m) => m.month === month)
+    const full = rows.findLast((m) => m !== newest) ?? rows.at(-1)
+    if (!full) return null
+    const baselineTotal = rows
+      .filter((m) => m.year >= b0 && m.year <= b1)
+      .reduce((sum, m) => sum + m.harmonized, 0)
+    total += baselineTotal
+    byMonth.push({ month, median_m: full.median_m, iqr_m: full.iqr_m, baselineTotal, share: 0 })
+  }
+  if (!(total > 0)) return null
+  for (const m of byMonth) m.share = m.baselineTotal / total
+
+  const at = (month: number) => byMonth[(month - 1) % 12]
+  const better = (aMedian: number, aTotal: number, bMedian: number, bTotal: number) =>
+    aMedian > bMedian || (aMedian === bMedian && aTotal > bTotal)
+
+  let best = { start: 1, median: -1, total: -1 }
+  for (let start = 1; start <= 12; start++) {
+    const three = [at(start), at(start + 1), at(start + 2)]
+    const median = three.reduce((s, m) => s + m.median_m, 0)
+    const sum = three.reduce((s, m) => s + m.baselineTotal, 0)
+    if (better(median, sum, best.median, best.total)) best = { start, median, total: sum }
+  }
+  const windowMonths: [number, number, number] = [at(best.start).month, at(best.start + 1).month, at(best.start + 2).month]
+
+  let peakMonth = byMonth[0]
+  for (const m of byMonth) {
+    if (better(m.median_m, m.baselineTotal, peakMonth.median_m, peakMonth.baselineTotal)) peakMonth = m
+  }
+
+  const next = at(newest.month + 1)
+  return {
+    months: Array.from({ length: 12 }, (_, i) => at(startMonth + i)),
+    windowMonths,
+    windowLabel: `${MONTH_NAMES[windowMonths[0] - 1]}–${MONTH_NAMES[windowMonths[2] - 1]}`,
+    windowShare: best.total / total,
+    rankedByMedian: best.median > 0,
+    peakMonth,
+    nextMonth: { ...next, entersCriticalWindow: windowMonths.includes(next.month) },
+  }
+}
+
 const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
 const nf1 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 const nf2 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

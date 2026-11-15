@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { CalendarMonth } from '../../types/contracts.ts'
+import type { Calendar, CalendarMonth } from '../../types/contracts.ts'
 import {
   annualTotals,
   anomalyBand,
@@ -9,6 +9,7 @@ import {
   isMonthInProgress,
   peakAnomaly,
   quantile,
+  seasonalProfile,
   sharedMax,
   valueOf,
 } from './model.ts'
@@ -145,5 +146,93 @@ describe('colorDomain', () => {
   it('copes with an empty or all-zero calendar', () => {
     expect(colorDomain([])).toEqual({ top: 0, max: 0, capped: false })
     expect(colorDomain([month(2020, 1, { viirs_raw: 0, harmonized: 0 })])).toEqual({ top: 0, max: 0, capped: false })
+  })
+})
+
+describe('seasonalProfile', () => {
+  /** Calendar over `years` where `perMonth[m - 1]` is both the harmonized value and the median of month m. */
+  const calendarOf = (perMonth: number[], years: [number, number], extra: CalendarMonth[] = []): Calendar => {
+    const months: CalendarMonth[] = []
+    for (let y = years[0]; y <= years[1]; y++) {
+      for (let m = 1; m <= 12; m++) months.push(month(y, m, { harmonized: perMonth[m - 1], median_m: perMonth[m - 1], iqr_m: m }))
+    }
+    months.push(...extra)
+    const last = months.at(-1)!
+    return {
+      region_id: 'rio_negro',
+      unit: 'active_fire_cell_days',
+      scale: 'SNPP_VIIRS_EQ',
+      is_mock: false,
+      generated_at: '2026-11-15T00:00:00+00:00',
+      first_month: `${years[0]}-01`,
+      last_month: `${last.year}-${String(last.month).padStart(2, '0')}`,
+      baseline_years: [2001, 2002],
+      months,
+    }
+  }
+  const southern = [90, 60, 10, 5, 5, 5, 5, 5, 5, 10, 20, 80]
+  const northern = [1, 1, 1, 2, 4, 10, 40, 60, 50, 20, 3, 1]
+
+  it('finds a window that wraps over the year end', () => {
+    const p = seasonalProfile(calendarOf(southern, [2001, 2002]))!
+    expect(p.windowMonths).toEqual([12, 1, 2])
+    expect(p.windowLabel).toBe('Dec–Feb')
+    expect(p.windowShare).toBeCloseTo(230 / 300)
+    expect(p.peakMonth.month).toBe(1)
+    expect(p.peakMonth.median_m).toBe(90)
+    expect(p.peakMonth.iqr_m).toBe(1)
+    expect(p.peakMonth.share).toBeCloseTo(0.3)
+    expect(p.rankedByMedian).toBe(true)
+  })
+
+  it('finds a mid-year window and the month after the record ends', () => {
+    const p = seasonalProfile(calendarOf(northern, [2001, 2002]))!
+    expect(p.windowLabel).toBe('Jul–Sep')
+    expect(p.nextMonth.month).toBe(1)
+    expect(p.nextMonth.entersCriticalWindow).toBe(false)
+    expect(p.months.reduce((s, m) => s + m.share, 0)).toBeCloseTo(1)
+  })
+
+  it('flags an upcoming month inside the window and ignores a month-to-date newest row', () => {
+    // The record ends in a partial Nov 2003 whose median is month-to-date (7, not the full-month 20).
+    const partial = Array.from({ length: 11 }, (_, i) =>
+      month(2003, i + 1, { harmonized: 999, median_m: i === 10 ? 7 : southern[i], iqr_m: i === 10 ? 99 : i + 1 }),
+    )
+    const p = seasonalProfile(calendarOf(southern, [2001, 2002], partial))!
+    expect(p.nextMonth.month).toBe(12)
+    expect(p.nextMonth.median_m).toBe(80)
+    expect(p.nextMonth.entersCriticalWindow).toBe(true)
+    const nov = p.months.find((m) => m.month === 11)!
+    expect(nov.median_m).toBe(20)
+    expect(nov.iqr_m).toBe(11)
+    // 2003 is outside the baseline years, so its 999s change no share.
+    expect(p.windowShare).toBeCloseTo(230 / 300)
+  })
+
+  it('uses the newest row when it is the only row of its month', () => {
+    const cal = calendarOf(northern, [2001, 2001])
+    const p = seasonalProfile(cal)!
+    expect(p.months.find((m) => m.month === 12)!.median_m).toBe(1)
+  })
+
+  it('orders the 12 months by the start month', () => {
+    const p = seasonalProfile(calendarOf(southern, [2001, 2002]), 7)!
+    expect(p.months.map((m) => m.month)).toEqual([7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6])
+    expect(p.windowMonths).toEqual([12, 1, 2])
+  })
+
+  it('falls back to baseline totals when every median is 0', () => {
+    const cal = calendarOf([0, 0, 0, 0, 0, 0, 0, 3, 5, 0, 0, 0], [2001, 2002])
+    for (const m of cal.months) m.median_m = 0
+    const p = seasonalProfile(cal)!
+    expect(p.rankedByMedian).toBe(false)
+    expect(p.windowMonths).toEqual([7, 8, 9])
+    expect(p.windowShare).toBe(1)
+    expect(p.peakMonth.month).toBe(9)
+  })
+
+  it('returns null when there is no burning in the baseline years, or no months', () => {
+    expect(seasonalProfile(calendarOf(new Array(12).fill(0), [2001, 2002]))).toBeNull()
+    expect(seasonalProfile({ ...calendarOf(northern, [2001, 2002]), months: [] })).toBeNull()
   })
 })

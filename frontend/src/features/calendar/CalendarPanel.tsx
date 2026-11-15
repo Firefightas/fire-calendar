@@ -59,6 +59,7 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
         selected={selected}
         isArea={isArea}
         lastProgress={lastProgress}
+        startMonth={startMonth}
       />
 
       <section className="rounded-lg border border-hairline bg-surface p-4">

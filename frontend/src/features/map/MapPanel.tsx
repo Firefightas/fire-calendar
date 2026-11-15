@@ -134,8 +134,12 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid, acti
   const [showHistory, setShowHistory] = useState(true)
   const [nrtDays, setNrtDays] = useState(1)
   const [nrt, setNrt] = useState<NrtState>({ status: 'idle' })
-  const [lat, setLat] = useState('')
-  const [lon, setLon] = useState('')
+  // Typed coordinates belong to the region they were typed in; switching region empties the boxes.
+  const [coordsFor, setCoordsFor] = useState({ regionId: region.id, lat: '', lon: '' })
+  const coords = coordsFor.regionId === region.id ? coordsFor : { regionId: region.id, lat: '', lon: '' }
+  const { lat, lon } = coords
+  const setLat = (value: string) => setCoordsFor({ ...coords, lat: value })
+  const setLon = (value: string) => setCoordsFor({ ...coords, lon: value })
 
   const commitArea = (poly: GeoJSON.Polygon) => {
     const r = regionRef.current
