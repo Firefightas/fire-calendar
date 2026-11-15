@@ -1,0 +1,643 @@
+{
+  "verified_at": "2026-11-15",
+  "base_url": "https://fire-calendar.onrender.com",
+  "deployment": {
+    "id": "dep-dbsm8iuc6qcc739igqf0",
+    "commit": "efb661bc6e5f3c4c1bc78379d3e1d8063349dccd",
+    "live_at": "2026-11-15T07:52:10.063717Z",
+    "service": "srv-dbs80plg1s2s73ef2mv0",
+    "plan": "free",
+    "workspace": "My Workspace"
+  },
+  "method": {
+    "timing": "Client wall clock, complete HTTP response; headers timed separately; sequential requests, no retry averaging.",
+    "csv": "Streamed without retaining body; fixed contract fields contain no embedded newlines; completed point row totals checked independently with DuckDB against committed Parquet.",
+    "large_export_deadline_seconds": 35,
+    "memory": "Render whole-instance memory_usage at 30-second resolution; sampled values, not instantaneous per-request peak. Other service traffic is not isolated."
+  },
+  "memory_windows": [
+    {
+      "resourceId": "srv-dbs80plg1s2s73ef2mv0",
+      "timeRange": {
+        "start": "2026-11-15T07:57:00Z",
+        "end": "2026-11-15T07:59:00Z"
+      },
+      "metrics": [
+        {
+          "type": "memory_usage",
+          "data": [
+            {
+              "labels": [
+                {
+                  "field": "instance",
+                  "value": "srv-dbs80plg1s2s73ef2mv0-zhmnp"
+                },
+                {
+                  "field": "service",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                },
+                {
+                  "field": "resource",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                }
+              ],
+              "unit": "bytes",
+              "values": [
+                {
+                  "timestamp": "2026-11-15T07:57:00Z",
+                  "value": 96882690
+                },
+                {
+                  "timestamp": "2026-11-15T07:57:30Z",
+                  "value": 96583680
+                },
+                {
+                  "timestamp": "2026-11-15T07:58:00Z",
+                  "value": 113561600
+                },
+                {
+                  "timestamp": "2026-11-15T07:58:30Z",
+                  "value": 156909570
+                },
+                {
+                  "timestamp": "2026-11-15T07:59:00Z",
+                  "value": 101416960
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "memory_limit",
+          "data": [
+            {
+              "labels": [
+                {
+                  "field": "service",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                },
+                {
+                  "field": "resource",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                },
+                {
+                  "field": "instance",
+                  "value": "srv-dbs80plg1s2s73ef2mv0-zhmnp"
+                }
+              ],
+              "unit": "bytes",
+              "values": [
+                {
+                  "timestamp": "2026-11-15T07:57:00Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T07:57:30Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T07:58:00Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T07:58:30Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T07:59:00Z",
+                  "value": 536870900
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resourceId": "srv-dbs80plg1s2s73ef2mv0",
+      "timeRange": {
+        "start": "2026-11-15T08:00:00Z",
+        "end": "2026-11-15T08:01:30Z"
+      },
+      "metrics": [
+        {
+          "type": "memory_usage",
+          "data": [
+            {
+              "labels": [
+                {
+                  "field": "instance",
+                  "value": "srv-dbs80plg1s2s73ef2mv0-zhmnp"
+                },
+                {
+                  "field": "service",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                },
+                {
+                  "field": "resource",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                }
+              ],
+              "unit": "bytes",
+              "values": [
+                {
+                  "timestamp": "2026-11-15T08:00:00Z",
+                  "value": 100728830
+                },
+                {
+                  "timestamp": "2026-11-15T08:00:30Z",
+                  "value": 497963000
+                },
+                {
+                  "timestamp": "2026-11-15T08:01:00Z",
+                  "value": 497815550
+                },
+                {
+                  "timestamp": "2026-11-15T08:01:30Z",
+                  "value": 497815550
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "memory_limit",
+          "data": [
+            {
+              "labels": [
+                {
+                  "field": "instance",
+                  "value": "srv-dbs80plg1s2s73ef2mv0-zhmnp"
+                },
+                {
+                  "field": "service",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                },
+                {
+                  "field": "resource",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                }
+              ],
+              "unit": "bytes",
+              "values": [
+                {
+                  "timestamp": "2026-11-15T08:00:00Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T08:00:30Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T08:01:00Z",
+                  "value": 536870900
+                },
+                {
+                  "timestamp": "2026-11-15T08:01:30Z",
+                  "value": 536870900
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resourceId": "srv-dbs80plg1s2s73ef2mv0",
+      "timeRange": {
+        "start": "2026-11-15T08:02:00Z",
+        "end": "2026-11-15T08:04:00Z"
+      },
+      "metrics": [
+        {
+          "type": "memory_usage",
+          "data": [
+            {
+              "labels": [
+                {
+                  "field": "instance",
+                  "value": "srv-dbs80plg1s2s73ef2mv0-zhmnp"
+                },
+                {
+                  "field": "service",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                },
+                {
+                  "field": "resource",
+                  "value": "srv-dbs80plg1s2s73ef2mv0"
+                }
+              ],
+              "unit": "bytes",
+              "values": [
+                {
+                  "timestamp": "2026-11-15T08:02:00Z",
+                  "value": 106188800
+                },
+                {
+                  "timestamp": "2026-11-15T08:02:30Z",
+                  "value": 114286590
+                },
+                {
+                  "timestamp": "2026-11-15T08:03:00Z",
+                  "value": 114319360
+                },
+                {
+                  "timestamp": "2026-11-15T08:03:30Z",
+                  "value": 118476800
+                },
+                {
+                  "timestamp": "2026-11-15T08:04:00Z",
+                  "value": 105955330
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "live": {
+    "base_url": "https://fire-calendar.onrender.com",
+    "started_at": "2026-11-15T07:57:36.674428+00:00",
+    "regions": {
+      "rio_negro": {
+        "calendar": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "634b7af797093c3ad0814a82b654b751d8beac9c5edc65ef935b8c87bc4889f3"
+        },
+        "calibration": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "c5f01302ecb27580178ef637779ac6593fc32d04f74ab244c3e8cb2995f68e4a",
+          "test_mae": 91.11,
+          "test_mape": 0.332
+        }
+      },
+      "california": {
+        "calendar": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "ef4b6d0ee99d9035dd26c0cbedf52f9b5fe8c0ab2038e99f0aeff8d75efc4374"
+        },
+        "calibration": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "396f735bec337996976600af3ec801a52793f994a20a0414f8f782caee7f503e",
+          "test_mae": 152.27,
+          "test_mape": 0.175
+        }
+      }
+    },
+    "performance": [
+      {
+        "case": "rio_negro",
+        "kind": "calendar",
+        "bounds": [
+          -65.9,
+          -39.6,
+          -65.3,
+          -39
+        ],
+        "started_at": "2026-11-15T07:57:37.380517+00:00",
+        "http": 200,
+        "total_seconds": 1.035,
+        "ended_at": "2026-11-15T07:57:38.420287+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/calendar",
+        "started_at": "2026-11-15T07:57:38.449931+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.766,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"calendar_rio_negro_2000-11_2026-11.csv\"",
+        "total_seconds": 1.163,
+        "ended_at": "2026-11-15T07:57:39.611964+00:00",
+        "bytes": 33218,
+        "data_rows": 313,
+        "header": "year,month,modis_raw,viirs_raw,harmonized,is_estimated,is_nrt,median_m,iqr_m,anomaly_z,unc_low,unc_high,source",
+        "case": "rio_negro",
+        "kind": "calendar_csv"
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T07:57:39.612970+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.404,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_rio_negro_2000-11_2026-11.csv\"",
+        "total_seconds": 10.49,
+        "ended_at": "2026-11-15T07:57:50.101564+00:00",
+        "bytes": 767967,
+        "data_rows": 8864,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "rio_negro",
+        "kind": "points_csv",
+        "expected_rows": 8864
+      },
+      {
+        "case": "california",
+        "kind": "calendar",
+        "bounds": [
+          -121.5,
+          37.5,
+          -120.5,
+          38.5
+        ],
+        "started_at": "2026-11-15T07:57:50.241363+00:00",
+        "http": 200,
+        "total_seconds": 0.98,
+        "ended_at": "2026-11-15T07:57:51.221280+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/calendar",
+        "started_at": "2026-11-15T07:57:51.247947+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.966,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"calendar_california_2000-11_2026-11.csv\"",
+        "total_seconds": 1.304,
+        "ended_at": "2026-11-15T07:57:52.549970+00:00",
+        "bytes": 35118,
+        "data_rows": 313,
+        "header": "year,month,modis_raw,viirs_raw,harmonized,is_estimated,is_nrt,median_m,iqr_m,anomaly_z,unc_low,unc_high,source",
+        "case": "california",
+        "kind": "calendar_csv"
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T07:57:52.549970+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.858,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 32.564,
+        "ended_at": "2026-11-15T07:58:25.115408+00:00",
+        "bytes": 2223983,
+        "data_rows": 25608,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california",
+        "kind": "points_csv",
+        "expected_rows": 25608
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "using_mocks": [
+        "romania"
+      ],
+      "firms_key_configured": true
+    },
+    "ended_at": "2026-11-15T07:58:25.220575+00:00"
+  },
+  "live_large": {
+    "base_url": "https://fire-calendar.onrender.com",
+    "started_at": "2026-11-15T08:00:01.425210+00:00",
+    "regions": {},
+    "performance": [
+      {
+        "case": "california_large",
+        "kind": "calendar",
+        "bounds": [
+          -123,
+          36,
+          -118,
+          41
+        ],
+        "started_at": "2026-11-15T08:00:01.906776+00:00",
+        "http": 200,
+        "total_seconds": 3.23,
+        "ended_at": "2026-11-15T08:00:05.136285+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:00:05.169595+00:00",
+        "complete": false,
+        "http": 200,
+        "headers_seconds": 4.266,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "error": "client_total_deadline",
+        "total_seconds": 35.135,
+        "ended_at": "2026-11-15T08:00:40.303590+00:00",
+        "bytes": 2490368,
+        "data_rows": 29601,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california_large",
+        "kind": "points_csv"
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "using_mocks": [
+        "romania"
+      ],
+      "firms_key_configured": true
+    },
+    "ended_at": "2026-11-15T08:00:40.303590+00:00"
+  },
+  "csv_comparison": {
+    "rio_negro": {
+      "csv_values_match_polygon": true,
+      "optimized_polygon_matches_live_excluding_generated_at": true,
+      "months": 313
+    },
+    "california": {
+      "csv_values_match_polygon": true,
+      "optimized_polygon_matches_live_excluding_generated_at": true,
+      "months": 313
+    }
+  },
+  "optimized_local": {
+    "environment": "Windows Python 3.11.18, DuckDB 2.0.0, Uvicorn on localhost; not Render measurements.",
+    "render_retest": "Pending P1 merge and deployment of the performance fix.",
+    "cases": [
+      {
+        "case": "rio_negro",
+        "kind": "calendar",
+        "bounds": [
+          -65.9,
+          -39.6,
+          -65.3,
+          -39
+        ],
+        "started_at": "2026-11-15T08:04:41.211563+00:00",
+        "http": 200,
+        "total_seconds": 0.186,
+        "ended_at": "2026-11-15T08:04:41.401170+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/calendar",
+        "started_at": "2026-11-15T08:04:41.427430+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.14,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"calendar_rio_negro_2000-11_2026-11.csv\"",
+        "total_seconds": 0.145,
+        "ended_at": "2026-11-15T08:04:41.572512+00:00",
+        "bytes": 33218,
+        "data_rows": 313,
+        "header": "year,month,modis_raw,viirs_raw,harmonized,is_estimated,is_nrt,median_m,iqr_m,anomaly_z,unc_low,unc_high,source",
+        "case": "rio_negro",
+        "kind": "calendar_csv"
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:04:41.572512+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.085,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_rio_negro_2000-11_2026-11.csv\"",
+        "total_seconds": 0.174,
+        "ended_at": "2026-11-15T08:04:41.744924+00:00",
+        "bytes": 767967,
+        "data_rows": 8864,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "rio_negro",
+        "kind": "points_csv",
+        "expected_rows": 8864
+      },
+      {
+        "case": "california",
+        "kind": "calendar",
+        "bounds": [
+          -121.5,
+          37.5,
+          -120.5,
+          38.5
+        ],
+        "started_at": "2026-11-15T08:04:41.775790+00:00",
+        "http": 200,
+        "total_seconds": 0.205,
+        "ended_at": "2026-11-15T08:04:41.996008+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/calendar",
+        "started_at": "2026-11-15T08:04:42.017422+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.184,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"calendar_california_2000-11_2026-11.csv\"",
+        "total_seconds": 0.188,
+        "ended_at": "2026-11-15T08:04:42.209216+00:00",
+        "bytes": 35118,
+        "data_rows": 313,
+        "header": "year,month,modis_raw,viirs_raw,harmonized,is_estimated,is_nrt,median_m,iqr_m,anomaly_z,unc_low,unc_high,source",
+        "case": "california",
+        "kind": "calendar_csv"
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:04:42.209216+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.194,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 0.446,
+        "ended_at": "2026-11-15T08:04:42.654958+00:00",
+        "bytes": 2223983,
+        "data_rows": 25608,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california",
+        "kind": "points_csv",
+        "expected_rows": 25608
+      },
+      {
+        "case": "california_large",
+        "kind": "calendar",
+        "bounds": [
+          -123,
+          36,
+          -118,
+          41
+        ],
+        "started_at": "2026-11-15T08:04:42.749729+00:00",
+        "http": 200,
+        "total_seconds": 0.608,
+        "ended_at": "2026-11-15T08:04:43.363730+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:04:43.392561+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 1.158,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 15.157,
+        "ended_at": "2026-11-15T08:04:58.550247+00:00",
+        "bytes": 104752608,
+        "data_rows": 1202900,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california_large",
+        "kind": "points_csv",
+        "expected_rows": 1202900
+      },
+      {
+        "case": "california_whole_bbox",
+        "kind": "calendar",
+        "bounds": [
+          -124.5,
+          32.5,
+          -114.1,
+          42
+        ],
+        "started_at": "2026-11-15T08:04:58.724268+00:00",
+        "http": 200,
+        "total_seconds": 2.01,
+        "ended_at": "2026-11-15T08:05:00.734113+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:05:00.792307+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 1.933,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 24.888,
+        "ended_at": "2026-11-15T08:05:25.679794+00:00",
+        "bytes": 178328175,
+        "data_rows": 2049536,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california_whole_bbox",
+        "kind": "points_csv",
+        "expected_rows": 2049536
+      }
+    ],
+    "server_peak_working_set_bytes": 253124608
+  }
+}

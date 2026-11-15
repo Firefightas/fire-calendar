@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
 from statistics import fmean, median, pstdev
+from tempfile import TemporaryDirectory
 
 import duckdb
 import h3
@@ -68,18 +71,23 @@ def region_polygon(query: AreaQuery, region: dict) -> Polygon:
     return geometry
 
 
-def table_connection(path: Path) -> duckdb.DuckDBPyConnection:
-    """A private connection per request; sample CSV fields retain leading zeros."""
-    connection = duckdb.connect()
-    try:
-        if path.suffix == ".parquet":
-            connection.read_parquet(str(path)).create_view("archive")
-        else:
-            connection.read_csv(str(path), all_varchar=True).create_view("archive")
-        return connection
-    except Exception:
-        connection.close()
-        raise
+@contextmanager
+def table_connection(path: Path) -> Iterator[duckdb.DuckDBPyConnection]:
+    """Private, spillable queries sized for the 512 MiB Render instance.
+
+    DuckDB's buffer budget is not a total process RSS cap. One query thread and
+    a conservative buffer budget leave room for Python, geometry and streaming.
+    """
+    with TemporaryDirectory(prefix="fire-calendar-duckdb-") as spill:
+        with duckdb.connect(config={
+            "memory_limit": "128MiB", "threads": 1, "temp_directory": spill,
+        }) as connection:
+            if path.suffix == ".parquet":
+                connection.read_parquet(str(path)).create_view("archive")
+            else:
+                # Sample CSV fields retain leading zeros.
+                connection.read_csv(str(path), all_varchar=True).create_view("archive")
+            yield connection
 
 
 def monthly_counts(path: Path, polygon: dict, day_cutoff: tuple[int, int] | None = None) -> dict[tuple[int, int], dict]:
