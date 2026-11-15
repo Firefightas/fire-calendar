@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import h3
 import pandas as pd
 import pytest
 from jsonschema import Draft202012Validator
@@ -227,3 +228,62 @@ def test_cli_writes_files(tmp_path, capsys):
 
 def test_region_names_are_read_as_utf8():
     assert run.REGIONS["rio_negro"]["name"].startswith("Río Negro")  # not "RÃ­o" on Windows
+
+
+def _fires(rows):
+    """hex_day rows from (h3, date, satellite, frp_sum)."""
+    return pd.DataFrame([{"h3": h, "date": d, "sensor": "viirs" if s == "snpp" else "modis", "satellite": s,
+                          "n_points": 1, "frp_sum": frp} for h, d, s, frp in rows])
+
+
+def test_peak_event_is_the_densest_cluster_not_the_longest_burning_hex():
+    centre = h3.latlng_to_cell(-39.3, -65.6, 7)
+    ring = sorted(h3.grid_ring(centre, 2))[:4]
+    static = h3.latlng_to_cell(-41.0, -70.0, 7)  # burns on 20 days with nothing around it, hundreds of km away
+    fire = [(centre, "2017-01-05", "terra", 10.0), (centre, "2017-01-05", "aqua", 10.0)]  # one day, two satellites
+    fire += [(h, f"2017-01-{day:02d}", "snpp", 10.0) for h in ring for day in range(6, 12)]  # 24 cell-days
+    lone = [(static, f"2017-01-{day:02d}", "snpp", 99.0) for day in range(1, 21)]
+    events = run.peak_events(_fires([*fire, *lone, (static, "2017-03-01", "snpp", 5.0)]), "rio_negro")
+    assert set(events) == {(2017, 1), (2017, 3)}
+    january = events[2017, 1]
+    assert (january["first_date"], january["last_date"]) == ("2017-01-05", "2017-01-11")  # the cluster's window
+    west, south, east, north = january["bbox"]
+    assert west < -65.6 < east and south < -39.3 < north and not west < -70.0 < east
+    assert january["verified_before_date"] == "2016-12-15" and january["verified_after_date"] == "2017-01-26"
+    assert january["label"] == "Río Negro Jan 2017 mega-fire scar"
+    assert set(events[2017, 3]) == {"bbox", "first_date", "last_date"}  # no curated dates for other months
+
+    # Equal neighbourhoods: more active days in the hex itself wins, then FRP, then the h3 id.
+    other = h3.latlng_to_cell(-40.5, -68.0, 7)
+    tie = [(centre, "2017-01-05", "snpp", 1.0), (other, "2017-01-20", "snpp", 2.0)]
+    assert run.peak_events(_fires(tie), "rio_negro")[2017, 1]["first_date"] == "2017-01-20"
+    tie[1] = (other, "2017-01-20", "snpp", 1.0)
+    assert run.peak_events(_fires(tie), "rio_negro")[2017, 1]["first_date"] == (
+        "2017-01-05" if centre < other else "2017-01-20")
+
+
+def test_peak_event_bbox_is_padded_and_stays_inside_the_region():
+    region = run.REGIONS["rio_negro"]["bbox"]
+    corner = h3.latlng_to_cell(region[1] + 0.01, region[0] + 0.01, 7)  # south-west corner of the region
+    for cell in (h3.latlng_to_cell(-39.3, -65.6, 7), corner):
+        events = run.peak_events(_fires([(cell, "2020-02-03", "snpp", 1.0)]), "rio_negro")
+        west, south, east, north = events[2020, 2]["bbox"]
+        assert east - west == pytest.approx(0.60) and north - south == pytest.approx(0.45)
+        assert region[0] <= west < east <= region[2] and region[1] <= south < north <= region[3]
+
+
+def test_calendar_months_carry_a_valid_peak_event(hex_day):
+    calendar, _, _ = run.build_outputs(hex_day, "rio_negro", is_mock=True)
+    Draft202012Validator(json.loads(Path("contracts/calendar.schema.json").read_text(encoding="utf-8"))).validate(calendar)
+    region = run.REGIONS["rio_negro"]["bbox"]
+    for m in calendar["months"]:
+        if "peak_event" not in m:  # a month without any detection has no cluster
+            assert m["modis_raw"] == 0 and not m["viirs_raw"]
+            continue
+        event = m["peak_event"]
+        west, south, east, north = event["bbox"]
+        assert east - west >= 0.60 - 1e-9 and north - south >= 0.45 - 1e-9
+        assert region[0] <= west and east <= region[2] and region[1] <= south and north <= region[3]
+        assert f"{m['year']}-{m['month']:02d}-01" <= event["first_date"] <= event["last_date"]
+        assert event["last_date"][:7] == f"{m['year']}-{m['month']:02d}"
+    assert calendar["months"][(2017 - 2000) * 12 + 1 - 11]["peak_event"]["verified_before_date"] == "2016-12-15"

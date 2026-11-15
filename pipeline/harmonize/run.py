@@ -19,6 +19,7 @@ import math
 from datetime import UTC, datetime
 from pathlib import Path
 
+import h3
 import numpy as np
 import pandas as pd
 
@@ -45,6 +46,20 @@ ANOMALY_FLOOR = 1.0  # TEAM_PLAN §2.3
 MIN_CELL_DAYS = 5  # a monthly ratio needs at least this many cell-days in its denominator
 MIN_RATIO_YEARS = 3  # fewer valid fit-year ratios for a calendar month -> pooled factor
 NRT_LAG_MONTHS = 5  # standard processing lags ~5 months (TEAM_PLAN §2.4)
+
+# peak_event: the month's dominant fire cluster, for the NASA GIBS before/after imagery slider.
+PEAK_RINGS = 6  # res-7 rings around the cluster's centre hex, a radius of about 15 km
+PEAK_PAD = 1.25  # bbox grows by this factor around its centre
+PEAK_MIN_SPAN = (0.60, 0.45)  # degrees lon x lat, so GIBS level 9 (~305 m) is never overzoomed
+# Before/after imagery dates and labels chosen by P1 for the flagship months. They are not derived
+# from the hotspot tables: the dates were picked for cloud-free imagery, not computed here.
+VERIFIED_EVENTS = {
+    ("rio_negro", 2017, 1): ("2016-12-15", "2017-01-26", "Río Negro Jan 2017 mega-fire scar"),
+    ("rio_negro", 2016, 12): ("2016-12-02", "2017-01-12", "Río Negro Dec 2016 outbreak"),
+    ("rio_negro", 2001, 1): ("2000-12-12", "2001-02-02", "Río Negro Jan 2001 Terra extreme fire"),
+    ("california", 2021, 8): ("2021-07-10", "2021-09-15", "Aug 2021 Northern California fire cluster"),
+    ("california", 2020, 9): ("2020-08-14", "2020-10-08", "Sep 2020 California Creek / August Complex scar"),
+}
 Z95 = 1.96
 
 # --- Synthetic input (known ratios) -----------------------------------------------------------
@@ -378,6 +393,46 @@ def fire_history(hex_day: pd.DataFrame, monthly: pd.DataFrame, factors: dict) ->
 
 # --- Outputs ------------------------------------------------------------------------------------
 
+def _padded_span(low: float, high: float, min_span: float, bound_low: float, bound_high: float) -> tuple:
+    """[low, high] grown by PEAK_PAD around its centre to at least min_span, kept inside the bounds."""
+    span = min(max((high - low) * PEAK_PAD, min_span), bound_high - bound_low)
+    start = min(max((low + high - span) / 2, bound_low), bound_high - span)  # shift before shrinking
+    return round(start, 4), round(start + span, 4)
+
+
+def peak_events(hex_day: pd.DataFrame, region_id: str) -> dict[tuple[int, int], dict]:
+    """Per (year, month) with fire: bbox and date window of the month's densest fire cluster.
+
+    The cluster is every active hex within PEAK_RINGS of the hex whose neighbourhood holds the most
+    cell-days in the month (ties: most active days in the hex itself, highest frp_sum, then h3).
+    The hex with the most active days alone is not used: it is often a static source that burns
+    every day with nothing around it. bbox is [west, south, east, north] of the hex centres,
+    padded and kept inside the region bbox."""
+    west, south, east, north = REGIONS[region_id]["bbox"]
+    days = _cell_days(hex_day).drop_duplicates(["h3", "date"])
+    dates = pd.to_datetime(hex_day["date"])
+    frp = hex_day["frp_sum"].groupby([dates.dt.year.to_numpy(), dates.dt.month.to_numpy(),
+                                     hex_day["h3"].to_numpy()]).sum()
+    events = {}
+    for (year, month), rows in days.groupby(["year", "month"]):
+        active = rows.groupby("h3").size().to_dict()
+        nearby = {h: sum(active.get(x, 0) for x in h3.grid_disk(h, PEAK_RINGS)) for h in active}
+        peak = min(active, key=lambda h: (-nearby[h], -active[h], -frp.get((year, month, h), 0.0), h))
+        cluster = set(h3.grid_disk(peak, PEAK_RINGS)) & set(active)
+        window = rows.loc[rows["h3"].isin(cluster), "date"]
+        centres = [h3.cell_to_latlng(h) for h in cluster]
+        lats, lons = [c[0] for c in centres], [c[1] for c in centres]
+        w, e = _padded_span(min(lons), max(lons), PEAK_MIN_SPAN[0], west, east)
+        s, n = _padded_span(min(lats), max(lats), PEAK_MIN_SPAN[1], south, north)
+        event = {"bbox": [w, s, e, n], "first_date": window.min().date().isoformat(),
+                 "last_date": window.max().date().isoformat()}
+        verified = VERIFIED_EVENTS.get((region_id, int(year), int(month)))
+        if verified:
+            event |= dict(zip(("verified_before_date", "verified_after_date", "label"), verified, strict=True))
+        events[int(year), int(month)] = event
+    return events
+
+
 def _rounded(x, digits: int = 3):
     if isinstance(x, dict):
         return {k: _rounded(v, digits) for k, v in x.items()}
@@ -417,6 +472,7 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool,
             return bool(_t(r["year"], r["month"]) >= nrt_from)
         return any((r["year"], r["month"], s) in nrt for s in source_satellites[r["source"]])
     now = datetime.now(UTC).replace(microsecond=0).isoformat()
+    events = peak_events(hex_day, region_id)
 
     months = []
     for r in series.to_dict("records"):
@@ -432,6 +488,8 @@ def build_outputs(hex_day: pd.DataFrame, region_id: str, is_mock: bool,
             "unc_low": round(r["unc_low"], 1), "unc_high": round(r["unc_high"], 1),
             "source": r["source"],
         })
+        if (months[-1]["year"], months[-1]["month"]) in events:
+            months[-1]["peak_event"] = events[months[-1]["year"], months[-1]["month"]]
     calendar = {
         "region_id": region_id, "unit": "active_fire_cell_days", "scale": "SNPP_VIIRS_EQ",
         "is_mock": is_mock, "generated_at": now,
