@@ -1,0 +1,457 @@
+{
+  "date": "2026-11-15",
+  "deployment": {
+    "id": "dep-dbsn0oe1egvs73eaoprg",
+    "commit": "3636a0e9dda264e08e3e6c7dc09fd0aba828ca74",
+    "status": "live",
+    "live_at": "2026-11-15T08:43:11.304455Z",
+    "contains_pr": 27,
+    "workspace": "My Workspace",
+    "service": "srv-dbs80plg1s2s73ef2mv0",
+    "instance": "srv-dbs80plg1s2s73ef2mv0-cbpjn"
+  },
+  "method": {
+    "requests": "Sequential public HTTP requests from Windows; body streamed and discarded. Duration includes response transfer. No averaging or isolated-load claim.",
+    "point_row_counts": "Checked with independent DuckDB COUNT against committed Parquet within the polygon bbox; all archive dates lie within the requested month range.",
+    "large_deadline_seconds": 120,
+    "whole_deadline_seconds": 180,
+    "memory": "Render whole-instance samples at 30-second resolution; this is a sampled maximum, not an instantaneous peak or per-query RSS cap."
+  },
+  "representative": {
+    "base_url": "https://fire-calendar.onrender.com",
+    "started_at": "2026-11-15T08:43:30.370752+00:00",
+    "regions": {
+      "rio_negro": {
+        "calendar": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "634b7af797093c3ad0814a82b654b751d8beac9c5edc65ef935b8c87bc4889f3"
+        },
+        "calibration": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "c5f01302ecb27580178ef637779ac6593fc32d04f74ab244c3e8cb2995f68e4a",
+          "test_mae": 91.11,
+          "test_mape": 0.332
+        }
+      },
+      "california": {
+        "calendar": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "ef4b6d0ee99d9035dd26c0cbedf52f9b5fe8c0ab2038e99f0aeff8d75efc4374"
+        },
+        "calibration": {
+          "is_mock": false,
+          "matches_committed": true,
+          "sha256": "396f735bec337996976600af3ec801a52793f994a20a0414f8f782caee7f503e",
+          "test_mae": 152.27,
+          "test_mape": 0.175
+        }
+      }
+    },
+    "performance": [
+      {
+        "case": "rio_negro",
+        "kind": "calendar",
+        "bounds": [
+          -65.9,
+          -39.6,
+          -65.3,
+          -39
+        ],
+        "started_at": "2026-11-15T08:43:31.209066+00:00",
+        "http": 200,
+        "total_seconds": 0.703,
+        "ended_at": "2026-11-15T08:43:31.911070+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/calendar",
+        "started_at": "2026-11-15T08:43:31.937669+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.664,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"calendar_rio_negro_2000-11_2026-11.csv\"",
+        "total_seconds": 0.701,
+        "ended_at": "2026-11-15T08:43:32.638388+00:00",
+        "bytes": 33218,
+        "data_rows": 313,
+        "header": "year,month,modis_raw,viirs_raw,harmonized,is_estimated,is_nrt,median_m,iqr_m,anomaly_z,unc_low,unc_high,source",
+        "case": "rio_negro",
+        "kind": "calendar_csv"
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:43:32.638388+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.274,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_rio_negro_2000-11_2026-11.csv\"",
+        "total_seconds": 1.075,
+        "ended_at": "2026-11-15T08:43:33.713404+00:00",
+        "bytes": 767967,
+        "data_rows": 8864,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "rio_negro",
+        "kind": "points_csv",
+        "expected_rows": 8864
+      },
+      {
+        "case": "california",
+        "kind": "calendar",
+        "bounds": [
+          -121.5,
+          37.5,
+          -120.5,
+          38.5
+        ],
+        "started_at": "2026-11-15T08:43:33.849872+00:00",
+        "http": 200,
+        "total_seconds": 1.008,
+        "ended_at": "2026-11-15T08:43:34.865626+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/calendar",
+        "started_at": "2026-11-15T08:43:34.896450+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.812,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"calendar_california_2000-11_2026-11.csv\"",
+        "total_seconds": 0.816,
+        "ended_at": "2026-11-15T08:43:35.710495+00:00",
+        "bytes": 35118,
+        "data_rows": 313,
+        "header": "year,month,modis_raw,viirs_raw,harmonized,is_estimated,is_nrt,median_m,iqr_m,anomaly_z,unc_low,unc_high,source",
+        "case": "california",
+        "kind": "calendar_csv"
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:43:35.710495+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 0.808,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 2.153,
+        "ended_at": "2026-11-15T08:43:37.865698+00:00",
+        "bytes": 2223983,
+        "data_rows": 25608,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california",
+        "kind": "points_csv",
+        "expected_rows": 25608
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "using_mocks": [
+        "romania"
+      ],
+      "firms_key_configured": true
+    },
+    "ended_at": "2026-11-15T08:43:37.935524+00:00"
+  },
+  "large": {
+    "base_url": "https://fire-calendar.onrender.com",
+    "started_at": "2026-11-15T08:43:48.333034+00:00",
+    "regions": {},
+    "performance": [
+      {
+        "case": "california_large",
+        "kind": "calendar",
+        "bounds": [
+          -123,
+          36,
+          -118,
+          41
+        ],
+        "started_at": "2026-11-15T08:43:52.053325+00:00",
+        "http": 200,
+        "total_seconds": 3.499,
+        "ended_at": "2026-11-15T08:43:55.550424+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:43:55.579029+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 6.195,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 63.47,
+        "ended_at": "2026-11-15T08:44:59.041997+00:00",
+        "bytes": 104752608,
+        "data_rows": 1202900,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california_large",
+        "kind": "points_csv",
+        "expected_rows": 1202900
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "using_mocks": [
+        "romania"
+      ],
+      "firms_key_configured": true
+    },
+    "ended_at": "2026-11-15T08:44:59.123079+00:00"
+  },
+  "whole": {
+    "base_url": "https://fire-calendar.onrender.com",
+    "started_at": "2026-11-15T08:45:14.115394+00:00",
+    "regions": {},
+    "performance": [
+      {
+        "case": "california_whole_bbox",
+        "kind": "calendar",
+        "bounds": [
+          -124.5,
+          32.5,
+          -114.1,
+          42
+        ],
+        "started_at": "2026-11-15T08:45:14.598297+00:00",
+        "http": 200,
+        "total_seconds": 9.487,
+        "ended_at": "2026-11-15T08:45:24.076235+00:00",
+        "is_mock": false,
+        "months": 313
+      },
+      {
+        "path": "/api/export/points",
+        "started_at": "2026-11-15T08:45:24.111179+00:00",
+        "complete": true,
+        "http": 200,
+        "headers_seconds": 9.393,
+        "data_source": "processed",
+        "content_type": "text/csv; charset=utf-8",
+        "disposition": "attachment; filename=\"hotspots_california_2000-11_2026-11.csv\"",
+        "total_seconds": 108.457,
+        "ended_at": "2026-11-15T08:47:12.573413+00:00",
+        "bytes": 178328175,
+        "data_rows": 2049536,
+        "header": "date,time,lat,lon,h3,sensor,satellite,confidence_class,frp,daynight,type,is_nrt",
+        "case": "california_whole_bbox",
+        "kind": "points_csv",
+        "expected_rows": 2049536
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "using_mocks": [
+        "romania"
+      ],
+      "firms_key_configured": true
+    },
+    "ended_at": "2026-11-15T08:47:12.701068+00:00"
+  },
+  "calendar_csv_values": {
+    "rio_negro": {
+      "csv_values_match_polygon": true,
+      "months": 313
+    },
+    "california": {
+      "csv_values_match_polygon": true,
+      "months": 313
+    }
+  },
+  "memory": {
+    "resourceId": "srv-dbs80plg1s2s73ef2mv0",
+    "timeRange": {
+      "start": "2026-11-15T08:43:30Z",
+      "end": "2026-11-15T08:48:30Z"
+    },
+    "metrics": [
+      {
+        "type": "memory_usage",
+        "data": [
+          {
+            "labels": [
+              {
+                "field": "instance",
+                "value": "srv-dbs80plg1s2s73ef2mv0-cbpjn"
+              },
+              {
+                "field": "service",
+                "value": "srv-dbs80plg1s2s73ef2mv0"
+              },
+              {
+                "field": "resource",
+                "value": "srv-dbs80plg1s2s73ef2mv0"
+              }
+            ],
+            "unit": "bytes",
+            "values": [
+              {
+                "timestamp": "2026-11-15T08:43:30Z",
+                "value": 83894270
+              },
+              {
+                "timestamp": "2026-11-15T08:44:00Z",
+                "value": 87343100
+              },
+              {
+                "timestamp": "2026-11-15T08:44:30Z",
+                "value": 245239800
+              },
+              {
+                "timestamp": "2026-11-15T08:45:00Z",
+                "value": 255713280
+              },
+              {
+                "timestamp": "2026-11-15T08:45:30Z",
+                "value": 109797380
+              },
+              {
+                "timestamp": "2026-11-15T08:46:00Z",
+                "value": 284057600
+              },
+              {
+                "timestamp": "2026-11-15T08:46:30Z",
+                "value": 280805380
+              },
+              {
+                "timestamp": "2026-11-15T08:47:00Z",
+                "value": 271290370
+              },
+              {
+                "timestamp": "2026-11-15T08:47:30Z",
+                "value": 114290690
+              },
+              {
+                "timestamp": "2026-11-15T08:48:00Z",
+                "value": 114290690
+              },
+              {
+                "timestamp": "2026-11-15T08:48:30Z",
+                "value": 114290690
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "memory_limit",
+        "data": [
+          {
+            "labels": [
+              {
+                "field": "service",
+                "value": "srv-dbs80plg1s2s73ef2mv0"
+              },
+              {
+                "field": "resource",
+                "value": "srv-dbs80plg1s2s73ef2mv0"
+              },
+              {
+                "field": "instance",
+                "value": "srv-dbs80plg1s2s73ef2mv0-cbpjn"
+              }
+            ],
+            "unit": "bytes",
+            "values": [
+              {
+                "timestamp": "2026-11-15T08:44:00Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:44:30Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:45:00Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:45:30Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:46:00Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:46:30Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:47:00Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:47:30Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:48:00Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:48:30Z",
+                "value": 536870900
+              }
+            ]
+          },
+          {
+            "labels": [
+              {
+                "field": "service",
+                "value": "srv-dbs80plg1s2s73ef2mv0"
+              },
+              {
+                "field": "resource",
+                "value": "srv-dbs80plg1s2s73ef2mv0"
+              },
+              {
+                "field": "instance",
+                "value": "srv-dbs80plg1s2s73ef2mv0-zhmnp"
+              }
+            ],
+            "unit": "bytes",
+            "values": [
+              {
+                "timestamp": "2026-11-15T08:43:30Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:44:00Z",
+                "value": 536870900
+              },
+              {
+                "timestamp": "2026-11-15T08:44:30Z",
+                "value": 536870900
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "errors": {
+    "window_start": "2026-11-15T08:43:15Z",
+    "window_end": "2026-11-15T08:47:30Z",
+    "error_level_logs": 0
+  },
+  "validation": {
+    "pytest_passed": 133,
+    "ruff": "passed",
+    "frontend_build": "passed; isolated scratch copy",
+    "code_changes": "none; documentation/evidence follow-up to PR #27"
+  }
+}

@@ -3,7 +3,8 @@
 Verified 15 November 2026 at https://fire-calendar.onrender.com against deployment
 `dep-dbsm8iuc6qcc739igqf0`, commit `efb661b` (PR #24), live since 07:52:10 UTC.
 P1 confirmed the deployment and the human confirmed Render's **My Workspace**.
-The branch also incorporates P2/P5 handoffs through `72aa5c5`.
+The branch also incorporates P2/P5 handoffs through `72aa5c5`. The performance
+fix was subsequently verified live on `3636a0e`; see the final section below.
 
 ## Matched inputs
 
@@ -133,7 +134,7 @@ The local server's Windows peak working set across the run was 253,124,608 bytes
 Representative polygon payloads match the deployed payloads after excluding the
 request-specific `generated_at` timestamp.
 
-## Validation and remaining deployment step
+## Initial validation and deployment handoff
 
 130 Python tests and Ruff pass. New regressions check bounded/lazy CSV batching,
 quoted multiline Unicode fields, trailing chunks, boolean/null preservation and
@@ -142,8 +143,57 @@ polygon edges/holes, leading-zero times, mock provenance and scientific behavior
 The frontend production build was checked in an isolated scratch copy so its
 automatic data sync could not modify P5's tracked files.
 
-P4's real-data acceptance checks are complete for the deployed `efb661b`.
-**P1 must merge and deploy the performance fix, then P4 must repeat the large and
-whole-California export timings and Render memory sampling before claiming the
-performance issue is resolved on Render.** Do not report the local speedup as a
-live result. No calibration or contract changes are needed.
+P4's initial real-data acceptance checks passed on `efb661b`. P1 merged the
+performance fix as PR #27 (`71d0379`) and deployed main containing it. The required
+live performance follow-up is complete below. No calibration or contract changes
+were needed.
+
+## Post-fix Render verification: complete
+
+Verified 15 November 2026, 10:43-10:48 Bucharest time (08:43-08:48 UTC), after
+deployment `dep-dbsn0oe1egvs73eaoprg` became live at 08:43:11 UTC. The deployed
+commit is `3636a0e9dda264e08e3e6c7dc09fd0aba828ca74`, which contains PR #27.
+Instance: `srv-dbs80plg1s2s73ef2mv0-cbpjn`. Initial checks before this rollout
+finished still reached the old revision; the results below all follow `live`.
+
+Both regions again passed health (`using_mocks: ["romania"]`), exact committed
+regional JSON equality, `is_mock: false`, schema-valid 313-month polygon
+responses, and both CSV exports with processed provenance and correct filenames.
+All fields in both representative calendar CSVs match their polygon JSON.
+Calibration metrics remain Río Negro 91.11 / 0.332 and California 152.27 / 0.175.
+
+The same polygon bounds and full-history date window were used as above:
+
+| Case | Calendar JSON | Calendar CSV | Complete points CSV | Points headers |
+| --- | ---: | ---: | --- | ---: |
+| Río Negro representative | 0.703 s | 0.701 s | 1.075 s; 8,864 rows | 0.274 s |
+| California representative | 1.008 s | 0.816 s | 2.153 s; 25,608 rows | 0.808 s |
+| California large | 3.499 s | not repeated | 63.470 s; 1,202,900 rows; 104,752,608 bytes | 6.195 s |
+| Entire California bbox | 9.487 s | not repeated | 108.457 s; 2,049,536 rows; 178,328,175 bytes | 9.393 s |
+
+Every points export completed with HTTP 200 and an independently checked row
+total from the committed Parquet. The large/whole checks allowed 120/180 seconds
+of total client time so the full transfers could be measured; neither hit that
+deadline, a read timeout, or an observed Render gateway timeout. These are single
+warm-service measurements, not guarantees for all loads or cold starts.
+
+The representative California export improved from 32.564 to 2.153 seconds on
+Render. Broad exports still take about one to two minutes because their complete
+CSV bodies are 105-178 MB. P5's existing 90-second export timeout is cleared when
+`fetch` receives the response headers, before awaiting the body; these requests
+received their headers within 10 seconds. No frontend change was required.
+
+Render's final 30-second memory samples for the new instance, 08:43:30-08:48:30
+UTC, range from 83,894,270 to **284,057,600 bytes (270.9 MiB, 52.9% of the
+512 MiB limit)**. At 08:47:30, after the full export completed, memory was back to
+114,290,690 bytes (109.0 MiB). The pre-fix large-area run sampled 497,963,000 bytes
+(474.9 MiB); the post-fix run also exercised the larger, whole-region archive.
+These are whole-instance samples and can miss instantaneous peaks. Other service
+traffic was not isolated. No OOM was observed, and Render returned zero
+error-level logs for 08:43:15-08:47:30 UTC.
+
+Evidence: [verification/2026-11-15-render-postfix.json](verification/2026-11-15-render-postfix.json).
+All 133 Python tests, Ruff and the frontend production build pass on the
+integrated main used for this recheck. This follow-up changes only verification
+documentation/evidence and the requested P4 PLAN status. The deployment and live
+performance check for PR #27 are complete; no further fix was needed in this run.

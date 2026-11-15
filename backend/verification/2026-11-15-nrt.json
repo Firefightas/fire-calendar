@@ -1,0 +1,68 @@
+{
+  "verified_at": "2026-11-15T08:54:19.384884+00:00",
+  "deployment_commit": "3636a0e9dda264e08e3e6c7dc09fd0aba828ca74",
+  "checks": [
+    {
+      "region": "rio_negro",
+      "days": 7,
+      "status": 200,
+      "total_seconds": 0.234,
+      "feature_count": 272,
+      "satellites": {
+        "aqua": 2,
+        "noaa20": 129,
+        "noaa21": 136,
+        "terra": 5
+      },
+      "date_min": "2026-11-09",
+      "date_max": "2026-11-15",
+      "normalized_properties_and_bounds_valid": true,
+      "duplicates": 0,
+      "sha256": "4fe859963d65bd8c949ec217a8da0ab7f6bba4559a374189ba4beadd7e5127bd",
+      "equivalent_global_bbox_matches": true,
+      "global_bbox_seconds": 0.09
+    },
+    {
+      "region": "california",
+      "days": 7,
+      "status": 200,
+      "total_seconds": 0.471,
+      "feature_count": 2359,
+      "satellites": {
+        "aqua": 100,
+        "noaa20": 1118,
+        "noaa21": 1089,
+        "terra": 52
+      },
+      "date_min": "2026-11-09",
+      "date_max": "2026-11-15",
+      "normalized_properties_and_bounds_valid": true,
+      "duplicates": 0,
+      "sha256": "79f0970cd03e6f939792d3812f0bff00b4e1f06039b508b43e780046c7e2e645",
+      "equivalent_global_bbox_matches": true,
+      "global_bbox_seconds": 0.441
+    }
+  ],
+  "fresh_bbox_check": {
+    "bbox": "-71.899877,-42,-62.8,-37.5",
+    "days": 7,
+    "checked_at": "2026-11-15T08:55:25.752012+00:00",
+    "status": 200,
+    "total_seconds": 1.483,
+    "feature_count": 272,
+    "satellites": [
+      "aqua",
+      "noaa20",
+      "noaa21",
+      "terra"
+    ],
+    "sha256": "4fe859963d65bd8c949ec217a8da0ab7f6bba4559a374189ba4beadd7e5127bd",
+    "purpose": "Distinct bbox from prior requests to avoid their exact-key backend cache entries; no cache purge or secret access."
+  },
+  "log_check": {
+    "start": "2026-11-15T08:53:00Z",
+    "end": "2026-11-15T08:55:30Z",
+    "filter": "FIRMS NRT failure",
+    "matching_logs": 0
+  }
+}
