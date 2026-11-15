@@ -47,3 +47,11 @@ P2 reproduced its history, calendar and calibration from the screened input
 tables before joining. The refresh changes history in 474 grid cells; the
 grid's burn_count sum changes from 6,020.07 to 5,905.03. No terrain fields
 change. History is now current; real terrain preparation remains pending.
+
+## California history (15 November)
+
+Use the same join command with `--region california` and California paths.
+PR #24 history has 49,314 rows; the 1,027-cell base grid has 736 matches and
+291 absent-history defaults. All 74 matched zero-count cells keep their real
+recency. Output remains `is_mock: true` until terrain is replaced. See
+`pipeline/ingest/CALIFORNIA_STATUS.md` for input hashes and delivery details.

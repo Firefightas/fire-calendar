@@ -1,94 +1,149 @@
-# P4 real Rio Negro integration verification
+# P4 real-data and Render verification
 
-Verified on 14 November 2026 using P2's supplied inputs and P3's real JSON outputs
-from PR #15. P1 approved retaining the median-ratio method and frozen contracts in
-commit 151ecfc.
+Verified 15 November 2026 at https://fire-calendar.onrender.com against deployment
+`dep-dbsm8iuc6qcc739igqf0`, commit `efb661b` (PR #24), live since 07:52:10 UTC.
+P1 confirmed the deployment and the human confirmed Render's **My Workspace**.
+The branch also incorporates P2/P5 handoffs through `72aa5c5`.
 
-## Inputs and placement
+## Matched inputs
 
-| File | Rows | Bytes | Observed dates |
-| --- | ---: | ---: | --- |
-| points.parquet | 317,938 | 6,356,324 | 2000-11-08 to 2026-11-13 |
-| hex_day.parquet | 149,205 | 1,081,746 | 2000-11-08 to 2026-11-13 |
+These are the screened tables committed on main, paired with P3's regenerated
+calendar/calibration. They now reach Render through Git; the previous manual
+Parquet-upload handoff is resolved.
 
-Both tables contain 27,405 unique H3 cells and match P2's handoff counts/sizes.
-All points lie within the Rio Negro bbox. The human explicitly authorized moving
-the received root-level files into data/processed/rio_negro/. Both hashes were
-preserved, no existing targets were overwritten, and the Parquet inputs remain
-gitignored and uncommitted.
+| Region | Table | Rows | Bytes | Observed dates |
+| --- | --- | ---: | ---: | --- |
+| Río Negro | points.parquet | 307,352 | 6,163,295 | 2000-11-08 to 2026-11-13 |
+| Río Negro | hex_day.parquet | 143,233 | 1,056,491 | 2000-11-08 to 2026-11-13 |
+| California | points.parquet | 2,049,536 | 38,511,137 | 2000-11-01 to 2026-11-14 |
+| California | hex_day.parquet | 521,339 | 3,271,461 | 2000-11-01 to 2026-11-14 |
 
-- points.parquet SHA-256: f80ad73b399e9db063326650c0cdde03671a61c5867f3a8f231dc000f8305f35
-- hex_day.parquet SHA-256: bc45fd6d833890fe59dc593e65e1bd1d8775e9d947a3dc5a0d50a0939cdd35b9
+SHA-256, calculated again from the committed files:
 
-## Ingestion integrity
+- Río Negro points: `a3e1fdd924e003dc3a0c68167b1e4c6cb60f7761ef8089b308a0a5e7699f4312`
+- Río Negro hex/day: `96b915fd704715091980c1c9713035e2abefba40bd45a0e056ffcc67d209bccb`
+- California points: `cd8f88c933b00a9761dfd920b2c172cedccdd299db33ba8515dbe063481da20d`
+- California hex/day: `dd2b3a1cb86ce695f3c784df8c79b5610170d227ffca80d0ae5b0bddd7c20872`
 
-Required columns/types match contracts/tables.md. Checks found zero invalid
-required values, invalid acquisition times, negative/nonfinite FRP values, invalid
-sensor mappings, invalid/non-resolution-7 H3 cells, coordinate-to-H3 mismatches,
-duplicate hex/day/satellite groups, or point-to-hex count/FRP mismatches.
+There are 27,405 unique H3 cells in each Río Negro table and 49,314 in each
+California table. Hashes match P2's
+[Río Negro](../pipeline/ingest/RIO_NEGRO_STATUS.md) and
+[California](../pipeline/ingest/CALIFORNIA_STATUS.md) handoffs.
+P2 confirmed California's conservative persistence screen in PR #25. Some
+ambiguous recurrent sources remain; these data are not an exhaustive industrial
+source mask. Sandbox terrain is still mock and is a separate P2/P6 handoff.
 
-Confidence is nominal/high and fire type is 0 or null. There are 313,191 SP and
-4,747 NRT points, with no retained NRT row sharing an SP satellite-day. Both the
-2012-2020 fit window and 2021-2025 held-out window contain MODIS and S-NPP.
+## Live API acceptance checks
 
-P2 explains the 114 NOAA-21 points before 2024-01-17: that date is its NRT start,
-while the supplied SP archive starts earlier. These observations are retained.
+Both regions pass:
 
-## Calendar integration and source fix
+- `GET /api/health` returns `using_mocks: ["romania"]`.
+- Regional calendar and calibration JSON are `is_mock: false`, validate against
+  their frozen schemas and exactly equal the corresponding committed JSON.
+- `POST /api/calendar` for the polygons below returns HTTP 200,
+  `is_mock: false`, and 313 schema-valid months, November 2000-November 2026.
+- Calendar CSVs have 313 rows; all fields match the polygon JSON response.
+- Point CSVs complete with the independently checked row totals below.
+- Both exports have CSV content types, correct filenames, `X-Data-Source:
+  processed`, and no mock label.
 
-P3's real calendar and calibration have is_mock=false. S-NPP archive coverage ends
-in July 2026; P3 hands over to NOAA-20 from August instead of reporting the missing
-S-NPP tail as zero activity. The backend previously forced S-NPP through October,
-which incorrectly produced zero polygon values in these months.
+| P3 held-out metric | Río Negro | California |
+| --- | ---: | ---: |
+| test_mae (cell-days) | 91.11 | 152.27 |
+| test_mape | 0.332 | 0.175 |
 
-The backend now respects an explicit regional NOAA-20/21 reference before the
-nominal handover. It uses P3's supplied conversion factors and provenance; it does
-not infer availability from a quiet polygon. Three regression cases for August,
-September and October reproduced the failure before the fix and pass afterward.
-Calibration math and contracts are unchanged.
+These are the values served by Render and stored in P3's committed calibration
+files, not new P4 estimates. The older Río Negro 102.01 / 0.354 results applied to
+the unscreened input pair and have been superseded.
 
-Normal backend file lookup and API verification passed:
+Calibration method, fitting windows and contracts are unchanged. The previous
+early NOAA handover fix remains: the supplied S-NPP archive ends July 2026, so
+polygon calendars follow P3's explicit NOAA-20 source from August. Quiet areas do
+not imply missing satellite coverage. H3-center calendar selection and exact
+coordinate filtering for point exports retain their existing semantics.
 
-- Region calendar/calibration GET responses exactly match P3's real files.
-- Health stops listing Rio Negro as mock; California and Romania remain mock.
-- The 313-month area calendar validates against the frozen schema and is real.
-- Raw monthly counts match independent DuckDB queries; source and NRT flags match
-  P3 for every month. VIIRS/NOAA converted values and uncertainty bounds check out.
-- Baseline medians/IQR/anomaly scores match independent NumPy calculations.
-- November 2026's month-to-date baseline independently matches the November 13
-  cutoff across baseline years.
-- Date-filtered results match the corresponding full-history rows.
-- The August-November calendar CSV has four rows matching the API and processed
-  provenance.
-- A January 2003 hotspot export returns 22 real rows matching independent DuckDB
-  filtering, through normal production lookup with no resolver override.
+## Render timing and memory
 
-A whole-region bbox polygon selects H3 cell centers, while P3's regional file uses
-all supplied region-clipped observations. Edge cells can therefore produce small
-differences (September polygon NOAA-20 raw count 621 versus regional 622). This is
-consistent with the approved polygon contract and P5's separate regional export.
+One sequential client run from this Windows workstation; times include HTTP
+transfer, not just database execution. All requests use `start=2000-11`,
+`end=2026-11`. Each bbox describes a closed rectangular GeoJSON polygon;
+bounds are west, south, east, north.
 
-P3 reports held-out test_mae=102.01 cell-days and
-test_mape=0.354 for the P1-approved binding method. These are P3's
-scientific validation results, not new P4 estimates. The known large-fire
-overstatement limitation and alternative-method comparison remain in P3's
-diagnostics and method note.
+| Case | Bounds | Calendar JSON | Calendar CSV | Points CSV |
+| --- | --- | ---: | ---: | --- |
+| Río Negro | [-65.9, -39.6, -65.3, -39.0] | 1.035 s | 1.163 s | 10.490 s; 8,864 rows |
+| California | [-121.5, 37.5, -120.5, 38.5] | 0.980 s | 1.304 s | 32.564 s; 25,608 rows |
+| California large | [-123, 36, -118, 41] | 3.230 s | not run | stopped at 35.135 s; 29,601 rows |
 
-## Deployment handoff
+The large export has **1,202,900** matching points. It returned HTTP 200 and
+headers in 4.266 seconds, but had transferred only 2,490,368 bytes when the client
+stopped it at its 35-second deadline. This was a client-imposed deadline, not an
+observed Render gateway timeout. It demonstrates that broad exports are too slow
+with the deployed per-row streaming implementation.
 
-Render now serves the real Rio Negro regional JSON, but the verified live
-drawn-area response still has is_mock=true and uses the sample archive. The input
-Parquet files are not distributed by Git. The human confirmed P1 will handle
-their upload to data/processed/rio_negro/ on Render.
+Render free service `srv-dbs80plg1s2s73ef2mv0`, instance
+`srv-dbs80plg1s2s73ef2mv0-zhmnp`, memory limit 536,870,900 bytes (about 512 MiB):
 
-Deploy this backend fix and provide both real Parquet files before verifying
-non-mock drawn-area calendars and hotspot exports on Render. Sandbox grids still
-depend on P2/P6 and are outside this calendar integration work.
+| UTC window | Whole-instance memory samples |
+| --- | --- |
+| 07:57:00-07:59:00, representative requests | 96,583,680-156,909,570 bytes (92.1-149.6 MiB) |
+| 08:00:00-08:01:30, large polygon/export | 100,728,830-497,963,000 bytes (96.1-474.9 MiB) |
+| 08:02:00-08:04:00, after cancellation | 105,955,330-118,476,800 bytes (101.0-113.0 MiB) |
 
-## Validation
+Metrics are Render's `memory_usage` samples at 30-second resolution. They are
+whole-instance measurements, may include other traffic, and cannot establish
+instantaneous or per-request peak RSS. The large-query sampled maximum is 92.8%
+of the instance limit. No OOM or server timeout was observed in this run.
 
-All 110 repository Python tests and Ruff pass after the source fix. The frontend
-production build passed on the starting integrated main; CI also builds against
-the newly committed P3 JSON. P5 owns refreshing committed frontend fallback data
-and the real-data UI review. No Parquet inputs, credentials or generated calibration
-values are committed by P4.
+Request timestamps, byte/row counts, response provenance, exact-file comparisons
+and memory samples are recorded in
+[verification/2026-11-15-render.json](verification/2026-11-15-render.json).
+No CSV bodies or credentials are retained.
+
+## Backend performance fix
+
+The deployed exporter yielded one string per row. Starlette schedules each
+synchronous iterator advance in its thread pool and sends each yielded string
+through ASGI. This made a multi-million-row export incur millions of scheduling
+and send operations.
+
+This branch sends the CSV header promptly, then batches complete records into
+approximately 64 Ki characters per chunk (one oversized record may exceed the
+target). It preserves columns, quoting, nulls, lowercase booleans, leading-zero
+times, sorting, polygon/holes filtering and provenance. It does not accumulate
+the entire export.
+
+Each DuckDB query now uses one thread and a 128 MiB buffer budget, with its own
+temporary spill directory. Query and spill resources close on success, query
+failure and client disconnect, including ASGI 2.4's exception path. This is a
+per-query DuckDB budget, not a total process RSS limit or a guarantee under
+unbounded concurrent exports. The buffer/thread/spill choices follow
+[DuckDB's workload tuning guidance](https://duckdb.org/docs/2.0/guides/performance/how_to_tune_workloads.html).
+
+Local HTTP measurements of the revised code, on the same committed real inputs:
+
+| California polygon | Calendar JSON | Complete points export |
+| --- | ---: | --- |
+| Representative | 0.205 s | 0.446 s; 25,608 rows |
+| Large | 0.608 s | 15.157 s; 1,202,900 rows; 104,752,608 bytes |
+| Entire region bbox [-124.5, 32.5, -114.1, 42] | 2.010 s | 24.888 s; 2,049,536 rows; 178,328,175 bytes |
+
+The local server's Windows peak working set across the run was 253,124,608 bytes
+(241.4 MiB). These measurements are **local, not post-fix Render measurements**.
+Representative polygon payloads match the deployed payloads after excluding the
+request-specific `generated_at` timestamp.
+
+## Validation and remaining deployment step
+
+130 Python tests and Ruff pass. New regressions check bounded/lazy CSV batching,
+quoted multiline Unicode fields, trailing chunks, boolean/null preservation and
+connection/spill cleanup when a client disconnects. Existing tests cover dates,
+polygon edges/holes, leading-zero times, mock provenance and scientific behavior.
+The frontend production build was checked in an isolated scratch copy so its
+automatic data sync could not modify P5's tracked files.
+
+P4's real-data acceptance checks are complete for the deployed `efb661b`.
+**P1 must merge and deploy the performance fix, then P4 must repeat the large and
+whole-California export timings and Render memory sampling before claiming the
+performance issue is resolved on Render.** Do not report the local speedup as a
+live result. No calibration or contract changes are needed.

@@ -18,14 +18,14 @@ Gotchas:
 
 ---
 
-## P5 Frontend — Sat 14 Nov 2026 — Claude (Fable)
-Done: all P5 items in PLAN.md. Checkpoint A verified from the frontend side on real Río Negro data through the deployed backend; the colour-scale fix and the real Río Negro offline bundle are on `feat/p5-checkpoint-a`.
+## P5 Frontend — Sun 15 Nov 2026 — Claude (Fable)
+Done: all P5 items in PLAN.md. Río Negro (re-run) and California are verified on real data through the deployed backend and from the offline bundle, including drawn-area calendars and both CSV exports.
 In progress (files + exact state): nothing half-written.
-Broken / known issues: a drawn polygon in Río Negro still returns MOCK DATA (labelled) until the parquet tables are on the server. The sandbox button opens a placeholder until P6 adds `frontend/src/features/sandbox/index.tsx`.
+Broken / known issues: none in P5 code. The sandbox button opens the host page (banner, region or drawn area, back button) with a placeholder until P6 adds `frontend/src/features/sandbox/index.tsx`. Romania and every sandbox grid are still mocks and labelled.
 Next 3 steps:
-1. When California and Romania get real files: `cd frontend && npm run sync-data`, commit `public/data/`, repeat the Checkpoint A checks for them.
-2. Re-check a drawn area and both exports once P4 serves real parquet tables.
-3. Check the sandbox launch once P6's entry file exists.
+1. When P6's entry file is on main: in the production build, launch the sandbox for a region and for a drawn area and check it opens, shows the banner once, and "Back to the calendar" returns.
+2. When Romania gets real files: `cd frontend && npm run sync-data`, commit `public/data/`, repeat the region checks.
+3. Checkpoint B: check the Vercel deployment once P1 has it up, including the offline fallback.
 Gotchas: `gh` is not installed on this laptop. `npm run build` reads `frontend/.env.production`, so a local production build or `vite preview` talks to the Render backend; `npm run dev` still uses `http://localhost:8000`. After switching branches restart `npm run dev` (a stale dev server served the page unstyled). MapLibre 6 needs `setWorkerUrl` (already done in `MapPanel.tsx`). Every append to DECISIONS.md conflicts with other roles' appends: keep both sides.
 
 

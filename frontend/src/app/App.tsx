@@ -194,6 +194,8 @@ export default function App() {
                 actions={
                   region && (
                     <ExportButtons
+                      // A fresh instance per region and area, so an old "downloaded" note never outlives its data.
+                      key={`${regionId}:${polygon ? JSON.stringify(polygon.coordinates) : 'region'}`}
                       query={{
                         region_id: regionId,
                         polygon: polygon ?? bboxPolygon(region.bbox),
