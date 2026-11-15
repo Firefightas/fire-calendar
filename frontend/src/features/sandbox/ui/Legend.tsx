@@ -84,23 +84,21 @@ function LegendItems({ showLandcover }: { showLandcover: boolean }) {
 
 const nf1 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
-/** One line describing the hex under the pointer, straight from the grid file. */
+/** One compact line describing the hex under the pointer, straight from the grid file. */
 export function CellReadout({ cell, classes }: { cell: SandboxCell | null; classes?: Record<string, string> }) {
   return (
-    <p className="tabular mt-2 min-h-[1.25rem] text-xs text-ink-2" aria-live="off">
+    <span className="tabular min-w-0 flex-1 truncate text-xs text-ink-2" aria-live="off">
       {cell ? (
         <>
-          <span className="font-medium text-ink">{landcoverLabel(cell, classes)}</span> · elevation{' '}
-          {nf1.format(cell.elevation_m)} m · slope {nf1.format(cell.slope_deg)}° ·{' '}
-          {cell.years_since_last_fire === null
-            ? 'no fire on record'
-            : `last fire ${nf1.format(cell.years_since_last_fire)} yr ago`}{' '}
-          · burn count {nf1.format(cell.burn_count)}
-          {!cell.burnable && ' · does not burn'}
+          <span className="font-medium text-ink">{landcoverLabel(cell, classes)}</span> · {nf1.format(cell.elevation_m)} m ·{' '}
+          {nf1.format(cell.slope_deg)}° ·{' '}
+          {cell.years_since_last_fire === null ? 'no fire on record' : `last fire ${nf1.format(cell.years_since_last_fire)} yr`} ·
+          burns {nf1.format(cell.burn_count)}
+          {!cell.burnable && ' · never burns'}
         </>
       ) : (
-        'Point at a hex to read its land cover, terrain and fire history.'
+        <span className="text-muted">Hover a hex for its land cover, terrain and fire history</span>
       )}
-    </p>
+    </span>
   )
 }

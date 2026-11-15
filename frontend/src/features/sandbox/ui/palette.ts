@@ -1,5 +1,5 @@
 // Colours and labels for the hex map. Dark UI; rivers and villages are the brightest marks.
-import { interpolateCividis, interpolateViridis } from 'd3-scale-chromatic'
+import { interpolateCividis, interpolateInferno, interpolateViridis } from 'd3-scale-chromatic'
 import type { SandboxCell } from '../../../types/contracts.ts'
 import type { ToolKind } from '../engine/tools.ts'
 
@@ -68,11 +68,12 @@ export const TOOL_MARK: Record<ToolKind, { glyph: string; colour: string; emoji:
 }
 
 /** Map layers: land cover, plus the layers of protocol steps 2 (terrain) and 3 (fuel). */
-export type MapLayer = 'landcover' | 'fuel' | 'elevation' | 'slope'
+export type MapLayer = 'landcover' | 'fuel' | 'history' | 'elevation' | 'slope'
 
 export const MAP_LAYERS: { key: MapLayer; label: string }[] = [
   { key: 'landcover', label: 'Land cover' },
   { key: 'fuel', label: 'Fuel' },
+  { key: 'history', label: 'Burn history' },
   { key: 'elevation', label: 'Elevation' },
   { key: 'slope', label: 'Slope' },
 ]
@@ -135,6 +136,23 @@ export function layerView(layer: MapLayer, cells: SandboxCell[], fuel: Float32Ar
     )
     cells.forEach((c, i) => {
       if (fuel[i] <= 0) view.colours[i] = c.landcover === 80 ? landcoverColour(80) : NO_FUEL
+    })
+    return view
+  }
+  if (layer === 'history') {
+    const view = rampView(
+      cells.map((c) => c.burn_count),
+      interpolateInferno,
+      (_min, max) => ({
+        title: 'Burn history: burn_count per hex from the harmonized fire record (grid file)',
+        low: '0',
+        high: nf.format(max),
+        note: 'Water keeps its colour. Recently burned hexes carry less fuel in the simulation.',
+      }),
+      0,
+    )
+    cells.forEach((c, i) => {
+      if (c.landcover === 80) view.colours[i] = landcoverColour(80)
     })
     return view
   }

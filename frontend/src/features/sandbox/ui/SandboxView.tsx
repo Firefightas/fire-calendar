@@ -14,8 +14,6 @@ import { BUDGET_UNITS, dropUnanchored, placementProblem, planCost, TOOLS } from 
 import type { Placement, ToolKind } from '../engine/tools.ts'
 import { windSchedule } from '../engine/wind.ts'
 import type { WindSettings } from '../engine/wind.ts'
-import { OPTIMIZER_LABEL } from '../optimizer/greedy.ts'
-import { MINCUT_LABEL } from '../optimizer/mincut.ts'
 import { fetchCurrentWind, scenarioCentre } from '../weather/openMeteo.ts'
 import { AdvisoryModal } from './AdvisoryModal.tsx'
 import { buildGeometry } from './geometry.ts'
@@ -24,13 +22,17 @@ import type { HexMark } from './HexMap.tsx'
 import { CellReadout, Legend } from './Legend.tsx'
 import { layerView, MAP_LAYERS, TOOL_MARK } from './palette.ts'
 import type { MapLayer } from './palette.ts'
-import { Button, Panel } from './parts.tsx'
-import { ReconPanel } from './ReconPanel.tsx'
+import { Button } from './parts.tsx'
+import { highestRiskCell } from './quickstart.ts'
+import { RunPanel } from './RunPanel.tsx'
+import type { OptimizerPhase } from './RunPanel.tsx'
 import { Scoreboard } from './Scoreboard.tsx'
-import type { Outcome, ScoreColumn } from './Scoreboard.tsx'
+import { columnName } from './scoreModel.ts'
+import type { Outcome, ScoreColumn } from './scoreModel.ts'
 import { ToolsPanel } from './ToolsPanel.tsx'
 import type { ClickMode } from './ToolsPanel.tsx'
 import { usePlayback } from './usePlayback.ts'
+import { useRecon } from './useRecon.ts'
 import { WindPanel } from './WindPanel.tsx'
 import type { WindSource } from './WindPanel.tsx'
 
@@ -52,6 +54,32 @@ interface Results {
   human: Outcome
   optimizer: OptimizeResult | null
   mincut: OptimizeResult | null
+}
+
+/** How each optimizer reached its plan, in sentences computed from its result. */
+function optimizerNotes(results: Results): string[] {
+  const notes: string[] = []
+  if (results.optimizer) {
+    notes.push(
+      `Greedy optimizer: ${results.optimizer.plan.length} resources chosen from ${nf0.format(results.optimizer.simulatedRuns)} simulated runs, one at a time where the mean outcome over the same seeds improves most (villages, then farms, then hectares). It does not search combinations.`,
+    )
+  }
+  const m = results.mincut
+  if (m?.anchor) {
+    const a = m.anchor
+    const how =
+      a.cutCost === null
+        ? 'no line can be in place before the fire usually reaches the villages, so it fell back to greedy steps only'
+        : a.hexes === 0
+          ? 'the villages are already separated from the fire by hexes that cannot burn, so the budget went to greedy steps'
+          : `an anchor line of ${a.hexes} hexes between the fire and the villages (full line ${a.cutCost} units${a.complete ? '' : ', more than the budget, so only part was placed'}), then greedy steps with what was left`
+    const lost =
+      a.cutCost !== null && a.villagesOutOfReach > 0
+        ? ` ${a.villagesOutOfReach} village hexes are usually reached before a line could be ready and were left out of the line.`
+        : ''
+    notes.push(`Min-cut optimizer: ${how}; ${nf0.format(m.simulatedRuns)} simulated runs.${lost}`)
+  }
+  return notes
 }
 
 export function SandboxView({ grid, area, regionId }: Props) {
@@ -78,8 +106,8 @@ export function SandboxView({ grid, area, regionId }: Props) {
   const [results, setResults] = useState<Results | null>(null)
   const [shown, setShown] = useState('human')
   const [busy, setBusy] = useState(false)
-  const [optimizing, setOptimizing] = useState<SimProgress | 'starting' | null>(null)
-  /** Bumped on every scenario change so a late optimizer answer for an old scenario is dropped. */
+  const [optimizing, setOptimizing] = useState<OptimizerPhase>(null)
+  /** Bumped on every scenario change so a late answer for an old scenario is dropped. */
   const generation = useRef(0)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -90,11 +118,28 @@ export function SandboxView({ grid, area, regionId }: Props) {
   const invalidate = () => {
     generation.current++
     setOptimizing(null)
+    setBusy(false)
     setResults(null)
     setError(null)
     setShown('human')
     playback.reset()
   }
+
+  /** New fire at t = 0. A backfire cannot sit on a hex that is now burning. */
+  const igniteCells = (found: number[]) => {
+    invalidate()
+    setIgnitions(found)
+    setPlan((prev) => dropUnanchored(model, prev.filter((p) => !(p.kind === 'backfire' && found.includes(p.cell)))))
+  }
+
+  const recon = useRecon({
+    area,
+    cells,
+    indexOf: geo.indexOf,
+    burnable: model.burnable,
+    resolution: grid.h3_resolution,
+    onIgnitions: igniteCells,
+  })
 
   // Protocol step 4: current wind at the centre of the area, from Open-Meteo.
   const [windSource, setWindSource] = useState<WindSource>({ status: 'loading' })
@@ -179,10 +224,22 @@ export function SandboxView({ grid, area, regionId }: Props) {
     setPlan([...plan, { cell: i, kind: mode }])
   }
 
-  const startRun = async () => {
-    if (!client || ignitions.length === 0) return
+  const quickIgnite = () => {
+    const i = highestRiskCell(model, cells, area)
+    if (i < 0) {
+      setNotice('No hex in this grid can burn.')
+      return
+    }
+    setNotice(null)
+    igniteCells([i])
+  }
+
+  /** Baseline and the user's plan under the same seeds. Returns null if it failed or went stale. */
+  const runScenario = async (): Promise<Results | null> => {
+    if (!client || ignitions.length === 0) return null
+    const mine = generation.current
     const base: Scenario = { seed, hours: RUN_HOURS, ignitions, wind: schedule, tools: [] }
-    const mine: Scenario = { ...base, tools: plan }
+    const withPlan: Scenario = { ...base, tools: plan }
     const seeds = ensembleSeeds(seed)
     setBusy(true)
     setError(null)
@@ -190,42 +247,48 @@ export function SandboxView({ grid, area, regionId }: Props) {
       const [baseRun, baseEnsemble, myRun, myEnsemble] = await Promise.all([
         client.request({ type: 'run', scenario: base }),
         client.request({ type: 'ensemble', scenario: base, seeds }),
-        client.request({ type: 'run', scenario: mine }),
-        client.request({ type: 'ensemble', scenario: mine, seeds }),
+        client.request({ type: 'run', scenario: withPlan }),
+        client.request({ type: 'ensemble', scenario: withPlan, seeds }),
       ])
-      setResults({
+      if (generation.current !== mine) return null
+      const fresh: Results = {
         base,
         baseline: { plan: [], run: baseRun, ensemble: baseEnsemble },
         human: { plan, run: myRun, ensemble: myEnsemble },
         optimizer: null,
         mincut: null,
-      })
+      }
+      setResults(fresh)
       setShown('human')
       playback.start()
+      return fresh
     } catch (err) {
-      setResults(null)
-      setError(err instanceof Error ? err.message : String(err))
+      if (generation.current === mine) {
+        setResults(null)
+        setError(err instanceof Error ? err.message : String(err))
+      }
+      return null
     } finally {
-      setBusy(false)
+      if (generation.current === mine) setBusy(false)
     }
   }
 
-  /** Same scenario, seeds and budget as the human plan; only the placements differ. */
-  const startOptimizer = async () => {
-    if (!client || !results) return
+  /** Both optimizers on the same scenario, seeds and budget as the user's plan. */
+  const runOptimizers = async (from: Results) => {
+    if (!client) return
     const mine = generation.current
-    setOptimizing('starting')
     setError(null)
+    const request = { type: 'optimize', scenario: from.base, seeds: from.human.ensemble.seeds, budget: BUDGET_UNITS } as const
+    const progress = (phase: 'greedy' | 'mincut') => (p: SimProgress) => {
+      if (generation.current === mine) setOptimizing({ phase, ...p })
+    }
     try {
-      const request = { type: 'optimize', scenario: results.base, seeds: results.human.ensemble.seeds, budget: BUDGET_UNITS } as const
-      const onProgress = (progress: SimProgress) => {
-        if (generation.current === mine) setOptimizing(progress)
-      }
-      const greedy = await client.request({ ...request, method: 'greedy' }, onProgress)
+      setOptimizing({ phase: 'greedy', placed: 0, costUsed: 0, budget: BUDGET_UNITS, simulatedRuns: 0 })
+      const greedy = await client.request({ ...request, method: 'greedy' }, progress('greedy'))
       if (generation.current !== mine) return
       setResults((prev) => (prev ? { ...prev, optimizer: greedy } : prev))
-      setOptimizing('starting')
-      const mincut = await client.request({ ...request, method: 'mincut' }, onProgress)
+      setOptimizing({ phase: 'mincut', placed: 0, costUsed: 0, budget: BUDGET_UNITS, simulatedRuns: 0 })
+      const mincut = await client.request({ ...request, method: 'mincut' }, progress('mincut'))
       if (generation.current !== mine) return
       setResults((prev) => (prev ? { ...prev, mincut } : prev))
       setShown('optimizer')
@@ -237,22 +300,30 @@ export function SandboxView({ grid, area, regionId }: Props) {
     }
   }
 
+  const runWithOptimizers = async () => {
+    const from = results ?? (await runScenario())
+    if (from) await runOptimizers(from)
+  }
+
   const columns: ScoreColumn[] = useMemo(() => {
     if (!results) return []
-    const column = (key: string, title: string, outcome: Outcome): ScoreColumn => ({
+    const column = (key: string, title: string, subtitle: string | undefined, outcome: Outcome): ScoreColumn => ({
       key,
       title,
+      subtitle,
       outcome,
       exit: crewExitRoutes(model, outcome.run.result, outcome.plan),
     })
-    const out = [column('baseline', 'No intervention', results.baseline), column('human', 'Your plan', results.human)]
-    if (results.optimizer) out.push(column('optimizer', OPTIMIZER_LABEL, results.optimizer))
-    if (results.mincut) out.push(column('mincut', MINCUT_LABEL, results.mincut))
+    const out = [
+      column('baseline', 'No intervention', undefined, results.baseline),
+      column('human', 'Your plan', undefined, results.human),
+    ]
+    if (results.optimizer) out.push(column('optimizer', 'Greedy optimizer', 'algorithmic, simulation-scored', results.optimizer))
+    if (results.mincut) out.push(column('mincut', 'Min-cut optimizer', 'anchor line + greedy fill', results.mincut))
     return out
   }, [results, model])
   const shownColumn = columns.find((c) => c.key === shown) ?? null
   const shownOutcome = shownColumn?.outcome ?? null
-  const shownTitle = shownColumn?.title ?? null
 
   const frame = useMemo(
     () => (shownOutcome ? frameAt(shownOutcome.run.result, playback.hour) : null),
@@ -283,7 +354,7 @@ export function SandboxView({ grid, area, regionId }: Props) {
         regionId,
         isMock: grid.is_mock,
         cells,
-        planTitle: shownColumn.title,
+        planTitle: columnName(shownColumn),
         plan: shownColumn.outcome.plan,
         run: shownColumn.outcome.run,
         ensemble: shownColumn.outcome.ensemble,
@@ -310,29 +381,26 @@ export function SandboxView({ grid, area, regionId }: Props) {
   }, [frame])
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
-      <div className="space-y-3">
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="min-w-0 space-y-3">
         <div className="rounded-lg border border-hairline bg-surface p-3">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-ink-2">Map layer</span>
-            {MAP_LAYERS.map((l) => (
-              <button
-                key={l.key}
-                type="button"
-                aria-pressed={layer === l.key}
-                onClick={() => setLayer(l.key)}
-                className={`rounded-md border px-2 py-0.5 text-xs ${
-                  layer === l.key
-                    ? 'border-series-harmonized bg-series-harmonized/20 text-ink'
-                    : 'border-hairline text-ink-2 hover:bg-raised'
-                }`}
-              >
-                {l.label}
-              </button>
-            ))}
-            <span className="ml-auto text-xs text-ink-2" role="status">
-              {shownTitle ? `On the map: ${shownTitle}` : 'Planning: no run yet'}
-            </span>
+          <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <div role="group" aria-label="Map layer" className="inline-flex overflow-hidden rounded-md border border-hairline">
+              {MAP_LAYERS.map((l) => (
+                <button
+                  key={l.key}
+                  type="button"
+                  aria-pressed={layer === l.key}
+                  onClick={() => setLayer(l.key)}
+                  className={`border-l border-hairline px-2 py-0.5 text-xs first:border-l-0 ${
+                    layer === l.key ? 'bg-series-harmonized/25 text-ink' : 'text-ink-2 hover:bg-raised'
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+            <CellReadout cell={hovered >= 0 ? cells[hovered] : null} classes={grid.landcover_classes} />
           </div>
           <HexMap
             cells={cells}
@@ -347,66 +415,64 @@ export function SandboxView({ grid, area, regionId }: Props) {
             area={area}
             onCellClick={onCellClick}
             onHover={setHovered}
-            ariaLabel="Hex map of the sandbox area, coloured by land cover, with the simulated fire and deployed resources"
+            ariaLabel="Hex map of the sandbox area, coloured by the chosen layer, with the simulated fire and deployed resources"
           />
-          <CellReadout cell={hovered >= 0 ? cells[hovered] : null} classes={grid.landcover_classes} />
           <Legend ramp={view.legend} />
         </div>
         {results && (
-          <Scoreboard columns={columns} seed={seed} shown={shown} onShow={setShown}>
-            <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-hairline pt-3">
-              <Button onClick={startOptimizer} disabled={optimizing !== null || busy}>
-                {results.optimizer ? 'Run the optimizers again' : 'Run the optimizers on the same scenario'}
-              </Button>
-              <Button onClick={openAdvisory} title="Builds a draft from the plan shown on the map. Never an official alert.">
-                Draft advisory for the plan on the map
-              </Button>
-              <p className="tabular min-w-0 flex-1 text-xs text-ink-2" role="status">
-                {optimizing === 'starting' && 'Optimizer: scoring the first candidates…'}
-                {optimizing !== null &&
-                  optimizing !== 'starting' &&
-                  `Optimizer: ${optimizing.placed} placed, ${optimizing.costUsed} of ${optimizing.budget} units, ${nf0.format(optimizing.simulatedRuns)} simulated runs so far…`}
-                {optimizing === null &&
-                  results.optimizer &&
-                  `Greedy: ${results.optimizer.plan.length} resources chosen from ${nf0.format(results.optimizer.simulatedRuns)} simulated runs, one at a time where the mean outcome over the same seeds improves most (villages, then farms, then hectares). It does not search combinations.`}
-                {optimizing === null &&
-                  results.mincut?.anchor &&
-                  ` Min-cut: ${
-                    results.mincut.anchor.cutCost === null
-                      ? 'no line can be in place before the fire usually reaches the villages, so it fell back to greedy steps only'
-                      : results.mincut.anchor.hexes === 0
-                        ? 'the villages are already separated from the fire by hexes that cannot burn, so the budget went to greedy steps'
-                        : `an anchor line of ${results.mincut.anchor.hexes} hexes between the fire and the villages (full line ${results.mincut.anchor.cutCost} units${results.mincut.anchor.complete ? '' : ', more than the budget, so only part was placed'}), then greedy steps with what was left`
-                  }${
-                    results.mincut.anchor.cutCost !== null && results.mincut.anchor.villagesOutOfReach > 0
-                      ? ` (${results.mincut.anchor.villagesOutOfReach} village hexes are usually reached before a line could be ready and were left out of the line)`
-                      : ''
-                  }; ${nf0.format(results.mincut.simulatedRuns)} simulated runs.`}
-                {optimizing === null &&
-                  !results.optimizer &&
-                  `Two algorithmic optimizers (greedy, and min-cut anchor line + greedy fill), both scored by simulation with the same ignition points, wind, seeds and ${BUDGET_UNITS}-unit budget as your plan.`}
-              </p>
-            </div>
-          </Scoreboard>
+          <Scoreboard
+            columns={columns}
+            seed={seed}
+            shown={shown}
+            onShow={setShown}
+            notes={optimizerNotes(results)}
+            actions={
+              <>
+                {!results.optimizer && (
+                  <Button onClick={() => void runOptimizers(results)} disabled={optimizing !== null || busy}>
+                    ✦ Add AI optimizers (greedy + min-cut)
+                  </Button>
+                )}
+                <Button onClick={openAdvisory} title="Builds a draft from the plan shown on the map. Never an official alert.">
+                  Draft advisory for the plan on the map
+                </Button>
+              </>
+            }
+          />
         )}
         {advisory && <AdvisoryModal draft={advisory} isMock={grid.is_mock} onClose={() => setAdvisory(null)} />}
       </div>
 
-      <div className="space-y-3">
-        <ReconPanel
-          area={area}
-          cells={cells}
-          indexOf={geo.indexOf}
-          burnable={model.burnable}
-          resolution={grid.h3_resolution}
-          isMock={grid.is_mock}
-          onIgnitions={(found) => {
+      <div className="min-w-0 space-y-3">
+        <RunPanel
+          ignitionCount={ignitions.length}
+          canRun={client !== null && ignitions.length > 0}
+          busy={busy}
+          optimizing={optimizing}
+          hasResults={results !== null}
+          hasOptimizers={results?.optimizer != null}
+          onRun={() => void runScenario()}
+          onRunWithOptimizers={() => void runWithOptimizers()}
+          onQuickIgnite={quickIgnite}
+          onClearIgnitions={() => {
             invalidate()
-            setIgnitions(found)
-            // A backfire cannot sit on a hex that is now on fire at t = 0.
-            setPlan((prev) => dropUnanchored(model, prev.filter((p) => !(p.kind === 'backfire' && found.includes(p.cell)))))
+            setIgnitions([])
           }}
+          onBackToPlanning={invalidate}
+          recon={recon}
+          isMock={grid.is_mock}
+          playback={playback}
+          live={live}
+          shownTitle={shownColumn?.title ?? null}
+          error={error}
+          seed={seed}
+          onSeed={(next) => {
+            invalidate()
+            setSeed(next)
+          }}
+          inWorker={client?.inWorker ?? true}
         />
+
         <ToolsPanel
           mode={mode}
           onMode={(m) => {
@@ -438,79 +504,6 @@ export function SandboxView({ grid, area, regionId }: Props) {
           current={results ? schedule[Math.min(playback.hour, RUN_HOURS - 1)] : null}
           hours={RUN_HOURS}
         />
-
-        <Panel title="Run · 72 simulated hours">
-          <div className="flex flex-wrap items-center gap-2">
-            <Button primary onClick={startRun} disabled={!client || busy || ignitions.length === 0}>
-              {busy ? 'Simulating…' : results ? 'Run again' : 'Run 72 h'}
-            </Button>
-            <Button onClick={playback.toggle} disabled={!results}>
-              {playback.playing ? 'Pause' : playback.hour >= RUN_HOURS ? 'Replay' : 'Play'}
-            </Button>
-            <Button onClick={invalidate} disabled={!results}>
-              Back to planning
-            </Button>
-          </div>
-          <label className="mt-3 block text-xs text-ink-2">
-            <span className="tabular">
-              Hour {playback.hour} of {RUN_HOURS}
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={RUN_HOURS}
-              step={1}
-              value={playback.hour}
-              disabled={!results}
-              onChange={(e) => playback.seek(Number(e.target.value))}
-              className="mt-1 block w-full accent-[#3987e5]"
-            />
-          </label>
-          {live ? (
-            <p className="tabular mt-2 text-sm text-ink">
-              {nf0.format(live.burning)} hexes burning · {nf0.format(live.burned)} burned out
-            </p>
-          ) : (
-            <p className="mt-2 text-xs text-ink-2">
-              {ignitions.length === 0
-                ? 'Set at least one ignition point, then run.'
-                : 'No run yet: there are no readouts to show until you press Run.'}
-            </p>
-          )}
-          {error && (
-            <p role="alert" className="mt-2 text-xs text-critical">
-              The simulation failed: {error}
-            </p>
-          )}
-          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-hairline pt-3 text-xs text-ink-2">
-            <label className="inline-flex items-center gap-2">
-              Random seed
-              <input
-                type="number"
-                min={0}
-                max={999999}
-                value={seed}
-                onChange={(e) => {
-                  invalidate()
-                  setSeed(Math.max(0, Math.min(999999, Math.floor(Number(e.target.value) || 0))))
-                }}
-                className="tabular w-20 rounded-md border border-hairline bg-raised px-2 py-1 text-ink"
-              />
-            </label>
-            <Button
-              onClick={() => {
-                invalidate()
-                setSeed((s) => (s + 1) % 1000000)
-              }}
-            >
-              Next seed
-            </Button>
-          </div>
-          <p className="mt-2 text-xs text-muted">
-            The same seed always gives the same run, including which hours gust.
-            {client && !client.inWorker && ' Running on the main thread: this browser could not start a Web Worker.'}
-          </p>
-        </Panel>
       </div>
     </div>
   )
