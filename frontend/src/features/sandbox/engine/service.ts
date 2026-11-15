@@ -6,6 +6,9 @@ import { meanScore, scoreRun } from './score.ts'
 import type { MeanScore, Score } from './score.ts'
 import { NEVER, simulate } from './simulate.ts'
 import type { RunResult, Scenario } from './simulate.ts'
+import { optimizePlan } from '../optimizer/greedy.ts'
+import type { OptimizeProgress } from '../optimizer/greedy.ts'
+import type { Placement } from './tools.ts'
 
 /** Seeds of an ensemble: the displayed run's seed first, then the following integers. */
 export const ENSEMBLE_RUNS = 20
@@ -43,28 +46,52 @@ export function runEnsemble(model: SpreadModel, scenario: Scenario, seeds: numbe
   return { seeds, scores, mean: meanScore(scores), burnProbability }
 }
 
+/** The optimizer's plan with the same readouts a human plan gets. */
+export interface OptimizeResult {
+  plan: Placement[]
+  simulatedRuns: number
+  run: RunOutput
+  ensemble: EnsembleOutput
+}
+
 export type SimRequest =
   | { type: 'init'; cells: SandboxCell[] }
   | { type: 'run'; scenario: Scenario }
   | { type: 'ensemble'; scenario: Scenario; seeds: number[] }
+  /** `scenario.tools` is ignored: the optimizer starts from an empty plan. */
+  | { type: 'optimize'; scenario: Scenario; seeds: number[]; budget: number }
 
 export interface SimResponses {
   init: { cells: number }
   run: RunOutput
   ensemble: EnsembleOutput
+  optimize: OptimizeResult
 }
+
+export type SimProgress = OptimizeProgress
 
 /** Holds the model for one grid and answers requests. */
 export class SimService {
   private model: SpreadModel | null = null
 
-  handle(request: SimRequest): SimResponses[SimRequest['type']] {
+  handle(request: SimRequest, onProgress?: (progress: SimProgress) => void): SimResponses[SimRequest['type']] {
     if (request.type === 'init') {
       this.model = buildModel(request.cells)
       return { cells: this.model.n }
     }
     if (!this.model) throw new Error('The simulation was asked to run before the grid was loaded.')
     if (request.type === 'run') return runOnce(this.model, request.scenario)
+    if (request.type === 'optimize') {
+      const base: Scenario = { ...request.scenario, tools: [] }
+      const { plan, simulatedRuns } = optimizePlan(this.model, base, request.seeds, request.budget, onProgress)
+      const withPlan: Scenario = { ...base, tools: plan }
+      return {
+        plan,
+        simulatedRuns,
+        run: runOnce(this.model, withPlan),
+        ensemble: runEnsemble(this.model, withPlan, request.seeds),
+      }
+    }
     return runEnsemble(this.model, request.scenario, request.seeds)
   }
 }

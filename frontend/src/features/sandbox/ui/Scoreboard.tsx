@@ -1,4 +1,5 @@
 // Protocol step 7: asset triage scoreboard. Every number is read from finished simulation runs.
+import type { ReactNode } from 'react'
 import type { EnsembleOutput, RunOutput } from '../engine/service.ts'
 import type { Placement } from '../engine/tools.ts'
 import { planCost } from '../engine/tools.ts'
@@ -26,9 +27,10 @@ interface Props {
   seed: number
   shown: string
   onShow: (key: string) => void
+  children?: ReactNode
 }
 
-export function Scoreboard({ columns, seed, shown, onShow }: Props) {
+export function Scoreboard({ columns, seed, shown, onShow, children }: Props) {
   if (columns.length === 0) return null
   const runs = columns[0].outcome.ensemble.seeds.length
   const rows: { label: string; hint?: string; cell: (o: Outcome) => [string, string] }[] = [
@@ -69,7 +71,7 @@ export function Scoreboard({ columns, seed, shown, onShow }: Props) {
             <tr>
               <th className="py-1 pr-2 text-left text-xs font-normal text-muted">Triage order: villages, farms, hectares</th>
               {columns.map((c) => (
-                <th key={c.key} className="px-2 py-1 text-right align-bottom text-xs font-semibold text-ink">
+                <th key={c.key} className="max-w-[14rem] px-2 py-1 text-right align-bottom text-xs font-semibold text-ink">
                   {c.title}
                   {c.subtitle && <span className="block font-normal text-muted">{c.subtitle}</span>}
                 </th>
@@ -121,6 +123,7 @@ export function Scoreboard({ columns, seed, shown, onShow }: Props) {
         Large numbers: the run on the map (seed {seed}). “Mean”: average over {runs} simulated runs with seeds {seed}–
         {seed + runs - 1}. Every column uses the same seeds, wind and ignition points.
       </p>
+      {children}
     </Panel>
   )
 }

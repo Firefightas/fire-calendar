@@ -4,12 +4,14 @@ import type { SandboxGrid } from '../../../types/contracts.ts'
 import { SimClient } from '../engine/client.ts'
 import { buildModel } from '../engine/model.ts'
 import { ensembleSeeds } from '../engine/service.ts'
+import type { SimProgress } from '../engine/service.ts'
 import { BURNED, BURNING, frameAt, RUN_HOURS } from '../engine/simulate.ts'
 import type { Scenario } from '../engine/simulate.ts'
 import { BUDGET_UNITS, dropUnanchored, placementProblem, planCost, TOOLS } from '../engine/tools.ts'
 import type { Placement, ToolKind } from '../engine/tools.ts'
 import { windSchedule } from '../engine/wind.ts'
 import type { WindSettings } from '../engine/wind.ts'
+import { OPTIMIZER_LABEL } from '../optimizer/greedy.ts'
 import { fetchCurrentWind, scenarioCentre } from '../weather/openMeteo.ts'
 import { buildGeometry } from './geometry.ts'
 import { HexMap } from './HexMap.tsx'
@@ -36,8 +38,11 @@ const CALM: WindSettings = { fromDeg: 0, speedKmh: 0, gustKmh: 0, shiftDeg: 0, s
 
 /** Results of the last Run: the same scenario without resources and with the user's plan. */
 interface Results {
+  /** The scenario all columns share (no resources). */
+  base: Scenario
   baseline: Outcome
   human: Outcome
+  optimizer: (Outcome & { simulatedRuns: number }) | null
 }
 
 export function SandboxView({ grid, area }: Props) {
@@ -63,12 +68,17 @@ export function SandboxView({ grid, area }: Props) {
   const [results, setResults] = useState<Results | null>(null)
   const [shown, setShown] = useState('human')
   const [busy, setBusy] = useState(false)
+  const [optimizing, setOptimizing] = useState<SimProgress | 'starting' | null>(null)
+  /** Bumped on every scenario change so a late optimizer answer for an old scenario is dropped. */
+  const generation = useRef(0)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const playback = usePlayback(RUN_HOURS)
 
   /** Any change to the scenario makes the finished runs stale. */
   const invalidate = () => {
+    generation.current++
+    setOptimizing(null)
     setResults(null)
     setError(null)
     setShown('human')
@@ -173,8 +183,10 @@ export function SandboxView({ grid, area }: Props) {
         client.request({ type: 'ensemble', scenario: mine, seeds }),
       ])
       setResults({
+        base,
         baseline: { plan: [], run: baseRun, ensemble: baseEnsemble },
         human: { plan, run: myRun, ensemble: myEnsemble },
+        optimizer: null,
       })
       setShown('human')
       playback.start()
@@ -186,16 +198,39 @@ export function SandboxView({ grid, area }: Props) {
     }
   }
 
-  const columns: ScoreColumn[] = useMemo(
-    () =>
-      results
-        ? [
-            { key: 'baseline', title: 'No intervention', outcome: results.baseline },
-            { key: 'human', title: 'Your plan', outcome: results.human },
-          ]
-        : [],
-    [results],
-  )
+  /** Same scenario, seeds and budget as the human plan; only the placements differ. */
+  const startOptimizer = async () => {
+    if (!client || !results) return
+    const mine = generation.current
+    setOptimizing('starting')
+    setError(null)
+    try {
+      const out = await client.request(
+        { type: 'optimize', scenario: results.base, seeds: results.human.ensemble.seeds, budget: BUDGET_UNITS },
+        (progress) => {
+          if (generation.current === mine) setOptimizing(progress)
+        },
+      )
+      if (generation.current !== mine) return
+      setResults((prev) => (prev ? { ...prev, optimizer: out } : prev))
+      setShown('optimizer')
+      playback.start()
+    } catch (err) {
+      if (generation.current === mine) setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      if (generation.current === mine) setOptimizing(null)
+    }
+  }
+
+  const columns: ScoreColumn[] = useMemo(() => {
+    if (!results) return []
+    const out: ScoreColumn[] = [
+      { key: 'baseline', title: 'No intervention', outcome: results.baseline },
+      { key: 'human', title: 'Your plan', outcome: results.human },
+    ]
+    if (results.optimizer) out.push({ key: 'optimizer', title: OPTIMIZER_LABEL, outcome: results.optimizer })
+    return out
+  }, [results])
   const shownOutcome = columns.find((c) => c.key === shown)?.outcome ?? null
 
   const frame = useMemo(
@@ -238,7 +273,27 @@ export function SandboxView({ grid, area }: Props) {
           <CellReadout cell={hovered >= 0 ? cells[hovered] : null} classes={grid.landcover_classes} />
           <Legend />
         </div>
-        {results && <Scoreboard columns={columns} seed={seed} shown={shown} onShow={setShown} />}
+        {results && (
+          <Scoreboard columns={columns} seed={seed} shown={shown} onShow={setShown}>
+            <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-hairline pt-3">
+              <Button onClick={startOptimizer} disabled={optimizing !== null || busy}>
+                {results.optimizer ? 'Run the optimizer again' : 'Run the optimizer on the same scenario'}
+              </Button>
+              <p className="tabular min-w-0 flex-1 text-xs text-ink-2" role="status">
+                {optimizing === 'starting' && 'Optimizer: scoring the first candidates…'}
+                {optimizing !== null &&
+                  optimizing !== 'starting' &&
+                  `Optimizer: ${optimizing.placed} placed, ${optimizing.costUsed} of ${optimizing.budget} units, ${nf0.format(optimizing.simulatedRuns)} simulated runs so far…`}
+                {optimizing === null &&
+                  results.optimizer &&
+                  `${OPTIMIZER_LABEL}: ${results.optimizer.plan.length} resources chosen from ${nf0.format(results.optimizer.simulatedRuns)} simulated runs. It adds one resource at a time where the mean outcome over the same seeds improves most (villages, then farms, then hectares); it does not search combinations.`}
+                {optimizing === null &&
+                  !results.optimizer &&
+                  `${OPTIMIZER_LABEL}: same ignition points, wind, seeds and ${BUDGET_UNITS}-unit budget as your plan.`}
+              </p>
+            </div>
+          </Scoreboard>
+        )}
       </div>
 
       <div className="space-y-3">

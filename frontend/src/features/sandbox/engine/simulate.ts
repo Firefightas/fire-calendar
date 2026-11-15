@@ -73,7 +73,9 @@ export function simulate(model: SpreadModel, scenario: Scenario): RunResult {
   const toolR = new Float32Array(n)
   const toolFrom = new Int16Array(n)
   const toolUntil = new Int16Array(n)
+  const watered = new Uint8Array(n)
   for (const { cell, kind } of scenario.tools) {
+    if (kind === 'water') watered[cell] = 1
     const spec = TOOLS[kind]
     toolR[cell] = toolStrength(kind, model.landcover[cell])
     toolFrom[cell] = spec.readyHour
@@ -92,9 +94,7 @@ export function simulate(model: SpreadModel, scenario: Scenario): RunResult {
     // Resources that arrive this hour.
     for (const { cell, kind } of scenario.tools) {
       if (TOOLS[kind].readyHour !== t) continue
-      if (kind === 'water' && ignitedAt[cell] !== NEVER && burnedOutAt[cell] === NEVER) {
-        burnedOutAt[cell] = t // the drop puts the hex out
-      } else if (kind === 'backfire' && ignitedAt[cell] === NEVER && model.burnable[cell]) {
+      if (kind === 'backfire' && ignitedAt[cell] === NEVER && model.burnable[cell]) {
         ignitedAt[cell] = t // fuel consumed under control: burned, never an active front
         burnedOutAt[cell] = t
       }
@@ -109,6 +109,9 @@ export function simulate(model: SpreadModel, scenario: Scenario): RunResult {
         continue
       }
       next.push(i)
+      // A burning hex under a water drop is knocked down: it keeps consuming its fuel but
+      // does not spread until the drop wears off.
+      if (watered[i] && t >= toolFrom[i] && t < toolUntil[i]) continue
       for (let k = model.nbrStart[i]; k < model.nbrStart[i + 1]; k++) {
         const j = model.nbrIndex[k]
         if (ignitedAt[j] !== NEVER || !model.burnable[j]) continue

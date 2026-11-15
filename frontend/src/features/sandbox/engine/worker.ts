@@ -17,7 +17,8 @@ const scope = self as unknown as {
 scope.onmessage = (event) => {
   const { id, request } = event.data
   try {
-    scope.postMessage({ id, ok: true, value: service.handle(request) })
+    const value = service.handle(request, (progress) => scope.postMessage({ id, progress }))
+    scope.postMessage({ id, ok: true, value })
   } catch (err) {
     scope.postMessage({ id, ok: false, error: err instanceof Error ? err.message : String(err) })
   }

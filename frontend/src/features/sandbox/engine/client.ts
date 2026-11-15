@@ -2,13 +2,20 @@
 // service runs in-thread so the sandbox still works (slower UI, same numbers).
 import type { SandboxCell } from '../../../types/contracts.ts'
 import { SimService } from './service.ts'
-import type { SimRequest, SimResponses } from './service.ts'
+import type { SimProgress, SimRequest, SimResponses } from './service.ts'
 
 interface Reply {
   id: number
-  ok: boolean
+  ok?: boolean
   value?: unknown
   error?: string
+  progress?: SimProgress
+}
+
+interface Waiting {
+  resolve: (value: unknown) => void
+  reject: (err: Error) => void
+  onProgress?: (progress: SimProgress) => void
 }
 
 export class SimClient {
@@ -17,16 +24,20 @@ export class SimClient {
   private worker: Worker | null = null
   private local: SimService | null = null
   private nextId = 1
-  private pending = new Map<number, { resolve: (value: unknown) => void; reject: (err: Error) => void }>()
+  private pending = new Map<number, Waiting>()
   private ready: Promise<unknown>
 
   constructor(cells: SandboxCell[]) {
     try {
       this.worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })
       this.worker.onmessage = (event: MessageEvent<Reply>) => {
-        const { id, ok, value, error } = event.data
+        const { id, ok, value, error, progress } = event.data
         const waiting = this.pending.get(id)
         if (!waiting) return
+        if (progress) {
+          waiting.onProgress?.(progress)
+          return
+        }
         this.pending.delete(id)
         if (ok) waiting.resolve(value)
         else waiting.reject(new Error(error ?? 'The simulation failed.'))
@@ -45,13 +56,16 @@ export class SimClient {
     this.ready.catch(() => {})
   }
 
-  private send<T extends SimRequest>(request: T): Promise<SimResponses[T['type']]> {
+  private send<T extends SimRequest>(
+    request: T,
+    onProgress?: (progress: SimProgress) => void,
+  ): Promise<SimResponses[T['type']]> {
     type Out = SimResponses[T['type']]
     if (this.local) {
       const local = this.local
       return new Promise<Out>((resolve, reject) => {
         try {
-          resolve(local.handle(request) as Out)
+          resolve(local.handle(request, onProgress) as Out)
         } catch (err) {
           reject(err instanceof Error ? err : new Error(String(err)))
         }
@@ -61,14 +75,17 @@ export class SimClient {
     if (!worker) return Promise.reject(new Error('The simulation was closed.'))
     const id = this.nextId++
     return new Promise<Out>((resolve, reject) => {
-      this.pending.set(id, { resolve: resolve as (value: unknown) => void, reject })
+      this.pending.set(id, { resolve: resolve as (value: unknown) => void, reject, onProgress })
       worker.postMessage({ id, request })
     })
   }
 
-  async request<T extends Exclude<SimRequest, { type: 'init' }>>(request: T): Promise<SimResponses[T['type']]> {
+  async request<T extends Exclude<SimRequest, { type: 'init' }>>(
+    request: T,
+    onProgress?: (progress: SimProgress) => void,
+  ): Promise<SimResponses[T['type']]> {
     await this.ready
-    return this.send(request)
+    return this.send(request, onProgress)
   }
 
   dispose() {

@@ -150,10 +150,21 @@ describe('tools in a run', () => {
     expect(s.containmentPct).toBe(100)
   })
 
-  it('a water drop puts out a burning hex when it arrives', () => {
-    const model = buildModel(diskGrid(1))
-    const run = simulate(model, scenario({ tools: [{ cell: 0, kind: 'water' }], params: { ...DEFAULT_PARAMS, p0: 0 } }))
-    expect(run.burnedOutAt[0]).toBe(2)
+  it('a water drop stops a burning hex from spreading for 6 h; forest flares up again, grass burns out', () => {
+    // Only ring hex 1 can burn besides the centre, so only the centre can ignite it.
+    for (const centre of [10, 30]) {
+      const cells = diskGrid(1, 80, (_h, i) => (i === 0 ? { landcover: centre } : i === 1 ? { landcover: 30 } : {}))
+      const model = buildModel(cells)
+      const seen = new Set<number>()
+      for (let seed = 0; seed < 400; seed++) {
+        const run = simulate(model, scenario({ seed, tools: [{ cell: 0, kind: 'water' }], params: { ...DEFAULT_PARAMS, p0: 0.2 } }))
+        seen.add(run.ignitedAt[1])
+        expect(run.burnedOutAt[0]).toBe(centre === 10 ? 10 : 4)
+      }
+      // Spread happens in hours 0–1 (before the drop) and, for forest only, in hours 8–9 (after it).
+      const allowed = centre === 10 ? [NEVER, 1, 2, 9, 10] : [NEVER, 1, 2]
+      expect([...seen].sort((x, y) => x - y)).toEqual(allowed)
+    }
   })
 
   it('a backfire burns its hex out and counts as burned', () => {

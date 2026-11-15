@@ -25,7 +25,8 @@ export const TOOLS: Record<ToolKind, ToolSpec> = {
     cost: 1,
     readyHour: 2,
     durationHours: 6,
-    summary: 'Puts out the hex if it is burning when the drop arrives, then Rtool 0.9 for 6 h.',
+    summary:
+      'For 6 h from hour 2: Rtool 0.9 on the hex, and if the hex is burning it cannot spread. Light fuels burn out under the drop; forest flares up again afterwards.',
   },
   clearing: {
     kind: 'clearing',
