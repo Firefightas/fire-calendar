@@ -27,7 +27,7 @@ P3's 270 history hexes above 50 harmonized cell-days are reproduced. That whole-
 | 8729a5658ffffff (~33.91, -118.41) | 326 | 277 | 15 | 42 | 97.55% | 1.095 / 1.835 |
 | 8729a5602ffffff (~33.79, -118.24) | 358 | 293 | 15 | 47 | 98.60% | 0.925 / 1.366 |
 
-These are consistent with residual static sources, but landfill/refinery identity is not confirmed here. The res-9 recurrence threshold, qualifying-year restriction and wider-event protection deliberately leave some ambiguous sources. Do not claim all industrial sources were removed. No threshold change or res-7 blacklist was introduced under the delivery deadline.
+Checking the saved site/year evidence confirms none of these three cells' retained points meets the qualifying recurrent site/year mask; their retention is not caused by the wider-event safeguard. These are consistent with residual static sources, but landfill/refinery identity is not confirmed here. The res-9 recurrence threshold, qualifying-year restriction and wider-event protection deliberately leave some ambiguous sources. Do not claim all industrial sources were removed. No threshold change or res-7 blacklist was introduced under the delivery deadline.
 
 ## Coverage and sandbox handoff
 
