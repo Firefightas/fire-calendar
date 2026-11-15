@@ -397,7 +397,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
         </p>
       </header>
 
-      <div className="relative h-[420px] overflow-hidden rounded-md border border-hairline xl:h-[520px]">
+      <div className="relative h-[420px] overflow-hidden rounded-md border border-hairline xl:h-[max(520px,calc(100vh-22rem))]">
         {/* MapLibre's stylesheet sets `position: relative` on its container, so size it by height, not inset. */}
         <div ref={containerRef} className="h-full w-full" />
 
