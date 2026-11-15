@@ -105,11 +105,12 @@ Health lists only Romania under `using_mocks`. The Parquet tables are now tracke
 in Git and deployed with the matching calibration files. Sandbox terrain remains
 mock independently of calendar provenance.
 
-California's broad point exports exposed slow per-row streaming and high memory
-use. This branch batches CSV writes and limits DuckDB resources; deployment and
-live performance re-verification of that fix remain pending. See
+PR #27's CSV batching and DuckDB resource limits are now verified live on
+`3636a0e`: all 2,049,536 California points exported in 108.457 seconds, with headers
+in 9.393 seconds; sampled instance memory stayed at or below 270.9 MiB / 512 MiB
+across the verification run. Large CSV downloads still take time to transfer. See
 [REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md) for timings, sampled Render memory,
-current calibration metrics and the exact remaining step.
+current calibration metrics and verification evidence.
 
 P1 verified live NRT after configuring the key and deploying PR #11.
 Keep credentials out of Git and chat.
@@ -141,5 +142,5 @@ this diagnostics fix and redeploying Render, recheck the live NRT error before
 deciding whether key activation, quota, network access or parsing needs attention.
 
 Real Rio Negro/California inputs, the early NOAA handover fix, calendar/CSV
-verification and the remaining performance deployment step are documented in
+verification and the completed performance deployment check are documented in
 [REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md).
