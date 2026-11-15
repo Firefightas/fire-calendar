@@ -10,14 +10,14 @@ const pct = (t: number) => `${(t * 100).toFixed(2)}%`
 const cvPct = (cv: number) => `${(cv * 100).toFixed(1)}%`
 
 function Chip({ children }: { children: React.ReactNode }) {
-  return <span className="rounded border border-hairline px-1.5 py-0.5 text-[11px] text-ink-2">{children}</span>
+  return <span className="rounded border border-hairline px-1.5 py-0.5 text-xs text-ink-2">{children}</span>
 }
 
 function FactorTip({ row, fitYears }: { row: FactorRow; fitYears: [number, number] }) {
   return (
     <div className="space-y-2 text-xs">
       <div>
-        <div className="text-[11px] tracking-wide text-muted uppercase">{MONTH_NAMES[row.month - 1]} factor</div>
+        <div className="text-xs tracking-wide text-muted uppercase">{MONTH_NAMES[row.month - 1]} factor</div>
         <div className="text-lg leading-tight font-semibold text-ink">{fmtFactor(row.factor)}</div>
         <div className="text-ink-2">S-NPP VIIRS cell-days per MODIS cell-day</div>
       </div>
@@ -73,7 +73,7 @@ function MonthlyFactorChart({ rows, fitYears }: { rows: FactorRow[]; fitYears: [
           {axis.ticks.map((t) => (
             <span
               key={t}
-              className="tabular absolute right-2 translate-y-1/2 text-[11px] text-muted"
+              className="tabular absolute right-2 translate-y-1/2 text-xs text-muted"
               style={{ bottom: pct(axis.position(t)) }}
             >
               ×{t}
@@ -126,7 +126,7 @@ function MonthlyFactorChart({ rows, fitYears }: { rows: FactorRow[]; fitYears: [
       </div>
       <div className="flex pl-10" aria-hidden="true">
         {rows.map((row) => (
-          <span key={row.month} className="flex-1 pt-1 text-center text-[11px] text-muted">
+          <span key={row.month} className="flex-1 pt-1 text-center text-xs text-muted">
             {MONTH_NAMES[row.month - 1]}
           </span>
         ))}
@@ -202,7 +202,7 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
           <path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
         <h2 className="text-sm font-semibold">Calibration &amp; sensor harmonization methodology</h2>
-        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px] text-ink-2">
+        <span className="rounded-full border border-hairline px-2 py-0.5 text-xs text-ink-2">
           MODIS → S-NPP VIIRS · fitted {f0}–{f1}
           {extremes && (
             <>
@@ -213,7 +213,7 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
           )}
         </span>
         {calibration.is_mock && (
-          <span className="rounded border border-warning/60 px-1.5 py-0.5 text-[11px] text-ink">MOCK DATA</span>
+          <span className="rounded border border-warning/60 px-1.5 py-0.5 text-xs text-ink">MOCK DATA</span>
         )}
       </summary>
 
@@ -235,7 +235,7 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
       <h3 className="mb-2 text-xs text-muted">MODIS → S-NPP VIIRS factor by calendar month</h3>
       <MonthlyFactorChart rows={rows} fitYears={calibration.fit_years} />
 
-      <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[11px] text-ink-2">
+      <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink-2">
         <li className="flex items-center gap-2">
           <span className="size-[10px] rounded-full" style={{ background: SERIES }} />
           Factor: median of S-NPP ÷ MODIS over the fit years
