@@ -122,6 +122,18 @@ export default function App() {
               Could not load the region list: {regions.error.message}
             </span>
           )}
+          {region && (
+            <button
+              type="button"
+              onClick={() => setSandboxOpen(true)}
+              className="ml-auto inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-page shadow-md shadow-black/40 transition-colors hover:bg-ink-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              Launch Tactical Containment Sandbox
+              <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5">
+                <path d="M3 8h9M8.5 4 12.5 8l-4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
         </nav>
 
         <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -140,15 +152,6 @@ export default function App() {
                   polygon={polygon}
                   onPolygonChange={setPolygon}
                   grid={grid.status === 'ready' ? grid.data.data : null}
-                  actions={
-                    <button
-                      type="button"
-                      onClick={() => setSandboxOpen(true)}
-                      className="rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-page hover:bg-ink-2"
-                    >
-                      Launch Tactical Containment Sandbox
-                    </button>
-                  }
                 />
               </Suspense>
             )}
@@ -191,7 +194,6 @@ export default function App() {
                 isArea={Boolean(areaCal)}
                 region={region ?? null}
                 polygon={polygon}
-                southern={region?.hemisphere === 'south'}
                 stale={calendar.status === 'loading' || areaLoading}
                 actions={
                   region && (

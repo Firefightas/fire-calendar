@@ -5,10 +5,11 @@ import { BurnScarSlider } from './BurnScarSlider.tsx'
 import { CalendarHeatmap } from './CalendarHeatmap.tsx'
 import { CalendarTable } from './CalendarTable.tsx'
 import { CalibrationPanel } from './CalibrationPanel.tsx'
-import { ModeToggle, PaletteSwitcher, Segmented } from './Controls.tsx'
+import { ModeToggle, PaletteSwitcher } from './Controls.tsx'
+import { InfoTip } from './InfoTip.tsx'
 import { TimeSeriesChart } from './TimeSeriesChart.tsx'
 import { todayIso } from './gibs.ts'
-import { MODE_LABEL, UNIT_LABEL, lastMonthProgress, monthKey, peakAnomaly } from './model.ts'
+import { MODE_LABEL, UNIT_LABEL, lastMonthProgress, monthKey, monthTitle, peakAnomaly } from './model.ts'
 import type { Mode } from './model.ts'
 import type { PaletteId } from './palettes.ts'
 
@@ -23,8 +24,6 @@ interface Props {
   region?: Region | null
   /** The drawn area the calendar is for, or null for the whole region. */
   polygon?: GeoJSON.Polygon | null
-  /** Rows default to July→June fire seasons for southern-hemisphere regions. */
-  southern: boolean
   /** Dim while a new calendar is loading, instead of flashing a skeleton. */
   stale: boolean
   /** Rendered at the end of the controls row (CSV exports). */
@@ -38,13 +37,11 @@ export function CalendarPanel({
   isArea,
   region = null,
   polygon = null,
-  southern,
   stale,
   actions,
 }: Props) {
   const [mode, setMode] = useState<Mode>('harmonized')
   const [palette, setPalette] = useState<PaletteId>('cividis')
-  const [startMonth, setStartMonth] = useState<1 | 7>(1)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
   // The selection is a month key, so it carries over when the region or area changes.
@@ -62,15 +59,6 @@ export function CalendarPanel({
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <ModeToggle mode={mode} onChange={setMode} />
         <PaletteSwitcher palette={palette} onChange={setPalette} />
-        <Segmented
-          label="Calendar rows"
-          value={startMonth === 1 ? 'year' : 'season'}
-          onChange={(v) => setStartMonth(v === 'year' ? 1 : 7)}
-          options={[
-            { value: 'year', label: 'Rows: Jan–Dec' },
-            { value: 'season', label: southern ? 'Rows: Jul–Jun fire season' : 'Rows: Jul–Jun' },
-          ]}
-        />
         {actions && <div className="ml-auto">{actions}</div>}
       </div>
 
@@ -80,26 +68,32 @@ export function CalendarPanel({
         selected={selected}
         isArea={isArea}
         lastProgress={lastProgress}
-        startMonth={startMonth}
       />
 
       <section className="rounded-lg border border-hairline bg-surface p-4">
         <header className="mb-3">
-          <h2 className="text-sm font-semibold">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold">
             Burning Activity Calendar: {areaName} · {MODE_LABEL[mode]}
+            <InfoTip label="About the calendar">
+              <p>
+                {UNIT_LABEL} per month, {calendar.first_month} to {calendar.last_month} ({years} calendar years).
+              </p>
+              <p>
+                {mode === 'raw'
+                  ? 'Raw view: the VIIRS count where VIIRS exists, otherwise the MODIS count, with no conversion.'
+                  : 'Every month converted to the S-NPP VIIRS scale.'}
+              </p>
+              <p>Click a month to pin its numbers above the calendar.</p>
+            </InfoTip>
           </h2>
-          <p className="text-xs text-ink-2">
-            {UNIT_LABEL} per month, {calendar.first_month} to {calendar.last_month} ({years} calendar years).{' '}
-            {mode === 'raw'
-              ? 'Raw view: the VIIRS count where VIIRS exists, otherwise the MODIS count, with no conversion.'
-              : 'Every month converted to the S-NPP VIIRS scale.'}
+          <p className="text-xs text-muted">
+            {years} years × 12 months · {selected ? `${monthTitle(selected)} pinned` : 'click a month to pin it'}
           </p>
         </header>
         <CalendarHeatmap
           calendar={calendar}
           mode={mode}
           palette={palette}
-          startMonth={startMonth}
           lastProgress={lastProgress}
           selectedKey={selectedKey}
           onSelect={(m) => setSelectedKey((prev) => (prev === monthKey(m) ? null : monthKey(m)))}
@@ -121,11 +115,15 @@ export function CalendarPanel({
 
       <section className="rounded-lg border border-hairline bg-surface p-4">
         <header className="mb-3">
-          <h2 className="text-sm font-semibold">Raw vs. harmonized over time: {areaName}</h2>
-          <p className="text-xs text-ink-2">
-            The raw series steps up when the record switches from MODIS to VIIRS. The harmonized series is on one scale
-            throughout.
-          </p>
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold">
+            Raw vs. harmonized over time: {areaName}
+            <InfoTip label="About the time series">
+              <p>
+                The raw series steps up when the record switches from MODIS to VIIRS. The harmonized series is on one
+                scale throughout.
+              </p>
+            </InfoTip>
+          </h2>
         </header>
         <TimeSeriesChart calendar={calendar} mode={mode} />
       </section>

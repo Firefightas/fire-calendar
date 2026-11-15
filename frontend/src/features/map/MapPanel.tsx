@@ -45,8 +45,6 @@ interface Props {
   onPolygonChange: (p: GeoJSON.Polygon | null) => void
   /** Sandbox grid of the region: its harmonized burn history is shown as H3 hexes. */
   grid: SandboxGrid | null
-  /** Buttons rendered under the map (exports, sandbox launch). */
-  actions?: React.ReactNode
 }
 
 // One-hue ramps, light = more on the dark map. Blue: fire history. Red: live hotspots.
@@ -106,7 +104,7 @@ const toolButton = (active: boolean) =>
     active ? 'border-ink bg-ink text-page' : 'border-hairline bg-raised text-ink hover:bg-axis'
   }`
 
-export function MapPanel({ regions, region, polygon, onPolygonChange, grid, actions }: Props) {
+export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MlMap | null>(null)
   const overlayRef = useRef<MapboxOverlay | null>(null)
@@ -511,7 +509,14 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid, acti
         </p>
       )}
 
-      <form onSubmit={goToPoint} className="mt-3 flex flex-wrap items-end gap-2 text-xs">
+      <details className="group mt-3 text-xs">
+        <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-hairline px-2.5 py-1 text-ink-2 hover:bg-raised hover:text-ink [&::-webkit-details-marker]:hidden">
+          Pin coordinates
+          <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3 transition-transform group-open:rotate-180">
+            <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </summary>
+      <form onSubmit={goToPoint} className="mt-2 flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-1 text-muted">
           Latitude
           <input
@@ -547,8 +552,8 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid, acti
         >
           Use a {BOX_HALF_KM * 2} km box here as the area
         </button>
-        {actions && <div className="ml-auto flex flex-wrap gap-2">{actions}</div>}
       </form>
+      </details>
     </section>
   )
 }
