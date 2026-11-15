@@ -30,7 +30,11 @@ interface TileFrame {
 function Tile({ label, info, children, wide }: TileFrame) {
   return (
     <section
-      className={`flex flex-col rounded-lg border border-hairline bg-surface p-4 ${wide ? 'sm:col-span-2 lg:col-span-3' : ''}`}
+      className={`flex flex-col rounded-lg border p-4 ${
+        wide
+          ? 'border-warning/35 bg-gradient-to-br from-warning/[0.07] to-surface to-60% sm:col-span-2 lg:col-span-3'
+          : 'border-hairline bg-surface'
+      }`}
     >
       <h3
         className={`flex items-start justify-between gap-2 text-xs leading-snug text-muted ${wide ? '' : 'min-h-[2.1rem]'}`}
