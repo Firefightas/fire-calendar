@@ -30,7 +30,11 @@ check the CSV dates as well. Download the recent tail separately with
 The downloader validates response columns, retries failures without logging
 secret-bearing URLs or response bodies, and publishes a CSV only after all
 windows succeed. A valid header-only CSV represents no detections; a failed
-request must not be treated as zero fire activity.
+request must not be treated as zero fire activity. Explicit transaction-limit
+responses and HTTP 429 wait in one-minute steps (at most eleven waits per
+chunk), retaining earlier chunks from the year. Other failures retain the
+existing four-attempt retry limit. Exhausted waits still fail safely without
+publishing a partial CSV or logging response bodies.
 
 ## 2. Normalize
 

@@ -34,6 +34,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] Normalize + filter (`type == 0`, `confidence != low`) + clip + H3 → **Río Negro first**: `points.parquet`, `hex_day.parquet` (revised: 307,352 points / 143,233 hex-days; see pipeline/ingest/RIO_NEGRO_STATUS.md)
 - [x] California: PR #24 input hashes and persistence screen verified (2,049,536 points / 521,339 hex-days); see pipeline/ingest/CALIFORNIA_STATUS.md
 - [ ] Romania: same filters and delivery by 12:30, otherwise ships MOCK DATA
+- [x] Downloader: bounded quota-response waits preserve completed chunks; 130 tests and Ruff pass
 - [x] California sandbox: join P3 history (736/1,027 cells matched); terrain stays MOCK DATA
 - [ ] Sandbox inputs: WorldCover → `landcover`, `asset_type`, `burnable`; Open-Meteo → `elevation_m`, `slope_deg`; join P3's `hex_fire_history` → `sandbox_grid.json`
 
