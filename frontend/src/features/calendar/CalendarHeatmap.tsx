@@ -16,6 +16,7 @@ import {
   valueOf,
 } from './model.ts'
 import type { Mode, MonthProgress } from './model.ts'
+import { InfoTip } from './InfoTip.tsx'
 import { colorScale, inkOn, legendGradient } from './palettes.ts'
 import type { PaletteId } from './palettes.ts'
 
@@ -23,7 +24,8 @@ interface Props {
   calendar: Calendar
   mode: Mode
   palette: PaletteId
-  startMonth: 1 | 7
+  /** First column: 1 for Jan–Dec rows (the default, and the only order the app shows). */
+  startMonth?: 1 | 7
   /** Status of the calendar's newest month. */
   lastProgress: MonthProgress
   selectedKey: string | null
@@ -37,7 +39,15 @@ const ARROWS: Record<string, [number, number]> = {
   ArrowRight: [0, 1],
 }
 
-export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgress, selectedKey, onSelect }: Props) {
+export function CalendarHeatmap({
+  calendar,
+  mode,
+  palette,
+  startMonth = 1,
+  lastProgress,
+  selectedKey,
+  onSelect,
+}: Props) {
   const { months } = calendar
   const grid = useMemo(() => buildGrid(months, startMonth), [months, startMonth])
   const domain = useMemo(() => colorDomain(months), [months])
@@ -200,7 +210,21 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
               </span>
             ))}
           </div>
-          <div className="mt-0.5">{UNIT_LABEL} per month (same scale in both views)</div>
+          <div className="mt-0.5 flex items-center gap-1">
+            {UNIT_LABEL} per month
+            <InfoTip label="About the colour scale">
+              <p>The same colour scale is used in the raw and harmonized views, so the two compare directly.</p>
+              {offScale.count > 0 && (
+                <p>
+                  {offScale.count} {offScale.count === 1 ? 'month is' : 'months are'} above the scale in this view, up to{' '}
+                  {fmtInt(offScale.max)}; they are marked ▲. Exact values are in the tooltip and table.
+                </p>
+              )}
+              {mode === 'raw' && switchMonth && (
+                <p>The raw series switches from MODIS to VIIRS in {monthTitle(switchMonth)}.</p>
+              )}
+            </InfoTip>
+          </div>
         </div>
         <ul className="space-y-1">
           {mode === 'harmonized' && (
@@ -208,7 +232,7 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
               <span className="relative inline-block h-4 w-6 rounded-[3px] bg-axis">
                 <span className="absolute top-[3px] right-[3px] size-[4px] rounded-full bg-white" />
               </span>
-              Estimated: converted from MODIS (no VIIRS that month)
+              Estimated from MODIS
             </li>
           )}
           <li className="flex items-center gap-2">
@@ -216,17 +240,14 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
               className="inline-block h-4 w-6 rounded-[3px] bg-axis"
               style={{ boxShadow: 'inset 0 0 0 1.5px #ffffff' }}
             />
-            Near-real-time data, may still change
+            Near-real-time
           </li>
           {offScale.count > 0 && (
             <li className="flex items-center gap-2">
               <span className="relative inline-block h-4 w-6 shrink-0 rounded-[3px] bg-axis">
                 <span className="absolute bottom-[3px] left-[3px] text-[7px] leading-none text-white">▲</span>
               </span>
-              <span>
-                Above the colour scale: {offScale.count} {offScale.count === 1 ? 'month' : 'months'} in this view, up
-                to {fmtInt(offScale.max)}. Exact values are in the tooltip and table.
-              </span>
+              <span>Above the scale ({offScale.count})</span>
             </li>
           )}
           {mode === 'raw' && switchMonth && (
@@ -234,7 +255,7 @@ export function CalendarHeatmap({ calendar, mode, palette, startMonth, lastProgr
               <span className="inline-flex h-4 w-6 items-center">
                 <span className="h-full w-[2px] rounded-full bg-ink" />
               </span>
-              Raw series switches from MODIS to VIIRS in {monthTitle(switchMonth)}
+              MODIS → VIIRS, {monthTitle(switchMonth)}
             </li>
           )}
         </ul>

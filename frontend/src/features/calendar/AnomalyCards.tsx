@@ -1,5 +1,6 @@
 import { ANOMALY_LABEL } from '../../types/contracts.ts'
 import type { Calendar, CalendarMonth, Calibration } from '../../types/contracts.ts'
+import { InfoTip } from './InfoTip.tsx'
 import {
   ANOMALY_BAND_LABEL,
   MONTH_NAMES,
@@ -18,10 +19,21 @@ import {
 import type { MonthProgress, SeasonMonth } from './model.ts'
 import { modisOnlyStepRatio } from './calibration.ts'
 
-function Tile({ label, children, wide }: { label: string; children: React.ReactNode; wide?: boolean }) {
+interface TileFrame {
+  label: string
+  /** Technical detail shown behind the tile's "i" button. */
+  info?: React.ReactNode
+  children: React.ReactNode
+  wide?: boolean
+}
+
+function Tile({ label, info, children, wide }: TileFrame) {
   return (
-    <section className={`rounded-lg border border-hairline bg-surface p-4 ${wide ? 'sm:col-span-2' : ''}`}>
-      <h3 className="text-xs text-muted">{label}</h3>
+    <section className={`rounded-lg border border-hairline bg-surface p-4 ${wide ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
+      <h3 className="flex items-center gap-1.5 text-xs text-muted">
+        {label}
+        {info && <InfoTip label={`About: ${label}`}>{info}</InfoTip>}
+      </h3>
       {children}
     </section>
   )
@@ -43,10 +55,18 @@ function AnomalyTile({ label, m, calendar, progress }: TileProps) {
   const arrow = m.anomaly_z >= 0.5 ? '▲' : m.anomaly_z <= -0.5 ? '▼' : '●'
   const [b0, b1] = calendar.baseline_years
   const note = progressNote(progress)
+  const info = (
+    <p>
+      {monthTitle(m)}: {fmtCount(m.harmonized)} harmonized {UNIT_LABEL}, against a{' '}
+      {progress.kind === 'month_to_date' && 'month-to-date '}
+      {MONTH_NAMES[m.month - 1]} median of {fmtCount(m.median_m)} (IQR {fmtCount(m.iqr_m)}, {b0}–{b1}). Score = (value −
+      median) ÷ IQR.
+    </p>
+  )
   return (
-    <Tile label={label}>
-      <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-2xl font-semibold">{fmtSigned(m.anomaly_z)}</span>
+    <Tile label={label} info={info}>
+      <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+        <span className="tabular text-2xl font-semibold">{fmtSigned(m.anomaly_z)}</span>
         <span className="text-xs text-ink-2">{ANOMALY_LABEL}</span>
       </div>
       <p className="mt-1 flex items-center gap-1.5 text-xs text-ink">
@@ -55,17 +75,16 @@ function AnomalyTile({ label, m, calendar, progress }: TileProps) {
         </span>
         {ANOMALY_BAND_LABEL[band]}
       </p>
-      <p className="mt-2 text-xs text-ink-2">
-        {monthTitle(m)}: <span className="text-ink">{fmtCount(m.harmonized)}</span> harmonized {UNIT_LABEL}, against a{' '}
-        {progress.kind === 'month_to_date' && 'month-to-date '}
-        {MONTH_NAMES[m.month - 1]} median of <span className="text-ink">{fmtCount(m.median_m)}</span> (IQR{' '}
-        {fmtCount(m.iqr_m)}, {b0}–{b1}).
+      <p className="mt-0.5 text-xs text-muted">
+        {monthTitle(m)}: <span className="tabular text-ink-2">{fmtCount(m.harmonized)}</span> cell-days
       </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {m.is_estimated && <Chip>Estimated from MODIS</Chip>}
-        {m.is_nrt && <Chip>Near-real-time</Chip>}
-        {note && <Chip>{note}</Chip>}
-      </div>
+      {(m.is_estimated || m.is_nrt || note) && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {m.is_estimated && <Chip>Estimated from MODIS</Chip>}
+          {m.is_nrt && <Chip>Near-real-time</Chip>}
+          {note && <Chip>{note}</Chip>}
+        </div>
+      )}
     </Tile>
   )
 }
@@ -75,39 +94,46 @@ function ValidationTile({ calibration, regional }: { calibration: Calibration; r
   const [f0, f1] = calibration.fit_years
   const [t0, t1] = calibration.test_years
   const modisOnly = modisOnlyStepRatio(calibration)
-  return (
-    <Tile label={`Held-out validation, ${t0}–${t1}`}>
-      <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-2xl font-semibold">{fmtCount(calibration.test_mae)}</span>
-        <span className="text-xs text-ink-2">cell-days mean absolute error</span>
-      </div>
-      <p className="mt-2 text-xs text-ink-2">
-        Factors learned on {f0}–{f1} only, then used to predict S-NPP VIIRS from MODIS in {t0}–{t1}.
-        {calibration.test_mape !== undefined && (
-          <>
-            {' '}
-            Mean absolute percentage error:{' '}
-            <span className="text-ink">{(calibration.test_mape * 100).toFixed(1)}%</span>.
-          </>
-        )}
+  const raw = calibration.raw_step_ratio
+  const harmonized = calibration.harmonized_step_ratio
+  const info = (
+    <>
+      <p>
+        Factors learned on {f0}–{f1} only, then used to predict S-NPP VIIRS from MODIS in {t0}–{t1}, years the
+        calibration never saw.
       </p>
-      {calibration.raw_step_ratio !== undefined && calibration.harmonized_step_ratio !== undefined && (
-        <p className="mt-2 text-xs text-ink-2">
-          2012 step (mean 2013–2015 ÷ mean 2009–2011): raw{' '}
-          <span className="text-ink">{fmtFactor(calibration.raw_step_ratio)}</span>, harmonized{' '}
-          <span className="text-ink">{fmtFactor(calibration.harmonized_step_ratio)}</span>.
-          {modisOnly !== null && (
-            <>
-              {' '}
-              MODIS alone over the same years: <span className="text-ink">{fmtFactor(modisOnly)}</span>.
-            </>
-          )}
+      {raw !== undefined && harmonized !== undefined && (
+        <p>
+          2012 step (mean 2013–2015 ÷ mean 2009–2011): raw {fmtFactor(raw)}, harmonized {fmtFactor(harmonized)}
+          {modisOnly !== null && `; MODIS alone over the same years ${fmtFactor(modisOnly)}`}.
         </p>
       )}
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {regional && <Chip>Whole-region calibration, not this drawn area</Chip>}
-        {calibration.is_mock && <Chip>MOCK DATA</Chip>}
+    </>
+  )
+  return (
+    <Tile label={`Held-out validation, ${t0}–${t1}`} info={info}>
+      <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+        <span className="tabular text-2xl font-semibold">{fmtCount(calibration.test_mae)}</span>
+        <span className="text-xs text-ink-2">cell-days mean absolute error</span>
       </div>
+      {calibration.test_mape !== undefined && (
+        <p className="mt-1 text-xs text-ink-2">
+          <span className="tabular text-ink">{(calibration.test_mape * 100).toFixed(1)}%</span> mean absolute percentage
+          error
+        </p>
+      )}
+      {raw !== undefined && harmonized !== undefined && (
+        <p className="mt-0.5 text-xs text-ink-2">
+          2012 step raw <span className="tabular text-ink">{fmtFactor(raw)}</span> → harmonized{' '}
+          <span className="tabular text-ink">{fmtFactor(harmonized)}</span>
+        </p>
+      )}
+      {(regional || calibration.is_mock) && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {regional && <Chip>Whole-region calibration, not this drawn area</Chip>}
+          {calibration.is_mock && <Chip>MOCK DATA</Chip>}
+        </div>
+      )}
     </Tile>
   )
 }
@@ -115,10 +141,10 @@ function ValidationTile({ calibration, regional }: { calibration: Calibration; r
 const pct = (share: number): string => `${Math.round(share * 100)}%`
 
 /** Critical 3-month window, peak month, next-month outlook and the 12-month baseline, all from the calendar on screen. */
-function SeasonTile({ calendar, startMonth }: { calendar: Calendar; startMonth: 1 | 7 }) {
+function SeasonTile({ calendar }: { calendar: Calendar }) {
   const [b0, b1] = calendar.baseline_years
   const label = `Critical fire season window (${b0}–${b1} baseline)`
-  const profile = seasonalProfile(calendar, startMonth)
+  const profile = seasonalProfile(calendar)
   if (!profile) {
     return (
       <Tile label={label} wide>
@@ -134,35 +160,43 @@ function SeasonTile({ calendar, startMonth }: { calendar: Calendar; startMonth: 
   const barMax = Math.max(...months.map(barValue))
   const barName = rankedByMedian ? 'median' : `${b0}–${b1} total`
   const name = (month: number) => MONTH_NAMES[month - 1]
+  const info = (
+    <>
+      <p>
+        The three consecutive months with the highest {rankedByMedian ? 'monthly medians' : 'baseline totals'}. They
+        hold {pct(profile.windowShare)} of all harmonized {UNIT_LABEL} of {b0}–{b1}.
+        {!rankedByMedian && ' Every monthly median here is 0, so the window is ranked by total cell-days.'}
+      </p>
+      <p>
+        Peak month {name(peakMonth.month)}: median {fmtCount(peakMonth.median_m)} (IQR {fmtCount(peakMonth.iqr_m)}).
+        Next month {name(nextMonth.month)}: median {fmtCount(nextMonth.median_m)} (IQR {fmtCount(nextMonth.iqr_m)}).
+      </p>
+      <p>
+        Bars: monthly {barName} of harmonized {UNIT_LABEL}, highest {fmtCount(barMax)}.
+      </p>
+    </>
+  )
   return (
-    <Tile label={label} wide>
-      <div className="mt-1 grid gap-x-6 gap-y-3 md:grid-cols-2">
+    <Tile label={label} info={info} wide>
+      <div className="mt-1 grid items-end gap-x-6 gap-y-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div>
-          <div className="flex flex-wrap items-baseline gap-x-2">
-            <span className="text-2xl font-semibold">{profile.windowLabel}</span>
-            <span className="text-xs text-ink-2">
-              <span className="text-ink">{pct(profile.windowShare)}</span> of annual cell-days
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-3xl font-semibold tracking-tight">{profile.windowLabel}</span>
+            <span className="rounded-full border border-warning/60 bg-warning/10 px-2 py-0.5 text-xs text-ink">
+              <span className="tabular">{pct(profile.windowShare)}</span> of annual cell-days
             </span>
           </div>
-          <p className="mt-1 text-xs text-ink-2">
-            The three consecutive months with the highest {rankedByMedian ? 'monthly medians' : 'baseline totals'}. They
-            hold {pct(profile.windowShare)} of all harmonized {UNIT_LABEL} of {b0}–{b1}.
-            {!rankedByMedian && ' Every monthly median here is 0, so the window is ranked by total cell-days.'}
-          </p>
-          <p className="mt-2 text-xs text-ink-2">
-            Peak month: <span className="font-semibold text-ink">{name(peakMonth.month)}</span> — median{' '}
-            <span className="text-ink">{fmtCount(peakMonth.median_m)}</span> harmonized {UNIT_LABEL} (IQR{' '}
-            {fmtCount(peakMonth.iqr_m)}, {b0}–{b1}), {pct(peakMonth.share)} of annual cell-days.
-          </p>
-          <p className="mt-2 text-xs text-ink-2">
-            Next month ({name(nextMonth.month)}): historical median{' '}
-            <span className="text-ink">{fmtCount(nextMonth.median_m)}</span> (IQR {fmtCount(nextMonth.iqr_m)}).
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            <span className="rounded border border-hairline px-1.5 py-0.5 text-[11px] text-ink-2">
+              Peak <span className="font-semibold text-ink">{name(peakMonth.month)}</span> ·{' '}
+              <span className="tabular">{pct(peakMonth.share)}</span>
+            </span>
             {nextMonth.entersCriticalWindow ? (
               <span className="rounded border border-warning/70 px-1.5 py-0.5 text-[11px] text-ink">
-                <span aria-hidden="true" className="text-warning">▲</span> Upcoming month ({name(nextMonth.month)}) is
-                inside the critical window
+                <span aria-hidden="true" className="text-warning">
+                  ▲
+                </span>{' '}
+                Upcoming month ({name(nextMonth.month)}) is inside the critical window
               </span>
             ) : (
               <Chip>Upcoming month ({name(nextMonth.month)}) is outside the critical window</Chip>
@@ -171,7 +205,7 @@ function SeasonTile({ calendar, startMonth }: { calendar: Calendar; startMonth: 
         </div>
         <div>
           <ol
-            className="flex h-24 items-end gap-0.5"
+            className="flex h-20 items-end gap-0.5"
             aria-label={`Monthly ${barName} of harmonized ${UNIT_LABEL}, ${b0}–${b1} baseline`}
           >
             {months.map((m) => {
@@ -203,10 +237,6 @@ function SeasonTile({ calendar, startMonth }: { calendar: Calendar; startMonth: 
               </span>
             ))}
           </div>
-          <p className="mt-1 text-[11px] text-muted">
-            Monthly {barName} of harmonized {UNIT_LABEL}; highest {fmtCount(barMax)} ({name(peakMonth.month)}). The
-            critical window is highlighted.
-          </p>
         </div>
       </div>
     </Tile>
@@ -221,15 +251,14 @@ interface Props {
   isArea: boolean
   /** Status of the calendar's newest month (see `lastMonthProgress`). */
   lastProgress: MonthProgress
-  /** First column of the seasonal mini-bars: 1 for Jan–Dec, 7 for Jul–Jun. */
-  startMonth?: 1 | 7
 }
 
-export function AnomalyCards({ calendar, calibration, selected, isArea, lastProgress, startMonth = 1 }: Props) {
+export function AnomalyCards({ calendar, calibration, selected, isArea, lastProgress }: Props) {
   const latest = latestMonth(calendar)
   const peak = peakAnomaly(calendar.months)
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <SeasonTile calendar={calendar} />
       {latest && (
         <AnomalyTile
           label="Latest month vs. historical median"
@@ -237,18 +266,6 @@ export function AnomalyCards({ calendar, calibration, selected, isArea, lastProg
           calendar={calendar}
           progress={lastProgress}
         />
-      )}
-      {selected ? (
-        <AnomalyTile
-          label="Selected month"
-          m={selected}
-          calendar={calendar}
-          progress={progressOf(selected, calendar, lastProgress)}
-        />
-      ) : (
-        <Tile label="Selected month">
-          <p className="mt-2 text-xs text-ink-2">Click a month in the calendar to pin its numbers here.</p>
-        </Tile>
       )}
       {peak && (
         <AnomalyTile
@@ -259,7 +276,14 @@ export function AnomalyCards({ calendar, calibration, selected, isArea, lastProg
         />
       )}
       {calibration && <ValidationTile calibration={calibration} regional={isArea} />}
-      <SeasonTile calendar={calendar} startMonth={startMonth} />
+      {selected && (
+        <AnomalyTile
+          label="Selected month"
+          m={selected}
+          calendar={calendar}
+          progress={progressOf(selected, calendar, lastProgress)}
+        />
+      )}
     </div>
   )
 }

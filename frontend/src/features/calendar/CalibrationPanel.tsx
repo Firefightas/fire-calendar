@@ -192,22 +192,42 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
   const anyFallback = rows.some((r) => r.fallback)
 
   return (
-    <section className="rounded-lg border border-hairline bg-surface p-4">
-      <header className="mb-3">
-        <h2 className="text-sm font-semibold">How the conversion works: calibration factors</h2>
+    <details className="group rounded-lg border border-hairline bg-surface p-4">
+      <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 [&::-webkit-details-marker]:hidden">
+        <svg
+          viewBox="0 0 16 16"
+          aria-hidden="true"
+          className="size-3.5 shrink-0 text-muted transition-transform group-open:rotate-90"
+        >
+          <path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+        <h2 className="text-sm font-semibold">Calibration &amp; sensor harmonization methodology</h2>
+        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px] text-ink-2">
+          MODIS → S-NPP VIIRS · fitted {f0}–{f1}
+          {extremes && (
+            <>
+              {' '}
+              · <span className="tabular">{fmtFactor(extremes.smallest.factor)}</span>–
+              <span className="tabular">{fmtFactor(extremes.largest.factor)}</span>
+            </>
+          )}
+        </span>
+        {calibration.is_mock && (
+          <span className="rounded border border-warning/60 px-1.5 py-0.5 text-[11px] text-ink">MOCK DATA</span>
+        )}
+      </summary>
+
+      <header className="mt-4 mb-3">
         <p className="text-xs text-ink-2">
           MODIS cell-days × the factor for that calendar month = S-NPP-VIIRS-equivalent cell-days. The monthly factors
           are learned on {f0}–{f1} only. Method: {calibration.method}.
         </p>
-        {(isArea || calibration.is_mock) && (
+        {isArea && (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {isArea && (
-              <Chip>
-                Whole-region factors: a drawn area gets its own monthly factors where it has enough fires, these
-                otherwise
-              </Chip>
-            )}
-            {calibration.is_mock && <Chip>MOCK DATA</Chip>}
+            <Chip>
+              Whole-region factors: a drawn area gets its own monthly factors where it has enough fires, these
+              otherwise
+            </Chip>
           </div>
         )}
       </header>
@@ -266,6 +286,6 @@ export function CalibrationPanel({ calibration, isArea }: Props) {
           </div>
         ))}
       </div>
-    </section>
+    </details>
   )
 }
