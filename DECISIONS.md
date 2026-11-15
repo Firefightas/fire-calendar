@@ -76,6 +76,10 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - An incomplete last month is scored month-to-date: `median_m`, `iqr_m` and `anomaly_z` of that one row use the same days of the month in the baseline years; `harmonized` stays the observed count. Why: against full-month medians a 13-day month always looks unusually quiet, and scaling the count up would invent data.
 - P1 sign-off on P3 & P5 requests: approved month-to-date baseline for an incomplete last month, added `matplotlib>=3.9` to `pipeline` dependencies in `pyproject.toml`, and approved P5's `H3HexagonLayer` design (`sandbox_grid.json` `burn_count` + browser-binned NRT hexes) without adding a new API endpoint. Why: keeps `contracts/` frozen and makes `pipeline.harmonize.chart` + its PNG test run in CI.
 
+- Critical fire season window (P5, 15 Nov): the window is the 3 consecutive months (wrapping over the year end) with the largest sum of full-month `median_m`; ties, and drawn areas where every median is 0, are decided by baseline-year harmonized totals, and the card says which rule was used. Why: the median is robust to single extreme months (Jan 2001 in Río Negro), the totals are the only signal in sparse areas. The "% of annual cell-days" is the share of baseline-year harmonized cell-days, so it can be modest when the season is flat.
+- Seasonal medians are read from a row other than the calendar's newest one (P5, 15 Nov). Why: the newest row can carry a month-to-date median.
+- Typed latitude/longitude are cleared when the region changes (P5, 15 Nov). Why: old coordinates from another region left the "20 km box" button unusable until retyped.
+
 ## P4 backend polygon calendars
 
 - Polygon monthly factors use P3's >=5 MODIS cell-days per ratio and >=3 fit-year ratios, restricted to Feb 2012-Dec 2020; sparse months inherit the regional factor/CV. Terra-only and NOAA factors stay regional. Why: stable small-area calibration without fitting held-out years.
