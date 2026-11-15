@@ -199,8 +199,8 @@ export function CalendarHeatmap({
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-3 text-xs text-ink-2">
-        <div className="w-64">
+      <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-ink-2">
+        <div className="w-64 shrink-0">
           <div className="h-2.5 rounded-sm" style={{ background: legendGradient(palette) }} />
           <div className="tabular mt-1 flex justify-between text-muted">
             {ticks.map((t, i) => (
@@ -226,7 +226,7 @@ export function CalendarHeatmap({
             </InfoTip>
           </div>
         </div>
-        <ul className="space-y-1">
+        <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
           {mode === 'harmonized' && (
             <li className="flex items-center gap-2">
               <span className="relative inline-block h-4 w-6 rounded-[3px] bg-axis">

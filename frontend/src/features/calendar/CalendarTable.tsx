@@ -5,7 +5,7 @@ import { SOURCE_LABEL, fmtCount, fmtSigned, monthKey, monthTitle } from './model
 /** Table twin of the heatmap: every value readable without color or hover. */
 export function CalendarTable({ calendar }: { calendar: Calendar }) {
   return (
-    <details className="mt-4 text-xs">
+    <details className="mt-4 border-t border-hairline pt-3 text-xs">
       <summary className="cursor-pointer text-ink-2 hover:text-ink">Table view ({calendar.months.length} months)</summary>
       <div className="mt-2 max-h-80 overflow-auto rounded-md border border-hairline">
         <table className="tabular w-full border-collapse text-right">
