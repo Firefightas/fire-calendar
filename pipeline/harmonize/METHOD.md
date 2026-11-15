@@ -1,6 +1,6 @@
 # Method note for the pitch (owner: P3)
 
-**Status: Río Negro numbers filled in** from `data/processed/rio_negro/calibration.json` (real data, run of 14 Nov 2026 on P2's tables after the persistent-source screen, binding median-ratio method). If the calibration is re-run or the method changes (see the power-law request in `PLAN.md`), update every number below from the new file. California and Romania are not run yet.
+**Status: Río Negro numbers filled in** from `data/processed/rio_negro/calibration.json` (real data, run of 14 Nov 2026 on P2's tables after the persistent-source screen, binding median-ratio method). If the calibration is re-run or the method changes (see the power-law request in `PLAN.md`), update every number below from the new file. California was run on 15 Nov 2026 (section at the end). Romania is not run yet.
 
 Chart: `pitch/rio_negro_validation_chart.png`, regenerate with `uv run python -m pipeline.harmonize.chart --region rio_negro --out pipeline/harmonize/pitch/rio_negro_validation_chart.png`.
 
@@ -38,3 +38,24 @@ Optional sentence, supported by `diagnostics.orbit_check`: "Afternoon Aqua alone
 ## One-sentence version (slide caption)
 
 > We count fire-affected 5 km² hexagon-days instead of pixels, convert MODIS to the S-NPP VIIRS scale with monthly factors learned on 2012–2020, and check them on 2021–2025: in Río Negro the error is 91 cell-days per month (33 %).
+
+## California (real data, run of 15 Nov 2026)
+
+Numbers from `data/processed/california/calibration.json`, same binding method and same code. Chart: `pitch/california_validation_chart.png`.
+
+> In California the same method, with factors learned on 2012–2020, predicts the 2021–2025 S-NPP monthly count from MODIS with a mean absolute error of **152 cell-days (17.5 %)**, including the August 2021 peak (9,609 observed). The 2012 sensor switch goes from **×3.13** in the raw record to **×1.52** after harmonization, and MODIS alone rose **×1.53** over the same years: the harmonized step equals the real change in fire activity.
+
+| Number | Field in `calibration.json` |
+|---|---|
+| 152 cell-days, 17.5 % | `test_mae` (152.27), `test_mape` (0.175) |
+| ×3.13, ×1.52, ×1.53 | `raw_step_ratio`, `harmonized_step_ratio`, `diagnostics.modis_only_step_ratio` |
+| monthly factors 1.53–2.89 | `monthly_factors` (no month uses the pooled fallback; 8–9 fit years each) |
+| Terra-only 1.71, NOAA-20 0.98, NOAA-21 1.01 | `terra_only_factor`, `noaa20_factor` (0.976), `noaa21_factor` (1.013), all `measured: true` |
+| 9,609 | `calendar.json`, August 2021, `viirs_raw` |
+| orbit check 21 % / 24 % / 17.5 % | `diagnostics.orbit_check`: Aqua only, Terra only, combined (`test_mape`) |
+
+Limits for California:
+
+- **The error is half of Río Negro's (17.5 % vs. 33 %)** because the S-NPP / MODIS ratio varies much less here (monthly factors 1.5–2.9 against 1.6–8.7): large timber and chaparral fires are seen by both sensors.
+- **Static heat sources remain in the tables.** 270 of 49,314 hexes have more than 50 harmonized cell-days each and hold 6.9 % of the total; 168 of them have detections in at least 15 different years. The largest sit on landfills, refineries and a cement plant around Los Angeles (for example 34.32 N 118.52 W, 33.91 N 118.41 W, 33.79 N 118.24 W). They inflate the baseline of every month a little and give those hexes a wrong fuel history in the sandbox. Whether P2's persistence screen was applied to these tables is not documented yet (asked in `PLAN.md`).
+- S-NPP is the reference until July 2026, NOAA-20 after that; November 2026 is month to date (14 Nov).

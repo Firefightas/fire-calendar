@@ -1,0 +1,222 @@
+{
+ "region_id": "california",
+ "is_mock": false,
+ "generated_at": "2026-11-15T07:42:57+00:00",
+ "method": "overlap median ratio of active fire cell-days per calendar month",
+ "target_scale": "SNPP_VIIRS_EQ",
+ "fit_years": [
+  2012,
+  2020
+ ],
+ "test_years": [
+  2021,
+  2025
+ ],
+ "test_mae": 152.27,
+ "terra_only_factor": 1.713,
+ "noaa20_factor": 0.976,
+ "noaa21_factor": 1.013,
+ "monthly_factors": [
+  {
+   "month": 1,
+   "factor": 2.289,
+   "cv": 0.214,
+   "n_years": 8,
+   "fallback": false
+  },
+  {
+   "month": 2,
+   "factor": 2.232,
+   "cv": 0.218,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 3,
+   "factor": 2.435,
+   "cv": 0.113,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 4,
+   "factor": 2.632,
+   "cv": 0.092,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 5,
+   "factor": 2.868,
+   "cv": 0.159,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 6,
+   "factor": 2.058,
+   "cv": 0.178,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 7,
+   "factor": 1.777,
+   "cv": 0.213,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 8,
+   "factor": 1.534,
+   "cv": 0.143,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 9,
+   "factor": 1.831,
+   "cv": 0.109,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 10,
+   "factor": 2.049,
+   "cv": 0.099,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 11,
+   "factor": 2.067,
+   "cv": 0.141,
+   "n_years": 9,
+   "fallback": false
+  },
+  {
+   "month": 12,
+   "factor": 2.888,
+   "cv": 0.239,
+   "n_years": 9,
+   "fallback": false
+  }
+ ],
+ "test_mape": 0.175,
+ "raw_step_ratio": 3.13,
+ "harmonized_step_ratio": 1.52,
+ "diagnostics": {
+  "input": "hex_day.parquet",
+  "last_data_date": "2026-11-14",
+  "last_month_complete": false,
+  "snpp_reference_until": "2026-07",
+  "is_nrt_rule": "points.parquet provenance",
+  "min_cell_days_per_ratio": 5,
+  "min_ratio_years": 3,
+  "fit_windows": {
+   "monthly_factors": [
+    "2012-02",
+    "2020-12"
+   ],
+   "terra_only_factor": [
+    "2012-02",
+    "2020-12"
+   ],
+   "noaa20_factor": [
+    "2018-04",
+    "2020-12"
+   ],
+   "noaa21_factor": [
+    "2024-02",
+    "2026-07"
+   ]
+  },
+  "noaa21_note": "NOAA-21 has no overlap with S-NPP inside fit_years; fitted on its whole overlap",
+  "terra_only": {
+   "factor": 1.713,
+   "cv": 0.266,
+   "n_months": 107,
+   "measured": true
+  },
+  "noaa20": {
+   "factor": 0.976,
+   "cv": 0.049,
+   "n_months": 33,
+   "measured": true,
+   "test_mae": 62.9
+  },
+  "noaa21": {
+   "factor": 1.013,
+   "cv": 0.169,
+   "n_months": 30,
+   "measured": true
+  },
+  "orbit_check": {
+   "aqua_only": {
+    "factor": 3.718,
+    "ratio_cv": 0.345,
+    "n_months": 107,
+    "monthly_factors": [
+     3.474,
+     3.787,
+     4.46,
+     5.139,
+     5.484,
+     3.957,
+     2.655,
+     2.534,
+     2.978,
+     3.323,
+     3.348,
+     4.478
+    ],
+    "test_mae": 227.853,
+    "test_mape": 0.21
+   },
+   "terra_only": {
+    "factor": 3.878,
+    "ratio_cv": 0.455,
+    "n_months": 107,
+    "monthly_factors": [
+     5.611,
+     4.339,
+     4.338,
+     4.163,
+     4.46,
+     3.128,
+     2.541,
+     2.15,
+     2.594,
+     3.437,
+     4.062,
+     6.306
+    ],
+    "test_mae": 215.895,
+    "test_mape": 0.236
+   },
+   "terra_aqua_combined": {
+    "factor": 2.112,
+    "ratio_cv": 0.233,
+    "n_months": 107,
+    "monthly_factors": [
+     2.289,
+     2.232,
+     2.435,
+     2.632,
+     2.868,
+     2.058,
+     1.777,
+     1.534,
+     1.831,
+     2.049,
+     2.067,
+     2.888
+    ],
+    "test_mae": 152.271,
+    "test_mape": 0.175
+   },
+   "lowest_test_mape": "terra_aqua_combined"
+  },
+  "modis_only_step_ratio": 1.53
+ }
+}
