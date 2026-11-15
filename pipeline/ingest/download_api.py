@@ -35,10 +35,23 @@ def fetch(key: str, source: str, bbox: list[float], day: date, days: int) -> pd.
     area = ",".join(str(v) for v in bbox)
     url = f"{BASE}/{key}/{source}/{area}/{days}/{day.isoformat()}"
     failure = "no response"
-    for attempt in range(4):
+    attempt, quota_waits = 0, 0
+    while attempt < 4:
         try:
             r = requests.get(url, timeout=120)
             failure = f"HTTP {r.status_code}"
+            body = r.text.lower()
+            quota_limited = r.status_code == 429 or (
+                "exceed" in body and ("transaction" in body or "limit" in body)
+            )
+            if quota_limited:
+                # FIRMS resets its shared key budget on a ten-minute window.
+                # Keep this year's successful chunks; never print the response.
+                if quota_waits >= 11:
+                    raise RuntimeError(f"FIRMS {source} {day}: quota wait exhausted") from None
+                quota_waits += 1
+                time.sleep(60)
+                continue
             if r.status_code == 200:
                 df = pd.read_csv(io.StringIO(r.text))
                 if {"latitude", "longitude", "acq_date", "satellite"} <= set(df.columns):
@@ -51,6 +64,7 @@ def fetch(key: str, source: str, bbox: list[float], day: date, days: int) -> pd.
             failure = "invalid CSV response"
         if attempt < 3:
             time.sleep(5 * (attempt + 1))
+        attempt += 1
     raise RuntimeError(f"FIRMS {source} {day}: {failure}") from None
 
 
