@@ -147,7 +147,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setSandboxOpen(true)}
-              className="ml-auto inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-page shadow-md shadow-black/40 transition-colors hover:bg-ink-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="ml-auto inline-flex items-center gap-2 rounded-md bg-action px-4 py-2 text-sm font-semibold text-action-ink shadow-md shadow-black/40 transition-colors hover:bg-action/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
             >
               Launch Tactical Containment Sandbox
               <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5">

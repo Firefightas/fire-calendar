@@ -127,7 +127,7 @@ export function CalendarHeatmap({
               const key = monthKey(m)
               const v = valueOf(m, mode)
               const fill = v === null ? 'transparent' : color(v)
-              const ink = v === null ? '#898781' : inkOn(fill)
+              const ink = v === null ? '#8494ad' : inkOn(fill)
               const estimated = mode === 'harmonized' && m.is_estimated
               const above = domain.capped && v !== null && v > domain.top
               const selected = key === selectedKey
@@ -162,7 +162,7 @@ export function CalendarHeatmap({
                     background: fill,
                     boxShadow: [
                       m.is_nrt ? `inset 0 0 0 1.5px ${ink}` : 'inset 0 0 0 1px rgba(255,255,255,0.06)',
-                      selected ? '0 0 0 2px #0d0d0d, 0 0 0 4px #86b6ef' : '',
+                      selected ? '0 0 0 2px #0b1220, 0 0 0 4px #38bdf8' : '',
                     ]
                       .filter(Boolean)
                       .join(', '),

@@ -72,7 +72,7 @@ export function CalendarPanel({
         lastProgress={lastProgress}
       />
 
-      <section className="rounded-lg border border-hairline bg-surface p-4">
+      <section className="rounded-lg border border-hairline bg-page p-4">
         <header className="mb-3">
           <h2 className="flex items-center gap-1.5 text-sm font-semibold">
             Burning Activity Calendar: {areaName} · {MODE_LABEL[mode]}
