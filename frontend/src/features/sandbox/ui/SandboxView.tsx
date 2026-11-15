@@ -1,16 +1,21 @@
 // The sandbox screen for one loaded grid.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SandboxGrid } from '../../../types/contracts.ts'
 import { SimClient } from '../engine/client.ts'
 import type { RunOutput } from '../engine/service.ts'
 import { BURNED, BURNING, frameAt, RUN_HOURS } from '../engine/simulate.ts'
 import type { Scenario } from '../engine/simulate.ts'
+import { windSchedule } from '../engine/wind.ts'
+import type { WindSettings } from '../engine/wind.ts'
+import { fetchCurrentWind, scenarioCentre } from '../weather/openMeteo.ts'
 import { buildGeometry } from './geometry.ts'
 import { HexMap } from './HexMap.tsx'
 import { CellReadout, Legend } from './Legend.tsx'
 import { landcoverColours } from './palette.ts'
 import { Button, Panel } from './parts.tsx'
 import { usePlayback } from './usePlayback.ts'
+import { WindPanel } from './WindPanel.tsx'
+import type { WindSource } from './WindPanel.tsx'
 
 interface Props {
   grid: SandboxGrid
@@ -18,6 +23,8 @@ interface Props {
 }
 
 const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
+
+const CALM: WindSettings = { fromDeg: 0, speedKmh: 0, gustKmh: 0, shiftDeg: 0, shiftHour: 24 }
 
 export function SandboxView({ grid, area }: Props) {
   const cells = grid.cells
@@ -49,6 +56,42 @@ export function SandboxView({ grid, area }: Props) {
     playback.reset()
   }
 
+  // Protocol step 4: current wind at the centre of the area, from Open-Meteo.
+  const [windSource, setWindSource] = useState<WindSource>({ status: 'loading' })
+  const [wind, setWind] = useState<WindSettings>(CALM)
+  const windTouched = useRef(false)
+  const [centreLat, centreLon] = useMemo(() => scenarioCentre(area, cells), [area, cells])
+  useEffect(() => {
+    let cancelled = false
+    fetchCurrentWind(centreLat, centreLon).then(
+      (live) => {
+        if (cancelled) return
+        setWindSource({ status: 'live', live })
+        // Do not overwrite sliders the user has already moved.
+        if (windTouched.current) return
+        setWind((w) => ({
+          ...w,
+          fromDeg: Math.round(live.fromDeg),
+          speedKmh: Math.round(live.speedKmh),
+          gustKmh: Math.round(live.gustKmh),
+        }))
+        setRun(null)
+      },
+      (err: unknown) => {
+        if (cancelled) return
+        const aborted = err instanceof DOMException && err.name === 'AbortError'
+        setWindSource({
+          status: 'failed',
+          reason: aborted ? 'Open-Meteo did not answer in time' : err instanceof Error ? err.message : String(err),
+        })
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [centreLat, centreLon])
+  const schedule = useMemo(() => windSchedule(wind, RUN_HOURS, seed), [wind, seed])
+
   const toggleIgnition = (i: number) => {
     if (!cells[i].burnable) {
       setNotice('That hex does not burn (water or bare ground), so it cannot be an ignition point.')
@@ -61,7 +104,7 @@ export function SandboxView({ grid, area }: Props) {
 
   const startRun = async () => {
     if (!client || ignitions.length === 0) return
-    const scenario: Scenario = { seed, hours: RUN_HOURS, ignitions, wind: [], tools: [] }
+    const scenario: Scenario = { seed, hours: RUN_HOURS, ignitions, wind: schedule, tools: [] }
     setBusy(true)
     setError(null)
     try {
@@ -129,6 +172,18 @@ export function SandboxView({ grid, area }: Props) {
             </Button>
           </div>
         </Panel>
+
+        <WindPanel
+          source={windSource}
+          settings={wind}
+          onChange={(next) => {
+            invalidate()
+            windTouched.current = true
+            setWind(next)
+          }}
+          current={run ? schedule[Math.min(playback.hour, RUN_HOURS - 1)] : null}
+          hours={RUN_HOURS}
+        />
 
         <Panel title="Run · 72 simulated hours">
           <div className="flex flex-wrap items-center gap-2">
@@ -198,7 +253,7 @@ export function SandboxView({ grid, area }: Props) {
             </Button>
           </div>
           <p className="mt-2 text-xs text-muted">
-            The same seed always gives the same run. Calm wind in this version; wind controls come next.
+            The same seed always gives the same run, including which hours gust.
             {client && !client.inWorker && ' Running on the main thread: this browser could not start a Web Worker.'}
           </p>
         </Panel>
