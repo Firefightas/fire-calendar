@@ -7,7 +7,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | Role | Owner (name) | Agent | Current state |
 |---|---|---|---|
 | P1 Integrator + pitch | _fill in_ | Gemini Pro #1 | Merged PRs #1–#19; **Checkpoint A achieved**; Render backend & live FIRMS NRT verified (`200 OK`); allowed `data/processed/**/*.parquet` in git for Render. |
-| P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | Screened Rio Negro tables verified against P3 PR #21; sandbox history refreshed (1,027 cells, still mock terrain); consistent P4/P6 handoff ready locally. |
+| P2 Data ingestion | David | ChatGPT Plus #1 (Codex) | California PR #24 hashes and persistence screen reproduced; California sandbox history joined on mock terrain; Romania downloads active, delivery cut-off 12:30 local. |
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Río Negro and **California** run on P2's real tables and committed (`calendar.json`, `calibration.json`, `hex_fire_history.parquet`; binding median-ratio method). Río Negro: held-out MAE 91 cell-days, MAPE 33 %. California: MAE 152 cell-days, MAPE 17.5 %, 2012 step ×3.13 → ×1.52 (MODIS alone ×1.53). Charts and `METHOD.md` cover both. Next: Romania when P2 lands it. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Río Negro (re-run) and California verified on real data through the deployed backend and from the offline bundle, including real drawn-area calendars and CSV exports; Romania is still mock and labelled; the sandbox button opens the host page with the banner, waiting for P6's `features/sandbox/index.tsx`; next: sandbox launch check once P6 merges, Romania when its real files land. |
@@ -32,7 +32,9 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 ## P2: Data ingestion + sandbox inputs
 - [ ] FIRMS MAP_KEY; start Route A (yearly country files), B (archive request), C (area API for 2026)
 - [x] Normalize + filter (`type == 0`, `confidence != low`) + clip + H3 → **Río Negro first**: `points.parquet`, `hex_day.parquet` (revised: 307,352 points / 143,233 hex-days; see pipeline/ingest/RIO_NEGRO_STATUS.md)
-- [ ] Same for California and Romania
+- [x] California: PR #24 input hashes and persistence screen verified (2,049,536 points / 521,339 hex-days); see pipeline/ingest/CALIFORNIA_STATUS.md
+- [ ] Romania: same filters and delivery by 12:30, otherwise ships MOCK DATA
+- [x] California sandbox: join P3 history (736/1,027 cells matched); terrain stays MOCK DATA
 - [ ] Sandbox inputs: WorldCover → `landcover`, `asset_type`, `burnable`; Open-Meteo → `elevation_m`, `slope_deg`; join P3's `hex_fire_history` → `sandbox_grid.json`
 
 ## P3: Harmonization
