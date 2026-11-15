@@ -76,3 +76,6 @@ Gotchas: do not commit Parquet inputs or change the P1-approved calibration meth
 Validation after the real-data source fix: 110 Python tests and Ruff passed. The frontend baseline build passed; final CI builds against the newly available P3 JSON.
 
 - P4 real-calendar source fix: https://github.com/neamturazvan/fire-calendar/pull/18 (feat/p4-source-handover); 110 tests and Ruff passed. P1 handles Render Parquet upload and deployment.
+
+## P3 working in P2's folder - 15 November 2026 - Claude
+With approval from the humans of P3 and P2, P3 is writing `pipeline/sandbox_inputs/terrain.py` on `feat/p3-sandbox-terrain` (real land cover from ESA WorldCover, elevation and slope from Open-Meteo) to replace the mock sandbox terrain, Río Negro first. P2 keeps Romania and everything in `pipeline/ingest/`. State and results are reported in the PR and in `pipeline/sandbox_inputs/README.md`.
