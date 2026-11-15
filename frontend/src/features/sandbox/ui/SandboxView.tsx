@@ -2,17 +2,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SandboxGrid } from '../../../types/contracts.ts'
 import { SimClient } from '../engine/client.ts'
-import type { RunOutput } from '../engine/service.ts'
+import { buildModel } from '../engine/model.ts'
+import { ensembleSeeds } from '../engine/service.ts'
 import { BURNED, BURNING, frameAt, RUN_HOURS } from '../engine/simulate.ts'
 import type { Scenario } from '../engine/simulate.ts'
+import { BUDGET_UNITS, dropUnanchored, placementProblem, planCost, TOOLS } from '../engine/tools.ts'
+import type { Placement, ToolKind } from '../engine/tools.ts'
 import { windSchedule } from '../engine/wind.ts'
 import type { WindSettings } from '../engine/wind.ts'
 import { fetchCurrentWind, scenarioCentre } from '../weather/openMeteo.ts'
 import { buildGeometry } from './geometry.ts'
 import { HexMap } from './HexMap.tsx'
+import type { HexMark } from './HexMap.tsx'
 import { CellReadout, Legend } from './Legend.tsx'
-import { landcoverColours } from './palette.ts'
+import { landcoverColours, TOOL_MARK } from './palette.ts'
 import { Button, Panel } from './parts.tsx'
+import { Scoreboard } from './Scoreboard.tsx'
+import type { Outcome, ScoreColumn } from './Scoreboard.tsx'
+import { ToolsPanel } from './ToolsPanel.tsx'
+import type { ClickMode } from './ToolsPanel.tsx'
 import { usePlayback } from './usePlayback.ts'
 import { WindPanel } from './WindPanel.tsx'
 import type { WindSource } from './WindPanel.tsx'
@@ -26,9 +34,16 @@ const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
 
 const CALM: WindSettings = { fromDeg: 0, speedKmh: 0, gustKmh: 0, shiftDeg: 0, shiftHour: 24 }
 
+/** Results of the last Run: the same scenario without resources and with the user's plan. */
+interface Results {
+  baseline: Outcome
+  human: Outcome
+}
+
 export function SandboxView({ grid, area }: Props) {
   const cells = grid.cells
   const geo = useMemo(() => buildGeometry(cells, grid.h3_resolution), [cells, grid.h3_resolution])
+  const model = useMemo(() => buildModel(cells), [cells])
   const colours = useMemo(() => landcoverColours(cells), [cells])
   const [hovered, setHovered] = useState(-1)
 
@@ -42,17 +57,21 @@ export function SandboxView({ grid, area }: Props) {
   }, [cells])
 
   const [ignitions, setIgnitions] = useState<number[]>([])
+  const [plan, setPlan] = useState<Placement[]>([])
+  const [mode, setMode] = useState<ClickMode>('ignite')
   const [seed, setSeed] = useState(1)
-  const [run, setRun] = useState<RunOutput | null>(null)
+  const [results, setResults] = useState<Results | null>(null)
+  const [shown, setShown] = useState('human')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const playback = usePlayback(RUN_HOURS)
 
-  /** Any change to the scenario makes the finished run stale. */
+  /** Any change to the scenario makes the finished runs stale. */
   const invalidate = () => {
-    setRun(null)
+    setResults(null)
     setError(null)
+    setShown('human')
     playback.reset()
   }
 
@@ -75,7 +94,7 @@ export function SandboxView({ grid, area }: Props) {
           speedKmh: Math.round(live.speedKmh),
           gustKmh: Math.round(live.gustKmh),
         }))
-        setRun(null)
+        setResults(null)
       },
       (err: unknown) => {
         if (cancelled) return
@@ -92,34 +111,103 @@ export function SandboxView({ grid, area }: Props) {
   }, [centreLat, centreLon])
   const schedule = useMemo(() => windSchedule(wind, RUN_HOURS, seed), [wind, seed])
 
-  const toggleIgnition = (i: number) => {
-    if (!cells[i].burnable) {
-      setNotice('That hex does not burn (water or bare ground), so it cannot be an ignition point.')
+  const used = planCost(plan)
+  const counts = useMemo(() => {
+    const out: Record<ToolKind, number> = { water: 0, clearing: 0, trench: 0, backfire: 0 }
+    for (const p of plan) out[p.kind]++
+    return out
+  }, [plan])
+
+  const onCellClick = (i: number) => {
+    setNotice(null)
+    if (mode === 'ignite') {
+      if (!model.burnable[i]) {
+        setNotice('That hex does not burn (water or bare ground), so it cannot be an ignition point.')
+        return
+      }
+      if (plan.some((p) => p.cell === i && p.kind === 'backfire')) {
+        setNotice('That hex has a backfire planned. Remove it before setting an ignition point there.')
+        return
+      }
+      invalidate()
+      setIgnitions((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]))
       return
     }
-    setNotice(null)
+    const existing = plan.find((p) => p.cell === i)
+    if (existing) {
+      // A click on a placed resource removes it; backfires that leaned on it go too.
+      const kept = dropUnanchored(
+        model,
+        plan.filter((p) => p !== existing),
+      )
+      if (kept.length < plan.length - 1) setNotice('Backfires that were anchored on the removed resource were removed too.')
+      invalidate()
+      setPlan(kept)
+      return
+    }
+    const problem = placementProblem(model, plan, ignitions, mode, i)
+    if (problem) {
+      setNotice(problem)
+      return
+    }
+    if (used + TOOLS[mode].cost > BUDGET_UNITS) {
+      setNotice(`Not enough budget: ${TOOLS[mode].label.toLowerCase()} costs ${TOOLS[mode].cost}, ${BUDGET_UNITS - used} left.`)
+      return
+    }
     invalidate()
-    setIgnitions((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]))
+    setPlan([...plan, { cell: i, kind: mode }])
   }
 
   const startRun = async () => {
     if (!client || ignitions.length === 0) return
-    const scenario: Scenario = { seed, hours: RUN_HOURS, ignitions, wind: schedule, tools: [] }
+    const base: Scenario = { seed, hours: RUN_HOURS, ignitions, wind: schedule, tools: [] }
+    const mine: Scenario = { ...base, tools: plan }
+    const seeds = ensembleSeeds(seed)
     setBusy(true)
     setError(null)
     try {
-      setRun(await client.request({ type: 'run', scenario }))
+      const [baseRun, baseEnsemble, myRun, myEnsemble] = await Promise.all([
+        client.request({ type: 'run', scenario: base }),
+        client.request({ type: 'ensemble', scenario: base, seeds }),
+        client.request({ type: 'run', scenario: mine }),
+        client.request({ type: 'ensemble', scenario: mine, seeds }),
+      ])
+      setResults({
+        baseline: { plan: [], run: baseRun, ensemble: baseEnsemble },
+        human: { plan, run: myRun, ensemble: myEnsemble },
+      })
+      setShown('human')
       playback.start()
     } catch (err) {
-      setRun(null)
+      setResults(null)
       setError(err instanceof Error ? err.message : String(err))
     } finally {
       setBusy(false)
     }
   }
 
-  const frame = useMemo(() => (run ? frameAt(run.result, playback.hour) : null), [run, playback.hour])
+  const columns: ScoreColumn[] = useMemo(
+    () =>
+      results
+        ? [
+            { key: 'baseline', title: 'No intervention', outcome: results.baseline },
+            { key: 'human', title: 'Your plan', outcome: results.human },
+          ]
+        : [],
+    [results],
+  )
+  const shownOutcome = columns.find((c) => c.key === shown)?.outcome ?? null
+
+  const frame = useMemo(
+    () => (shownOutcome ? frameAt(shownOutcome.run.result, playback.hour) : null),
+    [shownOutcome, playback.hour],
+  )
   const ignitionSet = useMemo(() => new Set(ignitions), [ignitions])
+  const marks = useMemo(() => {
+    const out = new Map<number, HexMark>()
+    for (const p of shownOutcome ? shownOutcome.plan : plan) out.set(p.cell, TOOL_MARK[p.kind])
+    return out
+  }, [shownOutcome, plan])
   const live = useMemo(() => {
     if (!frame) return null
     let burning = 0
@@ -132,46 +220,47 @@ export function SandboxView({ grid, area }: Props) {
   }, [frame])
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="rounded-lg border border-hairline bg-surface p-3">
-        <HexMap
-          cells={cells}
-          geo={geo}
-          colours={colours}
-          fire={frame}
-          ignitions={run ? undefined : ignitionSet}
-          area={area}
-          onCellClick={toggleIgnition}
-          onHover={setHovered}
-          ariaLabel="Hex map of the sandbox area, coloured by land cover, with the simulated fire"
-        />
-        <CellReadout cell={hovered >= 0 ? cells[hovered] : null} classes={grid.landcover_classes} />
-        <Legend />
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="space-y-3">
+        <div className="rounded-lg border border-hairline bg-surface p-3">
+          <HexMap
+            cells={cells}
+            geo={geo}
+            colours={colours}
+            fire={frame}
+            ignitions={results ? undefined : ignitionSet}
+            marks={marks}
+            area={area}
+            onCellClick={onCellClick}
+            onHover={setHovered}
+            ariaLabel="Hex map of the sandbox area, coloured by land cover, with the simulated fire and deployed resources"
+          />
+          <CellReadout cell={hovered >= 0 ? cells[hovered] : null} classes={grid.landcover_classes} />
+          <Legend />
+        </div>
+        {results && <Scoreboard columns={columns} seed={seed} shown={shown} onShow={setShown} />}
       </div>
 
       <div className="space-y-3">
-        <Panel title="1 · Fire at t = 0">
-          <p className="text-xs text-ink-2">
-            Click burnable hexes on the map to set where the fire is burning at t = 0. Click again to remove one.
-          </p>
-          <p className="tabular mt-2 text-sm text-ink">
-            {ignitions.length === 0
-              ? 'No ignition point yet.'
-              : `${ignitions.length} ignition ${ignitions.length === 1 ? 'hex' : 'hexes'} set.`}
-          </p>
-          {notice && <p className="mt-1 text-xs text-warning">{notice}</p>}
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Button
-              onClick={() => {
-                invalidate()
-                setIgnitions([])
-              }}
-              disabled={ignitions.length === 0}
-            >
-              Clear ignition points
-            </Button>
-          </div>
-        </Panel>
+        <ToolsPanel
+          mode={mode}
+          onMode={(m) => {
+            setNotice(null)
+            setMode(m)
+          }}
+          ignitionCount={ignitions.length}
+          used={used}
+          counts={counts}
+          notice={notice}
+          onClearIgnitions={() => {
+            invalidate()
+            setIgnitions([])
+          }}
+          onClearPlan={() => {
+            invalidate()
+            setPlan([])
+          }}
+        />
 
         <WindPanel
           source={windSource}
@@ -181,19 +270,19 @@ export function SandboxView({ grid, area }: Props) {
             windTouched.current = true
             setWind(next)
           }}
-          current={run ? schedule[Math.min(playback.hour, RUN_HOURS - 1)] : null}
+          current={results ? schedule[Math.min(playback.hour, RUN_HOURS - 1)] : null}
           hours={RUN_HOURS}
         />
 
         <Panel title="Run · 72 simulated hours">
           <div className="flex flex-wrap items-center gap-2">
             <Button primary onClick={startRun} disabled={!client || busy || ignitions.length === 0}>
-              {busy ? 'Simulating…' : run ? 'Run again' : 'Run 72 h'}
+              {busy ? 'Simulating…' : results ? 'Run again' : 'Run 72 h'}
             </Button>
-            <Button onClick={playback.toggle} disabled={!run}>
+            <Button onClick={playback.toggle} disabled={!results}>
               {playback.playing ? 'Pause' : playback.hour >= RUN_HOURS ? 'Replay' : 'Play'}
             </Button>
-            <Button onClick={invalidate} disabled={!run}>
+            <Button onClick={invalidate} disabled={!results}>
               Back to planning
             </Button>
           </div>
@@ -207,7 +296,7 @@ export function SandboxView({ grid, area }: Props) {
               max={RUN_HOURS}
               step={1}
               value={playback.hour}
-              disabled={!run}
+              disabled={!results}
               onChange={(e) => playback.seek(Number(e.target.value))}
               className="mt-1 block w-full accent-[#3987e5]"
             />

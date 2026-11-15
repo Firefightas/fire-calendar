@@ -1,5 +1,6 @@
 // Colours and labels for the hex map. Dark UI; rivers and villages are the brightest marks.
 import type { SandboxCell } from '../../../types/contracts.ts'
+import type { ToolKind } from '../engine/tools.ts'
 
 /** ESA WorldCover code → fill colour. */
 const LANDCOVER_COLOUR: Record<number, string> = {
@@ -55,4 +56,12 @@ export const FIRE_COLOURS = {
   burned: '#1c1512',
   burnedEdge: '#7a2e1c',
   ignition: '#ff2d2d',
+}
+
+/** How each intervention is marked on the map and in the palette. */
+export const TOOL_MARK: Record<ToolKind, { glyph: string; colour: string; emoji: string }> = {
+  water: { glyph: 'W', colour: '#7cc8ff', emoji: '💧' },
+  clearing: { glyph: 'C', colour: '#f3d36b', emoji: '🪓' },
+  trench: { glyph: 'T', colour: '#d7b08a', emoji: '🚜' },
+  backfire: { glyph: 'B', colour: '#ff9f6b', emoji: '🔥' },
 }

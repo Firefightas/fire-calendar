@@ -141,12 +141,12 @@ export function HexMap({
 
     // 4. Deployed resources.
     if (marks) {
-      ctx.font = `700 ${Math.max(8, r * 0.95)}px system-ui, sans-serif`
+      ctx.font = `700 ${Math.max(8, r * 0.85)}px system-ui, sans-serif`
       for (const [i, mark] of marks) {
         const cx = sx(geo.centres[i * 2])
         const cy = sx(geo.centres[i * 2 + 1])
         ctx.beginPath()
-        ctx.arc(cx, cy, r * 0.68, 0, Math.PI * 2)
+        ctx.arc(cx, cy, r * 0.58, 0, Math.PI * 2)
         ctx.fillStyle = mark.colour
         ctx.fill()
         ctx.lineWidth = 1.2

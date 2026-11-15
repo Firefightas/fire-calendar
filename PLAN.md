@@ -64,7 +64,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 
 ## P6: Tactical Containment Sandbox
 - [x] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation), click-to-ignite, 72 h playback
-- [ ] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
+- [x] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
 - [ ] 8-step UI: drone perimeter, terrain, fuel, weather, attack, 4 interventions, asset triage, exit route
 - [ ] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard
 - [ ] Draft RO-ALERT-style advisory modal; permanent banner; wire to real grid
