@@ -92,12 +92,27 @@ export default function App() {
         Skip to the calendar
       </a>
       <header className="border-b border-hairline bg-surface">
-        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-          <div className="mr-auto">
-            <h1 className="text-lg font-semibold tracking-tight">Burning Activity Calendar</h1>
-            <p className="text-xs text-muted">
-              MODIS + VIIRS hotspots on one scale: S-NPP-VIIRS-equivalent active fire cell-days
-            </p>
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4">
+          <div className="mr-auto flex items-center gap-3">
+            <svg viewBox="0 0 32 32" aria-hidden="true" className="size-9 shrink-0">
+              <path
+                d="M16 1.5 28.6 8.75v14.5L16 30.5 3.4 23.25V8.75Z"
+                fill="var(--color-raised)"
+                stroke="var(--color-hairline)"
+                strokeWidth="1"
+              />
+              <path
+                d="M16.4 7.5c.6 3.3 4.9 5.6 4.9 10.3a5.3 5.3 0 0 1-10.6 0c0-2.5 1.5-4 2.6-5.2.2 1.6 1 2.6 2 3.1-.5-3 .4-5.9 1.1-8.2Z"
+                fill="var(--color-warning)"
+              />
+              <path d="M16.1 16.6c.3 1.5 2.2 2.4 2.2 4.3a2.3 2.3 0 0 1-4.6 0c0-1.4 1-2.4 2.4-4.3Z" fill="var(--color-page)" opacity="0.55" />
+            </svg>
+            <div>
+              <h1 className="text-xl leading-tight font-semibold tracking-tight">Burning Activity Calendar</h1>
+              <p className="text-xs text-muted">
+                MODIS + VIIRS hotspots on one scale: S-NPP-VIIRS-equivalent active fire cell-days
+              </p>
+            </div>
           </div>
           {isMock && <MockBadge />}
           {calendar.data && <OriginChip origin={areaCal ? 'api' : calendar.data.origin} waking={waking} />}
@@ -117,7 +132,7 @@ export default function App() {
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
                 r.id === regionId
                   ? 'border-ink-2 bg-raised text-ink'
-                  : 'border-hairline text-ink-2 hover:bg-raised'
+                  : 'border-hairline text-ink-2 hover:border-ink-2/40 hover:bg-raised hover:text-ink'
               }`}
             >
               {r.name}

@@ -29,9 +29,17 @@ interface TileFrame {
 
 function Tile({ label, info, children, wide }: TileFrame) {
   return (
-    <section className={`rounded-lg border border-hairline bg-surface p-4 ${wide ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
-      <h3 className="flex items-center gap-1.5 text-xs text-muted">
-        {label}
+    <section
+      className={`flex flex-col rounded-lg border p-4 ${
+        wide
+          ? 'border-warning/35 bg-gradient-to-br from-warning/[0.07] to-surface to-60% sm:col-span-2 lg:col-span-3'
+          : 'border-hairline bg-surface'
+      }`}
+    >
+      <h3
+        className={`flex items-start justify-between gap-2 text-xs leading-snug text-muted ${wide ? '' : 'min-h-[2.1rem]'}`}
+      >
+        <span>{label}</span>
         {info && <InfoTip label={`About: ${label}`}>{info}</InfoTip>}
       </h3>
       {children}
@@ -65,11 +73,11 @@ function AnomalyTile({ label, m, calendar, progress }: TileProps) {
   )
   return (
     <Tile label={label} info={info}>
-      <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
-        <span className="tabular text-2xl font-semibold">{fmtSigned(m.anomaly_z)}</span>
-        <span className="text-xs text-ink-2">{ANOMALY_LABEL}</span>
+      <div className="mt-2">
+        <span className="tabular block text-2xl leading-none font-semibold">{fmtSigned(m.anomaly_z)}</span>
+        <span className="mt-1 block text-xs text-ink-2">{ANOMALY_LABEL}</span>
       </div>
-      <p className="mt-1 flex items-center gap-1.5 text-xs text-ink">
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-ink">
         <span aria-hidden="true" className={band === 'well_above' ? 'text-serious' : 'text-muted'}>
           {arrow}
         </span>
@@ -79,7 +87,7 @@ function AnomalyTile({ label, m, calendar, progress }: TileProps) {
         {monthTitle(m)}: <span className="tabular text-ink-2">{fmtCount(m.harmonized)}</span> cell-days
       </p>
       {(m.is_estimated || m.is_nrt || note) && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-auto flex flex-wrap gap-1.5 pt-3">
           {m.is_estimated && <Chip>Estimated from MODIS</Chip>}
           {m.is_nrt && <Chip>Near-real-time</Chip>}
           {note && <Chip>{note}</Chip>}
@@ -112,9 +120,9 @@ function ValidationTile({ calibration, regional }: { calibration: Calibration; r
   )
   return (
     <Tile label={`Held-out validation, ${t0}–${t1}`} info={info}>
-      <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
-        <span className="tabular text-2xl font-semibold">{fmtCount(calibration.test_mae)}</span>
-        <span className="text-xs text-ink-2">cell-days mean absolute error</span>
+      <div className="mt-2">
+        <span className="tabular block text-2xl leading-none font-semibold">{fmtCount(calibration.test_mae)}</span>
+        <span className="mt-1 block text-xs text-ink-2">cell-days mean absolute error</span>
       </div>
       {calibration.test_mape !== undefined && (
         <p className="mt-1 text-xs text-ink-2">
@@ -129,7 +137,7 @@ function ValidationTile({ calibration, regional }: { calibration: Calibration; r
         </p>
       )}
       {(regional || calibration.is_mock) && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-auto flex flex-wrap gap-1.5 pt-3">
           {regional && <Chip>Whole-region calibration, not this drawn area</Chip>}
           {calibration.is_mock && <Chip>MOCK DATA</Chip>}
         </div>

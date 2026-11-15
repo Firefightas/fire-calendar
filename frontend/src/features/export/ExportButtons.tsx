@@ -15,7 +15,7 @@ interface Props {
 type Status = { kind: 'idle' } | { kind: 'busy' } | { kind: 'note'; text: string } | { kind: 'error'; text: string }
 
 const button =
-  'rounded-md border border-hairline px-3 py-1.5 text-xs text-ink hover:bg-raised disabled:opacity-50'
+  'inline-flex items-center gap-1.5 rounded-md border border-hairline bg-surface px-3 py-1.5 text-xs text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:opacity-50'
 
 const mockTag = (isMock: boolean) => (isMock ? ' (MOCK DATA)' : '')
 
@@ -65,11 +65,13 @@ export function ExportButtons({ query, calendar, calendarIsArea }: Props) {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <button type="button" className={button} disabled={points.kind === 'busy'} onClick={() => void exportPoints()}>
+          <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5 text-ink-2"><path d="M8 2.5v7.5M4.75 7 8 10.25 11.25 7M3 13h10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {points.kind === 'busy' ? 'Exporting…' : 'Export hotspots (CSV)'}
         </button>
         <button type="button" className={button} disabled={cal.kind === 'busy'} onClick={() => void exportCalendar()}>
+          <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5 text-ink-2"><path d="M8 2.5v7.5M4.75 7 8 10.25 11.25 7M3 13h10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {cal.kind === 'busy' ? 'Exporting…' : 'Export calendar (CSV)'}
         </button>
       </div>
