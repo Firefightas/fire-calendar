@@ -473,14 +473,14 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
           )}
         </div>
         <div>
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="size-2 rounded-full" style={{ background: css(NRT_DOT) }} />
             Live hotspots, last
             <select
               aria-label="Days of live hotspots"
               value={nrtDays}
               onChange={(e) => setNrtDays(Number(e.target.value))}
-              className="rounded border border-hairline bg-page px-1 py-0.5 text-ink"
+              className="rounded-md border border-hairline bg-page px-2 py-1.5 text-ink"
             >
               {[1, 2, 3, 5, 7].map((d) => (
                 <option key={d} value={d}>
@@ -492,8 +492,25 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
               type="button"
               disabled={!ready || nrt.status === 'loading'}
               onClick={() => void fetchNrt()}
-              className="rounded-md border border-hairline px-2 py-0.5 text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#e66767]/60 bg-[#e66767]/15 px-3 py-1.5 font-medium text-ink shadow-sm shadow-black/30 transition-colors hover:border-[#e66767] hover:bg-[#e66767]/25 disabled:opacity-50"
             >
+              {nrt.status === 'loading' ? (
+                <span
+                  aria-hidden="true"
+                  className="size-3.5 animate-spin rounded-full border-2 border-ink-2 border-t-transparent motion-reduce:animate-none"
+                />
+              ) : (
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5 text-[#e66767]">
+                  <circle cx="8" cy="8" r="2" fill="currentColor" />
+                  <path
+                    d="M4.1 4.1a5.5 5.5 0 0 0 0 7.8M11.9 4.1a5.5 5.5 0 0 1 0 7.8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
               {nrt.status === 'loading' ? 'Loading…' : 'Load for this view'}
             </button>
           </div>
