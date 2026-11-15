@@ -75,8 +75,10 @@ export function optimizePlan(
   seeds: number[],
   budget: number,
   onProgress?: (progress: OptimizeProgress) => void,
+  /** Resources already decided (for example a min-cut anchor line); the greedy steps add to them. */
+  initial: readonly Placement[] = [],
 ): OptimizeOutput {
-  const plan: Placement[] = []
+  const plan: Placement[] = [...initial]
   let simulatedRuns = seeds.length
   let current = evaluate(model, scenario, plan, seeds)
   const before = current.mean

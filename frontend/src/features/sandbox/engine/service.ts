@@ -8,6 +8,7 @@ import { NEVER, simulate } from './simulate.ts'
 import type { RunResult, Scenario } from './simulate.ts'
 import { optimizePlan } from '../optimizer/greedy.ts'
 import type { OptimizeProgress } from '../optimizer/greedy.ts'
+import { minCutPlan } from '../optimizer/mincut.ts'
 import type { Placement } from './tools.ts'
 
 /** Seeds of an ensemble: the displayed run's seed first, then the following integers. */
@@ -63,14 +64,18 @@ export interface OptimizeResult {
   simulatedRuns: number
   run: RunOutput
   ensemble: EnsembleOutput
+  /** Only for the min-cut method: the anchor line it started from. */
+  anchor?: { hexes: number; cutCost: number | null; complete: boolean; villagesOutOfReach: number }
 }
+
+export type OptimizeMethod = 'greedy' | 'mincut'
 
 export type SimRequest =
   | { type: 'init'; cells: SandboxCell[] }
   | { type: 'run'; scenario: Scenario }
   | { type: 'ensemble'; scenario: Scenario; seeds: number[] }
   /** `scenario.tools` is ignored: the optimizer starts from an empty plan. */
-  | { type: 'optimize'; scenario: Scenario; seeds: number[]; budget: number }
+  | { type: 'optimize'; method: OptimizeMethod; scenario: Scenario; seeds: number[]; budget: number }
 
 export interface SimResponses {
   init: { cells: number }
@@ -94,13 +99,30 @@ export class SimService {
     if (request.type === 'run') return runOnce(this.model, request.scenario)
     if (request.type === 'optimize') {
       const base: Scenario = { ...request.scenario, tools: [] }
-      const { plan, simulatedRuns } = optimizePlan(this.model, base, request.seeds, request.budget, onProgress)
+      // Min-cut: an anchor line first, then the same greedy steps spend what is left.
+      const line = request.method === 'mincut' ? minCutPlan(this.model, base, request.seeds, request.budget) : null
+      const { plan, simulatedRuns } = optimizePlan(
+        this.model,
+        base,
+        request.seeds,
+        request.budget,
+        onProgress,
+        line ? line.plan : [],
+      )
       const withPlan: Scenario = { ...base, tools: plan }
       return {
         plan,
-        simulatedRuns,
+        simulatedRuns: simulatedRuns + (line ? line.simulatedRuns : 0),
         run: runOnce(this.model, withPlan),
         ensemble: runEnsemble(this.model, withPlan, request.seeds),
+        anchor: line
+          ? {
+              hexes: line.plan.length,
+              cutCost: line.cutCost,
+              complete: line.complete,
+              villagesOutOfReach: line.villagesOutOfReach,
+            }
+          : undefined,
       }
     }
     return runEnsemble(this.model, request.scenario, request.seeds)

@@ -11,7 +11,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Río Negro re-run on P2's screened tables and committed: `calendar.json`, `calibration.json`, `hex_fire_history.parquet` (binding median-ratio method: held-out MAE 91 cell-days, MAPE 33 %; MODIS-era mega-fire months still overstated). Chart and `METHOD.md` updated. Next: California and Romania when P2 lands them. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Backend/live NRT verified; real Rio Negro inputs and local calendar/CSV integration passed; early NOAA handover fixed; P1 will upload Parquet inputs and deploy the follow-up. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Checkpoint A verified from the frontend side on real Río Negro data via the deployed backend (see Requests); colour-scale fix and real offline bundle on `feat/p5-checkpoint-a`; next: California and Romania when their real files land, drawn-area check once the parquet tables are on the server, sandbox launch once P6 adds its entry file. |
-| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Steps 1–12 of the P6 build order are on `feat/p6-sandbox-engine` (mock grids): hex map with layers, seeded spread engine in a Web Worker, live wind, four interventions on a 24-unit budget, scoreboard, greedy simulation-scored optimizer, crew exit routes, draft advisory, ignition from live hotspots. Open: min-cut + Monte Carlo optimizer (stretch), real grids from P2. Needs a human to judge whether the spread looks believable. |
+| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | All 13 steps of the P6 build order are on `feat/p6-sandbox-engine` (mock grids): hex map with layers, seeded spread engine in a Web Worker, live wind, four interventions on a 24-unit budget, scoreboard, two simulation-scored optimizers (greedy; min-cut anchor line + greedy fill), crew exit routes, draft advisory, ignition from live hotspots. Open: a human check that the spread looks believable, live-hotspot check once `/api/nrt` works again, real grids from P2. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
 ## Checkpoints (TEAM_PLAN §7)
@@ -66,7 +66,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation), click-to-ignite, 72 h playback
 - [x] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
 - [x] 8-step UI: drone perimeter (live hotspots inside the drawn area), terrain, fuel, weather, attack, 4 interventions, asset triage, exit route
-- [ ] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard (done so far: side-by-side scoreboard and a greedy simulation-scored optimizer with the identical budget, seeds and wind; min-cut is not built)
+- [x] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard (two optimizers, both scored on the same 20 seeds as the human plan: greedy, and min-cut anchor line + greedy fill)
 - [ ] Draft RO-ALERT-style advisory modal; permanent banner; wire to real grid (done: draft advisory modal; the banner is shown by the host page; the sandbox reads whatever `loadSandboxGrid` returns, so real grids need no code change, only P2's files)
 
 ## Requests (cross-folder changes)

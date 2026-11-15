@@ -7,7 +7,7 @@ import { crewExitRoutes } from '../advisory/exitRoute.ts'
 import { SimClient } from '../engine/client.ts'
 import { buildModel } from '../engine/model.ts'
 import { ensembleSeeds } from '../engine/service.ts'
-import type { SimProgress } from '../engine/service.ts'
+import type { OptimizeResult, SimProgress } from '../engine/service.ts'
 import { BURNED, BURNING, frameAt, RUN_HOURS } from '../engine/simulate.ts'
 import type { Scenario } from '../engine/simulate.ts'
 import { BUDGET_UNITS, dropUnanchored, placementProblem, planCost, TOOLS } from '../engine/tools.ts'
@@ -15,6 +15,7 @@ import type { Placement, ToolKind } from '../engine/tools.ts'
 import { windSchedule } from '../engine/wind.ts'
 import type { WindSettings } from '../engine/wind.ts'
 import { OPTIMIZER_LABEL } from '../optimizer/greedy.ts'
+import { MINCUT_LABEL } from '../optimizer/mincut.ts'
 import { fetchCurrentWind, scenarioCentre } from '../weather/openMeteo.ts'
 import { AdvisoryModal } from './AdvisoryModal.tsx'
 import { buildGeometry } from './geometry.ts'
@@ -49,7 +50,8 @@ interface Results {
   base: Scenario
   baseline: Outcome
   human: Outcome
-  optimizer: (Outcome & { simulatedRuns: number }) | null
+  optimizer: OptimizeResult | null
+  mincut: OptimizeResult | null
 }
 
 export function SandboxView({ grid, area, regionId }: Props) {
@@ -196,6 +198,7 @@ export function SandboxView({ grid, area, regionId }: Props) {
         baseline: { plan: [], run: baseRun, ensemble: baseEnsemble },
         human: { plan, run: myRun, ensemble: myEnsemble },
         optimizer: null,
+        mincut: null,
       })
       setShown('human')
       playback.start()
@@ -214,14 +217,17 @@ export function SandboxView({ grid, area, regionId }: Props) {
     setOptimizing('starting')
     setError(null)
     try {
-      const out = await client.request(
-        { type: 'optimize', scenario: results.base, seeds: results.human.ensemble.seeds, budget: BUDGET_UNITS },
-        (progress) => {
-          if (generation.current === mine) setOptimizing(progress)
-        },
-      )
+      const request = { type: 'optimize', scenario: results.base, seeds: results.human.ensemble.seeds, budget: BUDGET_UNITS } as const
+      const onProgress = (progress: SimProgress) => {
+        if (generation.current === mine) setOptimizing(progress)
+      }
+      const greedy = await client.request({ ...request, method: 'greedy' }, onProgress)
       if (generation.current !== mine) return
-      setResults((prev) => (prev ? { ...prev, optimizer: out } : prev))
+      setResults((prev) => (prev ? { ...prev, optimizer: greedy } : prev))
+      setOptimizing('starting')
+      const mincut = await client.request({ ...request, method: 'mincut' }, onProgress)
+      if (generation.current !== mine) return
+      setResults((prev) => (prev ? { ...prev, mincut } : prev))
       setShown('optimizer')
       playback.start()
     } catch (err) {
@@ -241,6 +247,7 @@ export function SandboxView({ grid, area, regionId }: Props) {
     })
     const out = [column('baseline', 'No intervention', results.baseline), column('human', 'Your plan', results.human)]
     if (results.optimizer) out.push(column('optimizer', OPTIMIZER_LABEL, results.optimizer))
+    if (results.mincut) out.push(column('mincut', MINCUT_LABEL, results.mincut))
     return out
   }, [results, model])
   const shownColumn = columns.find((c) => c.key === shown) ?? null
@@ -349,7 +356,7 @@ export function SandboxView({ grid, area, regionId }: Props) {
           <Scoreboard columns={columns} seed={seed} shown={shown} onShow={setShown}>
             <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-hairline pt-3">
               <Button onClick={startOptimizer} disabled={optimizing !== null || busy}>
-                {results.optimizer ? 'Run the optimizer again' : 'Run the optimizer on the same scenario'}
+                {results.optimizer ? 'Run the optimizers again' : 'Run the optimizers on the same scenario'}
               </Button>
               <Button onClick={openAdvisory} title="Builds a draft from the plan shown on the map. Never an official alert.">
                 Draft advisory for the plan on the map
@@ -361,10 +368,23 @@ export function SandboxView({ grid, area, regionId }: Props) {
                   `Optimizer: ${optimizing.placed} placed, ${optimizing.costUsed} of ${optimizing.budget} units, ${nf0.format(optimizing.simulatedRuns)} simulated runs so far…`}
                 {optimizing === null &&
                   results.optimizer &&
-                  `${OPTIMIZER_LABEL}: ${results.optimizer.plan.length} resources chosen from ${nf0.format(results.optimizer.simulatedRuns)} simulated runs. It adds one resource at a time where the mean outcome over the same seeds improves most (villages, then farms, then hectares); it does not search combinations.`}
+                  `Greedy: ${results.optimizer.plan.length} resources chosen from ${nf0.format(results.optimizer.simulatedRuns)} simulated runs, one at a time where the mean outcome over the same seeds improves most (villages, then farms, then hectares). It does not search combinations.`}
+                {optimizing === null &&
+                  results.mincut?.anchor &&
+                  ` Min-cut: ${
+                    results.mincut.anchor.cutCost === null
+                      ? 'no line can be in place before the fire usually reaches the villages, so it fell back to greedy steps only'
+                      : results.mincut.anchor.hexes === 0
+                        ? 'the villages are already separated from the fire by hexes that cannot burn, so the budget went to greedy steps'
+                        : `an anchor line of ${results.mincut.anchor.hexes} hexes between the fire and the villages (full line ${results.mincut.anchor.cutCost} units${results.mincut.anchor.complete ? '' : ', more than the budget, so only part was placed'}), then greedy steps with what was left`
+                  }${
+                    results.mincut.anchor.cutCost !== null && results.mincut.anchor.villagesOutOfReach > 0
+                      ? ` (${results.mincut.anchor.villagesOutOfReach} village hexes are usually reached before a line could be ready and were left out of the line)`
+                      : ''
+                  }; ${nf0.format(results.mincut.simulatedRuns)} simulated runs.`}
                 {optimizing === null &&
                   !results.optimizer &&
-                  `${OPTIMIZER_LABEL}: same ignition points, wind, seeds and ${BUDGET_UNITS}-unit budget as your plan.`}
+                  `Two algorithmic optimizers (greedy, and min-cut anchor line + greedy fill), both scored by simulation with the same ignition points, wind, seeds and ${BUDGET_UNITS}-unit budget as your plan.`}
               </p>
             </div>
           </Scoreboard>

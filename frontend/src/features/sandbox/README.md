@@ -68,7 +68,8 @@ sandbox/
 ├── engine/       model.ts (neighbours, fuel), simulate.ts (the formula, 1 h steps), rng.ts (seeded,
 │                 counter-based), wind.ts, tools.ts (4 interventions, budget), score.ts,
 │                 service.ts + worker.ts + client.ts (Web Worker, in-thread fallback)
-├── optimizer/    greedy.ts: "Algorithmic optimizer (greedy, simulation-scored)". No min-cut yet.
+├── optimizer/    greedy.ts (one resource at a time, simulation-scored), mincut.ts (min-cut anchor line,
+│                 then greedy fill); both use the human plan's seeds, wind and budget
 ├── advisory/     exitRoute.ts (crew exit check), draft.ts (draft advisory text + JSON)
 ├── recon/        hotspots.ts (live hotspots inside the drawn area → ignition hexes)
 ├── weather/      openMeteo.ts (current wind, no key)
@@ -80,5 +81,6 @@ sandbox/
   `engine/tools.ts`; the tests pin the formula, not the constants.
 - Tests: `npm run test` (engine, optimizer, advisory, recon, weather parsing). On Windows run it from a path
   with the drive letter in upper case (`C:\...`), otherwise vitest fails with "failed to find the current suite".
-- Not built: min-cut + Monte Carlo optimizer. Real grids need no code change, only P2's `sandbox_grid.json`.
+- Real grids need no code change, only P2's `sandbox_grid.json`. Live-hotspot ignition was only checked against
+  a failing `/api/nrt` (FIRMS rejected the key on Sun 15 Nov); the mapping itself is unit-tested.
 
