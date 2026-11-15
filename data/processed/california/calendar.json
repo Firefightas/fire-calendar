@@ -3,7 +3,7 @@
  "unit": "active_fire_cell_days",
  "scale": "SNPP_VIIRS_EQ",
  "is_mock": false,
- "generated_at": "2026-11-15T07:42:57+00:00",
+ "generated_at": "2026-11-15T10:03:56+00:00",
  "first_month": "2000-11",
  "last_month": "2026-11",
  "baseline_years": [
@@ -24,7 +24,17 @@
    "anomaly_z": 0.46,
    "unc_low": 399.3,
    "unc_high": 1570.1,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -120.6556,
+     38.2098,
+     -120.0556,
+     38.6598
+    ],
+    "first_date": "2000-11-01",
+    "last_date": "2000-11-28"
+   }
   },
   {
    "year": 2000,
@@ -39,7 +49,17 @@
    "anomaly_z": -0.61,
    "unc_low": 106.7,
    "unc_high": 625.6,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -119.6158,
+     36.246,
+     -119.0158,
+     36.696
+    ],
+    "first_date": "2000-12-09",
+    "last_date": "2000-12-23"
+   }
   },
   {
    "year": 2001,
@@ -54,7 +74,17 @@
    "anomaly_z": 0.02,
    "unc_low": 120.3,
    "unc_high": 625.1,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -117.0407,
+     32.5708,
+     -116.4407,
+     33.0208
+    ],
+    "first_date": "2001-01-03",
+    "last_date": "2001-01-04"
+   }
   },
   {
    "year": 2001,
@@ -69,7 +99,17 @@
    "anomaly_z": -0.75,
    "unc_low": 71.8,
    "unc_high": 387.2,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -119.4404,
+     35.6966,
+     -118.8404,
+     36.1466
+    ],
+    "first_date": "2001-02-08",
+    "last_date": "2001-02-27"
+   }
   },
   {
    "year": 2001,
@@ -84,7 +124,17 @@
    "anomaly_z": 0.31,
    "unc_low": 305.0,
    "unc_high": 1121.8,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -121.2869,
+     37.6007,
+     -120.6869,
+     38.0507
+    ],
+    "first_date": "2001-03-17",
+    "last_date": "2001-03-31"
+   }
   },
   {
    "year": 2001,
@@ -99,7 +149,17 @@
    "anomaly_z": 0.06,
    "unc_low": 266.9,
    "unc_high": 941.9,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -122.1476,
+     39.115,
+     -121.5476,
+     39.565
+    ],
+    "first_date": "2001-04-03",
+    "last_date": "2001-04-30"
+   }
   },
   {
    "year": 2001,
@@ -114,7 +174,17 @@
    "anomaly_z": 0.85,
    "unc_low": 224.1,
    "unc_high": 935.6,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -119.9796,
+     39.7581,
+     -119.3796,
+     40.2081
+    ],
+    "first_date": "2001-05-25",
+    "last_date": "2001-05-27"
+   }
   },
   {
    "year": 2001,
@@ -129,7 +199,17 @@
    "anomaly_z": -1.56,
    "unc_low": 80.9,
    "unc_high": 370.4,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -115.3339,
+     32.5,
+     -114.7339,
+     32.95
+    ],
+    "first_date": "2001-06-03",
+    "last_date": "2001-06-12"
+   }
   },
   {
    "year": 2001,
@@ -144,7 +224,17 @@
    "anomaly_z": -0.49,
    "unc_low": 169.9,
    "unc_high": 871.4,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -120.9291,
+     39.9531,
+     -120.3291,
+     40.4031
+    ],
+    "first_date": "2001-07-27",
+    "last_date": "2001-07-29"
+   }
   },
   {
    "year": 2001,
@@ -159,7 +249,17 @@
    "anomaly_z": 0.54,
    "unc_low": 1089.0,
    "unc_high": 4279.4,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -120.5498,
+     40.9546,
+     -119.9498,
+     41.4046
+    ],
+    "first_date": "2001-08-10",
+    "last_date": "2001-08-17"
+   }
   },
   {
    "year": 2001,
@@ -174,7 +274,17 @@
    "anomaly_z": -0.32,
    "unc_low": 391.4,
    "unc_high": 1422.1,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -120.6317,
+     37.9701,
+     -120.0317,
+     38.4201
+    ],
+    "first_date": "2001-09-06",
+    "last_date": "2001-09-18"
+   }
   },
   {
    "year": 2001,
@@ -189,7 +299,17 @@
    "anomaly_z": -0.58,
    "unc_low": 363.5,
    "unc_high": 1293.9,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -122.4318,
+     38.9942,
+     -121.8318,
+     39.4442
+    ],
+    "first_date": "2001-10-04",
+    "last_date": "2001-10-24"
+   }
   },
   {
    "year": 2001,
@@ -204,7 +324,17 @@
    "anomaly_z": -0.15,
    "unc_low": 316.7,
    "unc_high": 1248.8,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -120.9378,
+     37.2373,
+     -120.3378,
+     37.6873
+    ],
+    "first_date": "2001-11-01",
+    "last_date": "2001-11-26"
+   }
   },
   {
    "year": 2001,
@@ -219,7 +349,17 @@
    "anomaly_z": -1.18,
    "unc_low": 68.3,
    "unc_high": 406.7,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -115.2854,
+     32.5,
+     -114.6854,
+     32.95
+    ],
+    "first_date": "2001-12-07",
+    "last_date": "2001-12-27"
+   }
   },
   {
    "year": 2002,
@@ -234,7 +374,17 @@
    "anomaly_z": -0.31,
    "unc_low": 89.2,
    "unc_high": 467.9,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -116.4237,
+     33.3305,
+     -115.8237,
+     33.7805
+    ],
+    "first_date": "2002-01-08",
+    "last_date": "2002-01-31"
+   }
   },
   {
    "year": 2002,
@@ -249,7 +399,17 @@
    "anomaly_z": -0.07,
    "unc_low": 145.2,
    "unc_high": 765.2,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -122.4995,
+     39.0722,
+     -121.8995,
+     39.5222
+    ],
+    "first_date": "2002-02-14",
+    "last_date": "2002-02-28"
+   }
   },
   {
    "year": 2002,
@@ -264,7 +424,17 @@
    "anomaly_z": 0.12,
    "unc_low": 272.6,
    "unc_high": 1004.0,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -122.3648,
+     39.1994,
+     -121.7648,
+     39.6494
+    ],
+    "first_date": "2002-03-03",
+    "last_date": "2002-03-29"
+   }
   },
   {
    "year": 2002,
@@ -279,7 +449,17 @@
    "anomaly_z": 0.45,
    "unc_low": 313.3,
    "unc_high": 1102.9,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -121.7381,
+     38.6636,
+     -121.1381,
+     39.1136
+    ],
+    "first_date": "2002-04-08",
+    "last_date": "2002-04-22"
+   }
   },
   {
    "year": 2002,
@@ -294,7 +474,17 @@
    "anomaly_z": 0.0,
    "unc_low": 177.9,
    "unc_high": 746.0,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -120.6279,
+     39.7302,
+     -120.0279,
+     40.1802
+    ],
+    "first_date": "2002-05-03",
+    "last_date": "2002-05-17"
+   }
   },
   {
    "year": 2002,
@@ -309,7 +499,17 @@
    "anomaly_z": 1.67,
    "unc_low": 357.5,
    "unc_high": 1581.8,
-   "source": "modis_terra"
+   "source": "modis_terra",
+   "peak_event": {
+    "bbox": [
+     -119.5401,
+     34.3544,
+     -118.9401,
+     34.8044
+    ],
+    "first_date": "2002-06-02",
+    "last_date": "2002-06-09"
+   }
   },
   {
    "year": 2002,
@@ -324,7 +524,17 @@
    "anomaly_z": 0.58,
    "unc_low": 625.5,
    "unc_high": 1535.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.7178,
+     35.7828,
+     -118.1178,
+     36.2328
+    ],
+    "first_date": "2002-07-21",
+    "last_date": "2002-07-31"
+   }
   },
   {
    "year": 2002,
@@ -339,7 +549,17 @@
    "anomaly_z": -0.28,
    "unc_low": 700.4,
    "unc_high": 1266.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.6343,
+     35.9186,
+     -118.0343,
+     36.3686
+    ],
+    "first_date": "2002-08-01",
+    "last_date": "2002-08-28"
+   }
   },
   {
    "year": 2002,
@@ -354,7 +574,17 @@
    "anomaly_z": -0.35,
    "unc_low": 691.8,
    "unc_high": 1091.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.098,
+     34.0247,
+     -117.498,
+     34.4747
+    ],
+    "first_date": "2002-09-01",
+    "last_date": "2002-09-26"
+   }
   },
   {
    "year": 2002,
@@ -369,7 +599,17 @@
    "anomaly_z": 0.31,
    "unc_low": 1002.5,
    "unc_high": 1509.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.3467,
+     39.2321,
+     -121.7467,
+     39.6821
+    ],
+    "first_date": "2002-10-04",
+    "last_date": "2002-10-31"
+   }
   },
   {
    "year": 2002,
@@ -384,7 +624,17 @@
    "anomaly_z": 0.77,
    "unc_low": 779.2,
    "unc_high": 1395.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.6069,
+     38.2764,
+     -120.0069,
+     38.7264
+    ],
+    "first_date": "2002-11-01",
+    "last_date": "2002-11-28"
+   }
   },
   {
    "year": 2002,
@@ -399,7 +649,17 @@
    "anomaly_z": 1.43,
    "unc_low": 438.7,
    "unc_high": 1224.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.256,
+     34.1254,
+     -118.656,
+     34.5754
+    ],
+    "first_date": "2002-12-02",
+    "last_date": "2002-12-30"
+   }
   },
   {
    "year": 2003,
@@ -414,7 +674,17 @@
    "anomaly_z": -0.65,
    "unc_low": 100.6,
    "unc_high": 261.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.3749,
+     33.4009,
+     -115.7749,
+     33.8509
+    ],
+    "first_date": "2003-01-14",
+    "last_date": "2003-01-30"
+   }
   },
   {
    "year": 2003,
@@ -429,7 +699,17 @@
    "anomaly_z": 0.06,
    "unc_low": 279.3,
    "unc_high": 711.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.8494,
+     40.2489,
+     -122.2494,
+     40.6989
+    ],
+    "first_date": "2003-02-06",
+    "last_date": "2003-02-27"
+   }
   },
   {
    "year": 2003,
@@ -444,7 +724,17 @@
    "anomaly_z": 0.56,
    "unc_low": 622.0,
    "unc_high": 999.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.9799,
+     36.4075,
+     -119.3799,
+     36.8575
+    ],
+    "first_date": "2003-03-03",
+    "last_date": "2003-03-26"
+   }
   },
   {
    "year": 2003,
@@ -459,7 +749,17 @@
    "anomaly_z": -0.74,
    "unc_low": 309.3,
    "unc_high": 469.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.1093,
+     39.1389,
+     -121.5093,
+     39.5889
+    ],
+    "first_date": "2003-04-08",
+    "last_date": "2003-04-11"
+   }
   },
   {
    "year": 2003,
@@ -474,7 +774,17 @@
    "anomaly_z": -0.42,
    "unc_low": 272.4,
    "unc_high": 536.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.3871,
+     33.3301,
+     -115.7871,
+     33.7801
+    ],
+    "first_date": "2003-05-10",
+    "last_date": "2003-05-29"
+   }
   },
   {
    "year": 2003,
@@ -489,7 +799,17 @@
    "anomaly_z": 0.73,
    "unc_low": 483.5,
    "unc_high": 1018.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.2619,
+     32.5,
+     -114.6619,
+     32.95
+    ],
+    "first_date": "2003-06-09",
+    "last_date": "2003-06-30"
+   }
   },
   {
    "year": 2003,
@@ -504,7 +824,17 @@
    "anomaly_z": -0.4,
    "unc_low": 325.0,
    "unc_high": 805.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.8858,
+     33.1589,
+     -116.2858,
+     33.6089
+    ],
+    "first_date": "2003-07-16",
+    "last_date": "2003-07-21"
+   }
   },
   {
    "year": 2003,
@@ -519,7 +849,17 @@
    "anomaly_z": -0.48,
    "unc_low": 404.8,
    "unc_high": 739.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.8994,
+     37.2189,
+     -121.2994,
+     37.6689
+    ],
+    "first_date": "2003-08-26",
+    "last_date": "2003-08-31"
+   }
   },
   {
    "year": 2003,
@@ -534,7 +874,17 @@
    "anomaly_z": 1.01,
    "unc_low": 1343.3,
    "unc_high": 2099.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.1768,
+     37.8562,
+     -119.5768,
+     38.3062
+    ],
+    "first_date": "2003-09-01",
+    "last_date": "2003-09-30"
+   }
   },
   {
    "year": 2003,
@@ -549,7 +899,17 @@
    "anomaly_z": 4.62,
    "unc_low": 2673.4,
    "unc_high": 3986.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.9811,
+     32.7305,
+     -116.3811,
+     33.1805
+    ],
+    "first_date": "2003-10-26",
+    "last_date": "2003-10-30"
+   }
   },
   {
    "year": 2003,
@@ -564,7 +924,17 @@
    "anomaly_z": 1.4,
    "unc_low": 930.1,
    "unc_high": 1662.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.7558,
+     36.3389,
+     -119.1558,
+     36.7889
+    ],
+    "first_date": "2003-11-01",
+    "last_date": "2003-11-21"
+   }
   },
   {
    "year": 2003,
@@ -579,7 +949,17 @@
    "anomaly_z": 0.4,
    "unc_low": 314.2,
    "unc_high": 881.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.5556,
+     35.404,
+     -118.9556,
+     35.854
+    ],
+    "first_date": "2003-12-01",
+    "last_date": "2003-12-27"
+   }
   },
   {
    "year": 2004,
@@ -594,7 +974,17 @@
    "anomaly_z": -0.18,
    "unc_low": 179.1,
    "unc_high": 452.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.1579,
+     34.1198,
+     -118.5579,
+     34.5698
+    ],
+    "first_date": "2004-01-12",
+    "last_date": "2004-01-30"
+   }
   },
   {
    "year": 2004,
@@ -609,7 +999,17 @@
    "anomaly_z": -0.46,
    "unc_low": 180.9,
    "unc_high": 466.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.2225,
+     36.2964,
+     -119.6225,
+     36.7464
+    ],
+    "first_date": "2004-02-05",
+    "last_date": "2004-02-27"
+   }
   },
   {
    "year": 2004,
@@ -624,7 +1024,17 @@
    "anomaly_z": 1.64,
    "unc_low": 955.1,
    "unc_high": 1523.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4228,
+     39.2715,
+     -121.8228,
+     39.7215
+    ],
+    "first_date": "2004-03-11",
+    "last_date": "2004-03-31"
+   }
   },
   {
    "year": 2004,
@@ -639,7 +1049,17 @@
    "anomaly_z": 1.01,
    "unc_low": 692.9,
    "unc_high": 1023.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.1585,
+     34.1347,
+     -118.5585,
+     34.5847
+    ],
+    "first_date": "2004-04-03",
+    "last_date": "2004-04-29"
+   }
   },
   {
    "year": 2004,
@@ -654,7 +1074,17 @@
    "anomaly_z": 1.68,
    "unc_low": 471.9,
    "unc_high": 916.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -117.6903,
+     33.537,
+     -117.0903,
+     33.987
+    ],
+    "first_date": "2004-05-04",
+    "last_date": "2004-05-05"
+   }
   },
   {
    "year": 2004,
@@ -669,7 +1099,17 @@
    "anomaly_z": -0.14,
    "unc_low": 353.6,
    "unc_high": 749.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.4072,
+     32.5,
+     -114.8072,
+     32.95
+    ],
+    "first_date": "2004-06-07",
+    "last_date": "2004-06-30"
+   }
   },
   {
    "year": 2004,
@@ -684,7 +1124,17 @@
    "anomaly_z": -0.2,
    "unc_low": 387.2,
    "unc_high": 956.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.853,
+     37.451,
+     -119.253,
+     37.901
+    ],
+    "first_date": "2004-07-13",
+    "last_date": "2004-07-31"
+   }
   },
   {
    "year": 2004,
@@ -699,7 +1149,17 @@
    "anomaly_z": -0.5,
    "unc_low": 377.2,
    "unc_high": 690.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.9741,
+     40.4865,
+     -122.3741,
+     40.9365
+    ],
+    "first_date": "2004-08-15",
+    "last_date": "2004-08-20"
+   }
   },
   {
    "year": 2004,
@@ -714,7 +1174,17 @@
    "anomaly_z": -0.53,
    "unc_low": 607.0,
    "unc_high": 960.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.6445,
+     40.2854,
+     -121.0445,
+     40.7354
+    ],
+    "first_date": "2004-09-01",
+    "last_date": "2004-09-15"
+   }
   },
   {
    "year": 2004,
@@ -729,7 +1199,17 @@
    "anomaly_z": 0.28,
    "unc_low": 991.0,
    "unc_high": 1492.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.5578,
+     38.222,
+     -119.9578,
+     38.672
+    ],
+    "first_date": "2004-10-07",
+    "last_date": "2004-10-23"
+   }
   },
   {
    "year": 2004,
@@ -744,7 +1224,17 @@
    "anomaly_z": -0.12,
    "unc_low": 567.0,
    "unc_high": 1020.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.962,
+     37.2279,
+     -120.362,
+     37.6779
+    ],
+    "first_date": "2004-11-02",
+    "last_date": "2004-11-30"
+   }
   },
   {
    "year": 2004,
@@ -759,7 +1249,17 @@
    "anomaly_z": -0.07,
    "unc_low": 257.3,
    "unc_high": 724.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.9033,
+     32.5464,
+     -115.3033,
+     32.9964
+    ],
+    "first_date": "2004-12-12",
+    "last_date": "2004-12-30"
+   }
   },
   {
    "year": 2005,
@@ -774,7 +1274,17 @@
    "anomaly_z": -1.0,
    "unc_low": 42.3,
    "unc_high": 118.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -124.281,
+     40.5991,
+     -123.681,
+     41.0491
+    ],
+    "first_date": "2005-01-04",
+    "last_date": "2005-01-13"
+   }
   },
   {
    "year": 2005,
@@ -789,7 +1299,17 @@
    "anomaly_z": -0.95,
    "unc_low": 89.0,
    "unc_high": 237.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.3865,
+     34.0677,
+     -118.7865,
+     34.5177
+    ],
+    "first_date": "2005-02-08",
+    "last_date": "2005-02-08"
+   }
   },
   {
    "year": 2005,
@@ -804,7 +1324,17 @@
    "anomaly_z": -0.53,
    "unc_low": 287.1,
    "unc_high": 472.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.7546,
+     41.55,
+     -121.1546,
+     42.0
+    ],
+    "first_date": "2005-03-11",
+    "last_date": "2005-03-31"
+   }
   },
   {
    "year": 2005,
@@ -819,7 +1349,17 @@
    "anomaly_z": 0.68,
    "unc_low": 619.6,
    "unc_high": 917.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.7387,
+     38.7301,
+     -121.1387,
+     39.1801
+    ],
+    "first_date": "2005-04-11",
+    "last_date": "2005-04-30"
+   }
   },
   {
    "year": 2005,
@@ -834,7 +1374,17 @@
    "anomaly_z": 0.06,
    "unc_low": 317.8,
    "unc_high": 622.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.4553,
+     40.5773,
+     -120.8553,
+     41.0273
+    ],
+    "first_date": "2005-05-24",
+    "last_date": "2005-05-28"
+   }
   },
   {
    "year": 2005,
@@ -849,7 +1399,17 @@
    "anomaly_z": 6.4,
    "unc_low": 1334.1,
    "unc_high": 2781.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -114.7,
+     36.9988,
+     -114.1,
+     37.4488
+    ],
+    "first_date": "2005-06-22",
+    "last_date": "2005-06-30"
+   }
   },
   {
    "year": 2005,
@@ -864,7 +1424,17 @@
    "anomaly_z": 0.6,
    "unc_low": 630.7,
    "unc_high": 1547.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.0313,
+     37.0981,
+     -114.4313,
+     37.5481
+    ],
+    "first_date": "2005-07-01",
+    "last_date": "2005-07-11"
+   }
   },
   {
    "year": 2005,
@@ -879,7 +1449,17 @@
    "anomaly_z": -0.47,
    "unc_low": 422.4,
    "unc_high": 771.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.9823,
+     36.5951,
+     -118.3823,
+     37.0451
+    ],
+    "first_date": "2005-08-01",
+    "last_date": "2005-08-31"
+   }
   },
   {
    "year": 2005,
@@ -894,7 +1474,17 @@
    "anomaly_z": -0.55,
    "unc_low": 596.9,
    "unc_high": 944.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.7416,
+     36.3416,
+     -119.1416,
+     36.7916
+    ],
+    "first_date": "2005-09-04",
+    "last_date": "2005-09-27"
+   }
   },
   {
    "year": 2005,
@@ -909,7 +1499,17 @@
    "anomaly_z": 0.8,
    "unc_low": 1195.7,
    "unc_high": 1796.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.8034,
+     36.3201,
+     -119.2034,
+     36.7701
+    ],
+    "first_date": "2005-10-02",
+    "last_date": "2005-10-28"
+   }
   },
   {
    "year": 2005,
@@ -924,7 +1524,17 @@
    "anomaly_z": -0.26,
    "unc_low": 534.2,
    "unc_high": 962.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.3748,
+     39.2818,
+     -121.7748,
+     39.7318
+    ],
+    "first_date": "2005-11-02",
+    "last_date": "2005-11-26"
+   }
   },
   {
    "year": 2005,
@@ -939,7 +1549,17 @@
    "anomaly_z": -0.76,
    "unc_low": 172.8,
    "unc_high": 491.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.9378,
+     38.6436,
+     -120.3378,
+     39.0936
+    ],
+    "first_date": "2005-12-05",
+    "last_date": "2005-12-15"
+   }
   },
   {
    "year": 2006,
@@ -954,7 +1574,17 @@
    "anomaly_z": -0.37,
    "unc_low": 147.2,
    "unc_high": 374.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.9153,
+     32.5,
+     -115.3153,
+     32.95
+    ],
+    "first_date": "2006-01-09",
+    "last_date": "2006-01-31"
+   }
   },
   {
    "year": 2006,
@@ -969,7 +1599,17 @@
    "anomaly_z": 0.59,
    "unc_low": 381.6,
    "unc_high": 966.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -117.9824,
+     33.5981,
+     -117.3824,
+     34.0481
+    ],
+    "first_date": "2006-02-06",
+    "last_date": "2006-02-09"
+   }
   },
   {
    "year": 2006,
@@ -984,7 +1624,17 @@
    "anomaly_z": -1.06,
    "unc_low": 124.7,
    "unc_high": 216.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.2437,
+     34.1525,
+     -118.6437,
+     34.6025
+    ],
+    "first_date": "2006-03-13",
+    "last_date": "2006-03-24"
+   }
   },
   {
    "year": 2006,
@@ -999,7 +1649,17 @@
    "anomaly_z": -1.38,
    "unc_low": 169.5,
    "unc_high": 267.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.7564,
+     41.55,
+     -121.1564,
+     42.0
+    ],
+    "first_date": "2006-04-06",
+    "last_date": "2006-04-19"
+   }
   },
   {
    "year": 2006,
@@ -1014,7 +1674,17 @@
    "anomaly_z": 0.64,
    "unc_low": 373.1,
    "unc_high": 728.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.4392,
+     35.6468,
+     -118.8392,
+     36.0968
+    ],
+    "first_date": "2006-05-20",
+    "last_date": "2006-05-30"
+   }
   },
   {
    "year": 2006,
@@ -1029,7 +1699,17 @@
    "anomaly_z": 0.64,
    "unc_low": 471.5,
    "unc_high": 993.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.3023,
+     40.5917,
+     -115.7023,
+     41.0417
+    ],
+    "first_date": "2006-06-26",
+    "last_date": "2006-06-30"
+   }
   },
   {
    "year": 2006,
@@ -1044,7 +1724,17 @@
    "anomaly_z": 3.03,
    "unc_low": 1371.7,
    "unc_high": 3347.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.9372,
+     33.8862,
+     -116.3372,
+     34.3362
+    ],
+    "first_date": "2006-07-10",
+    "last_date": "2006-07-17"
+   }
   },
   {
    "year": 2006,
@@ -1059,7 +1749,17 @@
    "anomaly_z": 0.05,
    "unc_low": 1197.9,
    "unc_high": 2153.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -123.5055,
+     40.8155,
+     -122.9055,
+     41.2655
+    ],
+    "first_date": "2006-08-01",
+    "last_date": "2006-08-31"
+   }
   },
   {
    "year": 2006,
@@ -1074,7 +1774,17 @@
    "anomaly_z": 3.48,
    "unc_low": 2521.4,
    "unc_high": 3920.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.2613,
+     34.3803,
+     -118.6613,
+     34.8303
+    ],
+    "first_date": "2006-09-05",
+    "last_date": "2006-09-29"
+   }
   },
   {
    "year": 2006,
@@ -1089,7 +1799,17 @@
    "anomaly_z": 0.34,
    "unc_low": 1015.7,
    "unc_high": 1529.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -117.168,
+     33.631,
+     -116.568,
+     34.081
+    ],
+    "first_date": "2006-10-26",
+    "last_date": "2006-10-28"
+   }
   },
   {
    "year": 2006,
@@ -1104,7 +1824,17 @@
    "anomaly_z": 0.27,
    "unc_low": 661.2,
    "unc_high": 1186.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.7781,
+     36.3201,
+     -119.1781,
+     36.7701
+    ],
+    "first_date": "2006-11-01",
+    "last_date": "2006-11-30"
+   }
   },
   {
    "year": 2006,
@@ -1119,7 +1849,17 @@
    "anomaly_z": 0.62,
    "unc_low": 340.3,
    "unc_high": 953.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.2777,
+     34.0465,
+     -118.6777,
+     34.4965
+    ],
+    "first_date": "2006-12-03",
+    "last_date": "2006-12-12"
+   }
   },
   {
    "year": 2007,
@@ -1134,7 +1874,17 @@
    "anomaly_z": 1.11,
    "unc_low": 393.2,
    "unc_high": 975.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4745,
+     39.0774,
+     -121.8745,
+     39.5274
+    ],
+    "first_date": "2007-01-08",
+    "last_date": "2007-01-31"
+   }
   },
   {
    "year": 2007,
@@ -1149,7 +1899,17 @@
    "anomaly_z": 0.07,
    "unc_low": 281.9,
    "unc_high": 718.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.2394,
+     36.3922,
+     -119.6394,
+     36.8422
+    ],
+    "first_date": "2007-02-11",
+    "last_date": "2007-02-21"
+   }
   },
   {
    "year": 2007,
@@ -1164,7 +1924,17 @@
    "anomaly_z": 0.61,
    "unc_low": 639.0,
    "unc_high": 1026.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.1245,
+     39.1113,
+     -121.5245,
+     39.5613
+    ],
+    "first_date": "2007-03-02",
+    "last_date": "2007-03-28"
+   }
   },
   {
    "year": 2007,
@@ -1179,7 +1949,17 @@
    "anomaly_z": -0.25,
    "unc_low": 417.0,
    "unc_high": 625.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.7426,
+     41.55,
+     -121.1426,
+     42.0
+    ],
+    "first_date": "2007-04-02",
+    "last_date": "2007-04-10"
+   }
   },
   {
    "year": 2007,
@@ -1194,7 +1974,17 @@
    "anomaly_z": 0.27,
    "unc_low": 337.6,
    "unc_high": 660.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.6645,
+     33.135,
+     -118.0645,
+     33.585
+    ],
+    "first_date": "2007-05-10",
+    "last_date": "2007-05-11"
+   }
   },
   {
    "year": 2007,
@@ -1209,7 +1999,17 @@
    "anomaly_z": -0.45,
    "unc_low": 306.7,
    "unc_high": 652.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.286,
+     32.5,
+     -114.686,
+     32.95
+    ],
+    "first_date": "2007-06-01",
+    "last_date": "2007-06-29"
+   }
   },
   {
    "year": 2007,
@@ -1224,7 +2024,17 @@
    "anomaly_z": 2.93,
    "unc_low": 1341.6,
    "unc_high": 3274.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.2358,
+     34.5228,
+     -119.6358,
+     34.9728
+    ],
+    "first_date": "2007-07-04",
+    "last_date": "2007-07-31"
+   }
   },
   {
    "year": 2007,
@@ -1239,7 +2049,17 @@
    "anomaly_z": -0.0,
    "unc_low": 1116.3,
    "unc_high": 2007.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.9678,
+     34.4707,
+     -119.3678,
+     34.9207
+    ],
+    "first_date": "2007-08-01",
+    "last_date": "2007-08-25"
+   }
   },
   {
    "year": 2007,
@@ -1254,7 +2074,17 @@
    "anomaly_z": 0.0,
    "unc_low": 858.6,
    "unc_high": 1349.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.0334,
+     39.984,
+     -120.4334,
+     40.434
+    ],
+    "first_date": "2007-09-03",
+    "last_date": "2007-09-12"
+   }
   },
   {
    "year": 2007,
@@ -1269,7 +2099,17 @@
    "anomaly_z": 2.61,
    "unc_low": 1895.7,
    "unc_high": 2834.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -117.1274,
+     32.9259,
+     -116.5274,
+     33.3759
+    ],
+    "first_date": "2007-10-21",
+    "last_date": "2007-10-28"
+   }
   },
   {
    "year": 2007,
@@ -1284,7 +2124,17 @@
    "anomaly_z": 0.0,
    "unc_low": 595.4,
    "unc_high": 1070.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4414,
+     38.9839,
+     -121.8414,
+     39.4339
+    ],
+    "first_date": "2007-11-01",
+    "last_date": "2007-11-30"
+   }
   },
   {
    "year": 2007,
@@ -1299,7 +2149,17 @@
    "anomaly_z": 1.05,
    "unc_low": 392.6,
    "unc_high": 1097.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.8098,
+     38.6324,
+     -120.2098,
+     39.0824
+    ],
+    "first_date": "2007-12-05",
+    "last_date": "2007-12-16"
+   }
   },
   {
    "year": 2008,
@@ -1314,7 +2174,17 @@
    "anomaly_z": -0.5,
    "unc_low": 125.9,
    "unc_high": 322.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.793,
+     32.7179,
+     -115.193,
+     33.1679
+    ],
+    "first_date": "2008-01-08",
+    "last_date": "2008-01-31"
+   }
   },
   {
    "year": 2008,
@@ -1329,7 +2199,17 @@
    "anomaly_z": -0.4,
    "unc_low": 192.4,
    "unc_high": 495.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.7663,
+     36.3402,
+     -119.1663,
+     36.7902
+    ],
+    "first_date": "2008-02-06",
+    "last_date": "2008-02-17"
+   }
   },
   {
    "year": 2008,
@@ -1344,7 +2224,17 @@
    "anomaly_z": 0.95,
    "unc_low": 741.2,
    "unc_high": 1187.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4306,
+     39.2606,
+     -121.8306,
+     39.7106
+    ],
+    "first_date": "2008-03-03",
+    "last_date": "2008-03-30"
+   }
   },
   {
    "year": 2008,
@@ -1359,7 +2249,17 @@
    "anomaly_z": 0.69,
    "unc_low": 621.7,
    "unc_high": 920.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -123.2357,
+     38.7331,
+     -122.6357,
+     39.1831
+    ],
+    "first_date": "2008-04-11",
+    "last_date": "2008-04-30"
+   }
   },
   {
    "year": 2008,
@@ -1374,7 +2274,17 @@
    "anomaly_z": 1.08,
    "unc_low": 414.6,
    "unc_high": 807.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.1136,
+     36.8345,
+     -121.5136,
+     37.2845
+    ],
+    "first_date": "2008-05-22",
+    "last_date": "2008-05-24"
+   }
   },
   {
    "year": 2008,
@@ -1389,7 +2299,17 @@
    "anomaly_z": 17.61,
    "unc_low": 3015.3,
    "unc_high": 6265.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.8011,
+     35.9464,
+     -121.2011,
+     36.3964
+    ],
+    "first_date": "2008-06-08",
+    "last_date": "2008-06-30"
+   }
   },
   {
    "year": 2008,
@@ -1404,7 +2324,17 @@
    "anomaly_z": 10.86,
    "unc_low": 3763.6,
    "unc_high": 9158.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -123.2879,
+     39.8779,
+     -122.6879,
+     40.3279
+    ],
+    "first_date": "2008-07-01",
+    "last_date": "2008-07-30"
+   }
   },
   {
    "year": 2008,
@@ -1419,7 +2349,17 @@
    "anomaly_z": 0.04,
    "unc_low": 1181.4,
    "unc_high": 2123.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -123.7283,
+     41.338,
+     -123.1283,
+     41.788
+    ],
+    "first_date": "2008-08-01",
+    "last_date": "2008-08-31"
+   }
   },
   {
    "year": 2008,
@@ -1434,7 +2374,17 @@
    "anomaly_z": 0.32,
    "unc_low": 1011.1,
    "unc_high": 1585.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.1097,
+     36.721,
+     -118.5097,
+     37.171
+    ],
+    "first_date": "2008-09-01",
+    "last_date": "2008-09-29"
+   }
   },
   {
    "year": 2008,
@@ -1449,7 +2399,17 @@
    "anomaly_z": -0.16,
    "unc_low": 820.9,
    "unc_high": 1240.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.7798,
+     35.7861,
+     -121.1798,
+     36.2361
+    ],
+    "first_date": "2008-10-01",
+    "last_date": "2008-10-23"
+   }
   },
   {
    "year": 2008,
@@ -1464,7 +2424,17 @@
    "anomaly_z": -0.15,
    "unc_low": 559.6,
    "unc_high": 1007.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.0688,
+     33.6951,
+     -117.4688,
+     34.1451
+    ],
+    "first_date": "2008-11-15",
+    "last_date": "2008-11-16"
+   }
   },
   {
    "year": 2008,
@@ -1479,7 +2449,17 @@
    "anomaly_z": 0.31,
    "unc_low": 303.4,
    "unc_high": 851.7,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.7938,
+     36.3593,
+     -119.1938,
+     36.8093
+    ],
+    "first_date": "2008-12-09",
+    "last_date": "2008-12-18"
+   }
   },
   {
    "year": 2009,
@@ -1494,7 +2474,17 @@
    "anomaly_z": 0.0,
    "unc_low": 208.3,
    "unc_high": 524.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.8308,
+     32.5,
+     -115.2308,
+     32.95
+    ],
+    "first_date": "2009-01-10",
+    "last_date": "2009-01-28"
+   }
   },
   {
    "year": 2009,
@@ -1509,7 +2499,17 @@
    "anomaly_z": -0.54,
    "unc_low": 166.9,
    "unc_high": 431.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4101,
+     39.0041,
+     -121.8101,
+     39.4541
+    ],
+    "first_date": "2009-02-01",
+    "last_date": "2009-02-10"
+   }
   },
   {
    "year": 2009,
@@ -1524,7 +2524,17 @@
    "anomaly_z": 0.33,
    "unc_low": 552.0,
    "unc_high": 889.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4605,
+     39.0819,
+     -121.8605,
+     39.5319
+    ],
+    "first_date": "2009-03-10",
+    "last_date": "2009-03-31"
+   }
   },
   {
    "year": 2009,
@@ -1539,7 +2549,17 @@
    "anomaly_z": 0.33,
    "unc_low": 544.1,
    "unc_high": 808.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.1086,
+     39.2739,
+     -121.5086,
+     39.7239
+    ],
+    "first_date": "2009-04-04",
+    "last_date": "2009-04-21"
+   }
   },
   {
    "year": 2009,
@@ -1554,7 +2574,17 @@
    "anomaly_z": -0.17,
    "unc_low": 296.1,
    "unc_high": 581.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.0326,
+     34.2497,
+     -119.4326,
+     34.6997
+    ],
+    "first_date": "2009-05-05",
+    "last_date": "2009-05-09"
+   }
   },
   {
    "year": 2009,
@@ -1569,7 +2599,17 @@
    "anomaly_z": -0.67,
    "unc_low": 274.6,
    "unc_high": 585.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.2863,
+     32.5,
+     -114.6863,
+     32.95
+    ],
+    "first_date": "2009-06-03",
+    "last_date": "2009-06-30"
+   }
   },
   {
    "year": 2009,
@@ -1584,7 +2624,17 @@
    "anomaly_z": -0.03,
    "unc_low": 440.0,
    "unc_high": 1084.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -123.7446,
+     40.8728,
+     -123.1446,
+     41.3228
+    ],
+    "first_date": "2009-07-02",
+    "last_date": "2009-07-23"
+   }
   },
   {
    "year": 2009,
@@ -1599,7 +2649,17 @@
    "anomaly_z": -0.03,
    "unc_low": 1067.7,
    "unc_high": 1921.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.3393,
+     34.7081,
+     -119.7393,
+     35.1581
+    ],
+    "first_date": "2009-08-09",
+    "last_date": "2009-08-19"
+   }
   },
   {
    "year": 2009,
@@ -1614,7 +2674,17 @@
    "anomaly_z": -0.71,
    "unc_low": 519.2,
    "unc_high": 824.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.3426,
+     34.0911,
+     -117.7426,
+     34.5411
+    ],
+    "first_date": "2009-09-01",
+    "last_date": "2009-09-22"
+   }
   },
   {
    "year": 2009,
@@ -1629,7 +2699,17 @@
    "anomaly_z": -0.53,
    "unc_low": 679.0,
    "unc_high": 1030.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.7566,
+     36.3201,
+     -119.1566,
+     36.7701
+    ],
+    "first_date": "2009-10-01",
+    "last_date": "2009-10-29"
+   }
   },
   {
    "year": 2009,
@@ -1644,7 +2724,17 @@
    "anomaly_z": 0.79,
    "unc_low": 783.7,
    "unc_high": 1403.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.3909,
+     39.1246,
+     -121.7909,
+     39.5746
+    ],
+    "first_date": "2009-11-02",
+    "last_date": "2009-11-17"
+   }
   },
   {
    "year": 2009,
@@ -1659,7 +2749,17 @@
    "anomaly_z": -0.55,
    "unc_low": 198.9,
    "unc_high": 563.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.516,
+     39.0216,
+     -121.916,
+     39.4716
+    ],
+    "first_date": "2009-12-03",
+    "last_date": "2009-12-08"
+   }
   },
   {
    "year": 2010,
@@ -1674,7 +2774,17 @@
    "anomaly_z": -0.86,
    "unc_low": 64.8,
    "unc_high": 173.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -120.9244,
+     37.205,
+     -120.3244,
+     37.655
+    ],
+    "first_date": "2010-01-13",
+    "last_date": "2010-01-29"
+   }
   },
   {
    "year": 2010,
@@ -1689,7 +2799,17 @@
    "anomaly_z": -1.07,
    "unc_low": 64.7,
    "unc_high": 176.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.7433,
+     32.8878,
+     -115.1433,
+     33.3378
+    ],
+    "first_date": "2010-02-02",
+    "last_date": "2010-02-25"
+   }
   },
   {
    "year": 2010,
@@ -1704,7 +2824,17 @@
    "anomaly_z": -0.45,
    "unc_low": 311.7,
    "unc_high": 511.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4836,
+     39.1571,
+     -121.8836,
+     39.6071
+    ],
+    "first_date": "2010-03-17",
+    "last_date": "2010-03-27"
+   }
   },
   {
    "year": 2010,
@@ -1719,7 +2849,17 @@
    "anomaly_z": -1.3,
    "unc_low": 186.7,
    "unc_high": 292.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.6204,
+     36.3574,
+     -119.0204,
+     36.8074
+    ],
+    "first_date": "2010-04-09",
+    "last_date": "2010-04-23"
+   }
   },
   {
    "year": 2010,
@@ -1734,7 +2874,17 @@
    "anomaly_z": -0.81,
    "unc_low": 234.9,
    "unc_high": 464.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -121.5706,
+     40.5746,
+     -120.9706,
+     41.0246
+    ],
+    "first_date": "2010-05-05",
+    "last_date": "2010-05-14"
+   }
   },
   {
    "year": 2010,
@@ -1749,7 +2899,17 @@
    "anomaly_z": -0.43,
    "unc_low": 310.7,
    "unc_high": 660.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.2864,
+     32.5,
+     -114.6864,
+     32.95
+    ],
+    "first_date": "2010-06-03",
+    "last_date": "2010-06-30"
+   }
   },
   {
    "year": 2010,
@@ -1764,7 +2924,17 @@
    "anomaly_z": -0.49,
    "unc_low": 299.1,
    "unc_high": 742.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.2862,
+     32.5,
+     -114.6862,
+     32.95
+    ],
+    "first_date": "2010-07-01",
+    "last_date": "2010-07-31"
+   }
   },
   {
    "year": 2010,
@@ -1779,7 +2949,17 @@
    "anomaly_z": -0.59,
    "unc_low": 238.3,
    "unc_high": 442.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.9938,
+     36.5445,
+     -118.3938,
+     36.9945
+    ],
+    "first_date": "2010-08-04",
+    "last_date": "2010-08-31"
+   }
   },
   {
    "year": 2010,
@@ -1794,7 +2974,17 @@
    "anomaly_z": -1.05,
    "unc_low": 355.4,
    "unc_high": 571.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -119.0439,
+     36.564,
+     -118.4439,
+     37.014
+    ],
+    "first_date": "2010-09-01",
+    "last_date": "2010-09-28"
+   }
   },
   {
    "year": 2010,
@@ -1809,7 +2999,17 @@
    "anomaly_z": -1.19,
    "unc_low": 421.5,
    "unc_high": 648.2,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.3679,
+     39.1983,
+     -121.7679,
+     39.6483
+    ],
+    "first_date": "2010-10-07",
+    "last_date": "2010-10-21"
+   }
   },
   {
    "year": 2010,
@@ -1824,7 +3024,17 @@
    "anomaly_z": -1.03,
    "unc_low": 348.9,
    "unc_high": 635.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.3923,
+     39.0595,
+     -121.7923,
+     39.5095
+    ],
+    "first_date": "2010-11-02",
+    "last_date": "2010-11-18"
+   }
   },
   {
    "year": 2010,
@@ -1839,7 +3049,17 @@
    "anomaly_z": -1.52,
    "unc_low": 80.6,
    "unc_high": 237.1,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.4315,
+     32.5,
+     -114.8315,
+     32.95
+    ],
+    "first_date": "2010-12-08",
+    "last_date": "2010-12-17"
+   }
   },
   {
    "year": 2011,
@@ -1854,7 +3074,17 @@
    "anomaly_z": -0.62,
    "unc_low": 104.6,
    "unc_high": 270.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.8411,
+     32.7646,
+     -115.2411,
+     33.2146
+    ],
+    "first_date": "2011-01-08",
+    "last_date": "2011-01-27"
+   }
   },
   {
    "year": 2011,
@@ -1869,7 +3099,17 @@
    "anomaly_z": -0.21,
    "unc_low": 228.2,
    "unc_high": 584.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.5486,
+     39.148,
+     -121.9486,
+     39.598
+    ],
+    "first_date": "2011-02-07",
+    "last_date": "2011-02-13"
+   }
   },
   {
    "year": 2011,
@@ -1884,7 +3124,17 @@
    "anomaly_z": -0.94,
    "unc_low": 162.4,
    "unc_high": 275.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -117.104,
+     33.1256,
+     -116.504,
+     33.5756
+    ],
+    "first_date": "2011-03-08",
+    "last_date": "2011-03-17"
+   }
   },
   {
    "year": 2011,
@@ -1899,7 +3149,17 @@
    "anomaly_z": 0.08,
    "unc_low": 488.1,
    "unc_high": 728.0,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4464,
+     39.0683,
+     -121.8464,
+     39.5183
+    ],
+    "first_date": "2011-04-03",
+    "last_date": "2011-04-26"
+   }
   },
   {
    "year": 2011,
@@ -1914,7 +3174,17 @@
    "anomaly_z": -1.21,
    "unc_low": 197.4,
    "unc_high": 393.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -114.7724,
+     32.6064,
+     -114.1724,
+     33.0564
+    ],
+    "first_date": "2011-05-19",
+    "last_date": "2011-05-19"
+   }
   },
   {
    "year": 2011,
@@ -1929,7 +3199,17 @@
    "anomaly_z": -0.58,
    "unc_low": 288.0,
    "unc_high": 613.3,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.4845,
+     32.5,
+     -115.8845,
+     32.95
+    ],
+    "first_date": "2011-06-04",
+    "last_date": "2011-06-27"
+   }
   },
   {
    "year": 2011,
@@ -1944,7 +3224,17 @@
    "anomaly_z": -0.32,
    "unc_low": 349.9,
    "unc_high": 865.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.8466,
+     36.0813,
+     -118.2466,
+     36.5313
+    ],
+    "first_date": "2011-07-11",
+    "last_date": "2011-07-31"
+   }
   },
   {
    "year": 2011,
@@ -1959,7 +3249,17 @@
    "anomaly_z": -0.56,
    "unc_low": 273.6,
    "unc_high": 505.9,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.8464,
+     36.0585,
+     -118.2464,
+     36.5085
+    ],
+    "first_date": "2011-08-02",
+    "last_date": "2011-08-23"
+   }
   },
   {
    "year": 2011,
@@ -1974,7 +3274,17 @@
    "anomaly_z": -1.04,
    "unc_low": 364.0,
    "unc_high": 584.5,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -118.6966,
+     34.7793,
+     -118.0966,
+     35.2293
+    ],
+    "first_date": "2011-09-04",
+    "last_date": "2011-09-06"
+   }
   },
   {
    "year": 2011,
@@ -1989,7 +3299,17 @@
    "anomaly_z": 0.42,
    "unc_low": 1045.4,
    "unc_high": 1573.6,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -116.5505,
+     40.8494,
+     -115.9505,
+     41.2994
+    ],
+    "first_date": "2011-10-01",
+    "last_date": "2011-10-04"
+   }
   },
   {
    "year": 2011,
@@ -2004,7 +3324,17 @@
    "anomaly_z": -0.26,
    "unc_low": 532.7,
    "unc_high": 959.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4918,
+     38.9995,
+     -121.8918,
+     39.4495
+    ],
+    "first_date": "2011-11-02",
+    "last_date": "2011-11-18"
+   }
   },
   {
    "year": 2011,
@@ -2019,7 +3349,17 @@
    "anomaly_z": -0.32,
    "unc_low": 226.5,
    "unc_high": 639.8,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -115.3465,
+     32.5,
+     -114.7465,
+     32.95
+    ],
+    "first_date": "2011-12-06",
+    "last_date": "2011-12-31"
+   }
   },
   {
    "year": 2012,
@@ -2034,7 +3374,17 @@
    "anomaly_z": 0.74,
    "unc_low": 332.0,
    "unc_high": 826.4,
-   "source": "modis_terra_aqua"
+   "source": "modis_terra_aqua",
+   "peak_event": {
+    "bbox": [
+     -122.4472,
+     39.2878,
+     -121.8472,
+     39.7378
+    ],
+    "first_date": "2012-01-08",
+    "last_date": "2012-01-17"
+   }
   },
   {
    "year": 2012,
@@ -2049,7 +3399,17 @@
    "anomaly_z": -0.2,
    "unc_low": 369.4,
    "unc_high": 448.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.7936,
+     32.6066,
+     -115.1936,
+     33.0566
+    ],
+    "first_date": "2012-02-04",
+    "last_date": "2012-02-24"
+   }
   },
   {
    "year": 2012,
@@ -2064,7 +3424,17 @@
    "anomaly_z": -0.65,
    "unc_low": 299.1,
    "unc_high": 370.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3877,
+     39.074,
+     -121.7877,
+     39.524
+    ],
+    "first_date": "2012-03-03",
+    "last_date": "2012-03-23"
+   }
   },
   {
    "year": 2012,
@@ -2079,7 +3449,17 @@
    "anomaly_z": -1.12,
    "unc_low": 254.7,
    "unc_high": 321.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.757,
+     41.55,
+     -121.157,
+     42.0
+    ],
+    "first_date": "2012-04-07",
+    "last_date": "2012-04-29"
+   }
   },
   {
    "year": 2012,
@@ -2094,7 +3474,17 @@
    "anomaly_z": -0.84,
    "unc_low": 309.5,
    "unc_high": 382.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -116.6053,
+     32.5,
+     -116.0053,
+     32.95
+    ],
+    "first_date": "2012-05-10",
+    "last_date": "2012-05-29"
+   }
   },
   {
    "year": 2012,
@@ -2109,7 +3499,17 @@
    "anomaly_z": -0.17,
    "unc_low": 499.2,
    "unc_high": 590.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2617,
+     32.5,
+     -114.6617,
+     32.95
+    ],
+    "first_date": "2012-06-01",
+    "last_date": "2012-06-30"
+   }
   },
   {
    "year": 2012,
@@ -2124,7 +3524,17 @@
    "anomaly_z": -0.4,
    "unc_low": 519.4,
    "unc_high": 612.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.887,
+     39.1024,
+     -122.287,
+     39.5524
+    ],
+    "first_date": "2012-07-08",
+    "last_date": "2012-07-16"
+   }
   },
   {
    "year": 2012,
@@ -2139,7 +3549,17 @@
    "anomaly_z": 0.89,
    "unc_low": 3302.4,
    "unc_high": 3531.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.4976,
+     39.8624,
+     -120.8976,
+     40.3124
+    ],
+    "first_date": "2012-08-01",
+    "last_date": "2012-08-31"
+   }
   },
   {
    "year": 2012,
@@ -2154,7 +3574,17 @@
    "anomaly_z": -0.6,
    "unc_low": 685.7,
    "unc_high": 792.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.5273,
+     41.55,
+     -122.9273,
+     42.0
+    ],
+    "first_date": "2012-09-01",
+    "last_date": "2012-09-14"
+   }
   },
   {
    "year": 2012,
@@ -2169,7 +3599,17 @@
    "anomaly_z": -1.29,
    "unc_low": 444.7,
    "unc_high": 531.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3641,
+     39.0862,
+     -121.7641,
+     39.5362
+    ],
+    "first_date": "2012-10-03",
+    "last_date": "2012-10-30"
+   }
   },
   {
    "year": 2012,
@@ -2184,7 +3624,17 @@
    "anomaly_z": -0.7,
    "unc_low": 552.0,
    "unc_high": 648.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.6913,
+     38.5222,
+     -120.0913,
+     38.9722
+    ],
+    "first_date": "2012-11-02",
+    "last_date": "2012-11-28"
+   }
   },
   {
    "year": 2012,
@@ -2199,7 +3649,17 @@
    "anomaly_z": -1.3,
    "unc_low": 180.7,
    "unc_high": 237.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.9238,
+     39.8364,
+     -121.3238,
+     40.2864
+    ],
+    "first_date": "2012-12-08",
+    "last_date": "2012-12-15"
+   }
   },
   {
    "year": 2013,
@@ -2214,7 +3674,17 @@
    "anomaly_z": -0.48,
    "unc_low": 200.3,
    "unc_high": 259.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.8792,
+     32.5,
+     -115.2792,
+     32.95
+    ],
+    "first_date": "2013-01-04",
+    "last_date": "2013-01-31"
+   }
   },
   {
    "year": 2013,
@@ -2229,7 +3699,17 @@
    "anomaly_z": 0.3,
    "unc_low": 529.9,
    "unc_high": 624.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4598,
+     39.0728,
+     -121.8598,
+     39.5228
+    ],
+    "first_date": "2013-02-01",
+    "last_date": "2013-02-28"
+   }
   },
   {
    "year": 2013,
@@ -2244,7 +3724,17 @@
    "anomaly_z": -0.22,
    "unc_low": 460.0,
    "unc_high": 548.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4075,
+     39.0117,
+     -121.8075,
+     39.4617
+    ],
+    "first_date": "2013-03-01",
+    "last_date": "2013-03-30"
+   }
   },
   {
    "year": 2013,
@@ -2259,7 +3749,17 @@
    "anomaly_z": -0.76,
    "unc_low": 344.6,
    "unc_high": 421.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.2835,
+     38.6956,
+     -122.6835,
+     39.1456
+    ],
+    "first_date": "2013-04-08",
+    "last_date": "2013-04-27"
+   }
   },
   {
    "year": 2013,
@@ -2274,7 +3774,17 @@
    "anomaly_z": -0.41,
    "unc_low": 366.5,
    "unc_high": 445.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.3715,
+     33.925,
+     -118.7715,
+     34.375
+    ],
+    "first_date": "2013-05-02",
+    "last_date": "2013-05-31"
+   }
   },
   {
    "year": 2013,
@@ -2289,7 +3799,17 @@
    "anomaly_z": -0.53,
    "unc_low": 420.8,
    "unc_high": 505.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2617,
+     32.5,
+     -114.6617,
+     32.95
+    ],
+    "first_date": "2013-06-03",
+    "last_date": "2013-06-30"
+   }
   },
   {
    "year": 2013,
@@ -2304,7 +3824,17 @@
    "anomaly_z": 0.0,
    "unc_low": 721.4,
    "unc_high": 830.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.9349,
+     35.9928,
+     -115.3349,
+     36.4428
+    ],
+    "first_date": "2013-07-03",
+    "last_date": "2013-07-19"
+   }
   },
   {
    "year": 2013,
@@ -2319,7 +3849,17 @@
    "anomaly_z": 0.35,
    "unc_low": 2190.3,
    "unc_high": 2377.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.2476,
+     37.6885,
+     -119.6476,
+     38.1385
+    ],
+    "first_date": "2013-08-18",
+    "last_date": "2013-08-31"
+   }
   },
   {
    "year": 2013,
@@ -2334,7 +3874,17 @@
    "anomaly_z": 0.1,
    "unc_low": 1100.0,
    "unc_high": 1234.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.1099,
+     37.6742,
+     -119.5099,
+     38.1242
+    ],
+    "first_date": "2013-09-01",
+    "last_date": "2013-09-21"
+   }
   },
   {
    "year": 2013,
@@ -2349,7 +3899,17 @@
    "anomaly_z": -0.74,
    "unc_low": 699.2,
    "unc_high": 806.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.9773,
+     38.9529,
+     -121.3773,
+     39.4029
+    ],
+    "first_date": "2013-10-01",
+    "last_date": "2013-10-31"
+   }
   },
   {
    "year": 2013,
@@ -2364,7 +3924,17 @@
    "anomaly_z": -0.56,
    "unc_low": 598.1,
    "unc_high": 697.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.9962,
+     41.55,
+     -120.3962,
+     42.0
+    ],
+    "first_date": "2013-11-01",
+    "last_date": "2013-11-27"
+   }
   },
   {
    "year": 2013,
@@ -2379,7 +3949,17 @@
    "anomaly_z": 0.39,
    "unc_low": 546.2,
    "unc_high": 641.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.4824,
+     36.6748,
+     -119.8824,
+     37.1248
+    ],
+    "first_date": "2013-12-01",
+    "last_date": "2013-12-25"
+   }
   },
   {
    "year": 2014,
@@ -2394,7 +3974,17 @@
    "anomaly_z": 0.41,
    "unc_low": 439.9,
    "unc_high": 526.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3839,
+     39.3065,
+     -121.7839,
+     39.7565
+    ],
+    "first_date": "2014-01-03",
+    "last_date": "2014-01-31"
+   }
   },
   {
    "year": 2014,
@@ -2409,7 +3999,17 @@
    "anomaly_z": 0.47,
    "unc_low": 584.6,
    "unc_high": 683.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4369,
+     39.3014,
+     -121.8369,
+     39.7514
+    ],
+    "first_date": "2014-02-01",
+    "last_date": "2014-02-25"
+   }
   },
   {
    "year": 2014,
@@ -2424,7 +4024,17 @@
    "anomaly_z": -0.17,
    "unc_low": 476.3,
    "unc_high": 565.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.9588,
+     41.55,
+     -120.3588,
+     42.0
+    ],
+    "first_date": "2014-03-17",
+    "last_date": "2014-03-24"
+   }
   },
   {
    "year": 2014,
@@ -2439,7 +4049,17 @@
    "anomaly_z": -0.74,
    "unc_low": 349.4,
    "unc_high": 426.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3673,
+     39.1607,
+     -121.7673,
+     39.6107
+    ],
+    "first_date": "2014-04-05",
+    "last_date": "2014-04-24"
+   }
   },
   {
    "year": 2014,
@@ -2454,7 +4074,17 @@
    "anomaly_z": -0.9,
    "unc_low": 302.0,
    "unc_high": 374.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -117.7101,
+     33.0992,
+     -117.1101,
+     33.5492
+    ],
+    "first_date": "2014-05-14",
+    "last_date": "2014-05-17"
+   }
   },
   {
    "year": 2014,
@@ -2469,7 +4099,17 @@
    "anomaly_z": -0.75,
    "unc_low": 372.2,
    "unc_high": 451.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2858,
+     32.5,
+     -114.6858,
+     32.95
+    ],
+    "first_date": "2014-06-01",
+    "last_date": "2014-06-29"
+   }
   },
   {
    "year": 2014,
@@ -2484,7 +4124,17 @@
    "anomaly_z": -0.19,
    "unc_low": 626.0,
    "unc_high": 728.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.7839,
+     38.0769,
+     -115.1839,
+     38.5269
+    ],
+    "first_date": "2014-07-17",
+    "last_date": "2014-07-27"
+   }
   },
   {
    "year": 2014,
@@ -2499,7 +4149,17 @@
    "anomaly_z": 0.08,
    "unc_low": 1653.4,
    "unc_high": 1816.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.5433,
+     41.5214,
+     -122.9433,
+     41.9714
+    ],
+    "first_date": "2014-08-12",
+    "last_date": "2014-08-31"
+   }
   },
   {
    "year": 2014,
@@ -2514,7 +4174,17 @@
    "anomaly_z": 0.66,
    "unc_low": 1430.9,
    "unc_high": 1583.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.4719,
+     41.4057,
+     -122.8719,
+     41.8557
+    ],
+    "first_date": "2014-09-01",
+    "last_date": "2014-09-23"
+   }
   },
   {
    "year": 2014,
@@ -2529,7 +4199,17 @@
    "anomaly_z": -0.93,
    "unc_low": 611.6,
    "unc_high": 712.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3449,
+     39.2423,
+     -121.7449,
+     39.6923
+    ],
+    "first_date": "2014-10-02",
+    "last_date": "2014-10-30"
+   }
   },
   {
    "year": 2014,
@@ -2544,7 +4224,17 @@
    "anomaly_z": -1.06,
    "unc_low": 437.1,
    "unc_high": 522.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.2741,
+     37.7384,
+     -119.6741,
+     38.1884
+    ],
+    "first_date": "2014-11-10",
+    "last_date": "2014-11-22"
+   }
   },
   {
    "year": 2014,
@@ -2559,7 +4249,17 @@
    "anomaly_z": -0.95,
    "unc_low": 256.6,
    "unc_high": 323.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3931,
+     36.5656,
+     -119.7931,
+     37.0156
+    ],
+    "first_date": "2014-12-01",
+    "last_date": "2014-12-30"
+   }
   },
   {
    "year": 2015,
@@ -2574,7 +4274,17 @@
    "anomaly_z": 0.1,
    "unc_low": 357.0,
    "unc_high": 435.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.1249,
+     33.379,
+     -117.5249,
+     33.829
+    ],
+    "first_date": "2015-01-01",
+    "last_date": "2015-01-27"
+   }
   },
   {
    "year": 2015,
@@ -2589,7 +4299,17 @@
    "anomaly_z": 0.42,
    "unc_low": 566.4,
    "unc_high": 663.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3103,
+     36.6289,
+     -119.7103,
+     37.0789
+    ],
+    "first_date": "2015-02-01",
+    "last_date": "2015-02-28"
+   }
   },
   {
    "year": 2015,
@@ -2604,7 +4324,17 @@
    "anomaly_z": 0.03,
    "unc_low": 553.0,
    "unc_high": 649.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4427,
+     39.1363,
+     -121.8427,
+     39.5863
+    ],
+    "first_date": "2015-03-01",
+    "last_date": "2015-03-31"
+   }
   },
   {
    "year": 2015,
@@ -2619,7 +4349,17 @@
    "anomaly_z": -0.53,
    "unc_low": 404.6,
    "unc_high": 487.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.7563,
+     41.55,
+     -121.1563,
+     42.0
+    ],
+    "first_date": "2015-04-02",
+    "last_date": "2015-04-28"
+   }
   },
   {
    "year": 2015,
@@ -2634,7 +4374,17 @@
    "anomaly_z": -1.46,
    "unc_low": 228.4,
    "unc_high": 291.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3386,
+     36.445,
+     -119.7386,
+     36.895
+    ],
+    "first_date": "2015-05-04",
+    "last_date": "2015-05-30"
+   }
   },
   {
    "year": 2015,
@@ -2649,7 +4399,17 @@
    "anomaly_z": 0.47,
    "unc_low": 641.4,
    "unc_high": 744.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -117.0598,
+     33.919,
+     -116.4598,
+     34.369
+    ],
+    "first_date": "2015-06-18",
+    "last_date": "2015-06-29"
+   }
   },
   {
    "year": 2015,
@@ -2664,7 +4424,17 @@
    "anomaly_z": -0.37,
    "unc_low": 536.6,
    "unc_high": 631.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.3345,
+     32.5,
+     -114.7345,
+     32.95
+    ],
+    "first_date": "2015-07-02",
+    "last_date": "2015-07-31"
+   }
   },
   {
    "year": 2015,
@@ -2679,7 +4449,17 @@
    "anomaly_z": 1.21,
    "unc_low": 3953.8,
    "unc_high": 4204.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.7791,
+     40.4163,
+     -123.1791,
+     40.8663
+    ],
+    "first_date": "2015-08-01",
+    "last_date": "2015-08-28"
+   }
   },
   {
    "year": 2015,
@@ -2694,7 +4474,17 @@
    "anomaly_z": 0.42,
    "unc_low": 1285.8,
    "unc_high": 1430.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.2181,
+     36.6058,
+     -118.6181,
+     37.0558
+    ],
+    "first_date": "2015-09-01",
+    "last_date": "2015-09-29"
+   }
   },
   {
    "year": 2015,
@@ -2709,7 +4499,17 @@
    "anomaly_z": -0.61,
    "unc_low": 761.0,
    "unc_high": 873.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3698,
+     39.2009,
+     -121.7698,
+     39.6509
+    ],
+    "first_date": "2015-10-04",
+    "last_date": "2015-10-31"
+   }
   },
   {
    "year": 2015,
@@ -2724,7 +4524,17 @@
    "anomaly_z": 0.51,
    "unc_low": 939.0,
    "unc_high": 1063.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3492,
+     37.7097,
+     -119.7492,
+     38.1597
+    ],
+    "first_date": "2015-11-11",
+    "last_date": "2015-11-30"
+   }
   },
   {
    "year": 2015,
@@ -2739,7 +4549,17 @@
    "anomaly_z": -0.36,
    "unc_low": 384.6,
    "unc_high": 465.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3116,
+     37.7082,
+     -119.7116,
+     38.1582
+    ],
+    "first_date": "2015-12-01",
+    "last_date": "2015-12-15"
+   }
   },
   {
    "year": 2016,
@@ -2754,7 +4574,17 @@
    "anomaly_z": -0.68,
    "unc_low": 144.4,
    "unc_high": 195.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.6378,
+     33.6175,
+     -118.0378,
+     34.0675
+    ],
+    "first_date": "2016-01-08",
+    "last_date": "2016-01-29"
+   }
   },
   {
    "year": 2016,
@@ -2769,7 +4599,17 @@
    "anomaly_z": 0.06,
    "unc_low": 454.3,
    "unc_high": 541.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -114.7195,
+     33.7024,
+     -114.1195,
+     34.1524
+    ],
+    "first_date": "2016-02-04",
+    "last_date": "2016-02-19"
+   }
   },
   {
    "year": 2016,
@@ -2784,7 +4624,17 @@
    "anomaly_z": -0.29,
    "unc_low": 434.2,
    "unc_high": 519.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.2966,
+     36.3732,
+     -119.6966,
+     36.8232
+    ],
+    "first_date": "2016-03-01",
+    "last_date": "2016-03-31"
+   }
   },
   {
    "year": 2016,
@@ -2799,7 +4649,17 @@
    "anomaly_z": -0.27,
    "unc_low": 470.5,
    "unc_high": 559.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.7462,
+     41.55,
+     -121.1462,
+     42.0
+    ],
+    "first_date": "2016-04-01",
+    "last_date": "2016-04-30"
+   }
   },
   {
    "year": 2016,
@@ -2814,7 +4674,17 @@
    "anomaly_z": -0.8,
    "unc_low": 314.3,
    "unc_high": 387.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.4419,
+     36.1075,
+     -118.8419,
+     36.5575
+    ],
+    "first_date": "2016-05-09",
+    "last_date": "2016-05-30"
+   }
   },
   {
    "year": 2016,
@@ -2829,7 +4699,17 @@
    "anomaly_z": 0.53,
    "unc_low": 653.0,
    "unc_high": 757.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.635,
+     35.3438,
+     -118.035,
+     35.7938
+    ],
+    "first_date": "2016-06-24",
+    "last_date": "2016-06-30"
+   }
   },
   {
    "year": 2016,
@@ -2844,7 +4724,17 @@
    "anomaly_z": 0.37,
    "unc_low": 907.0,
    "unc_high": 1029.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.1173,
+     36.1741,
+     -121.5173,
+     36.6241
+    ],
+    "first_date": "2016-07-22",
+    "last_date": "2016-07-31"
+   }
   },
   {
    "year": 2016,
@@ -2859,7 +4749,17 @@
    "anomaly_z": 0.0,
    "unc_low": 1487.5,
    "unc_high": 1642.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.0493,
+     36.0888,
+     -121.4493,
+     36.5388
+    ],
+    "first_date": "2016-08-01",
+    "last_date": "2016-08-31"
+   }
   },
   {
    "year": 2016,
@@ -2874,7 +4774,17 @@
    "anomaly_z": -0.06,
    "unc_low": 1001.0,
    "unc_high": 1129.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.8902,
+     36.0371,
+     -121.2902,
+     36.4871
+    ],
+    "first_date": "2016-09-01",
+    "last_date": "2016-09-30"
+   }
   },
   {
    "year": 2016,
@@ -2889,7 +4799,17 @@
    "anomaly_z": -0.49,
    "unc_low": 815.1,
    "unc_high": 930.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.8788,
+     38.9647,
+     -121.2788,
+     39.4147
+    ],
+    "first_date": "2016-10-01",
+    "last_date": "2016-10-26"
+   }
   },
   {
    "year": 2016,
@@ -2904,7 +4824,17 @@
    "anomaly_z": 0.74,
    "unc_low": 1013.6,
    "unc_high": 1142.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.8648,
+     35.8008,
+     -118.2648,
+     36.2508
+    ],
+    "first_date": "2016-11-05",
+    "last_date": "2016-11-20"
+   }
   },
   {
    "year": 2016,
@@ -2919,7 +4849,17 @@
    "anomaly_z": -0.86,
    "unc_low": 274.5,
    "unc_high": 343.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.0134,
+     38.6872,
+     -122.4134,
+     39.1372
+    ],
+    "first_date": "2016-12-01",
+    "last_date": "2016-12-31"
+   }
   },
   {
    "year": 2017,
@@ -2934,7 +4874,17 @@
    "anomaly_z": -0.68,
    "unc_low": 144.4,
    "unc_high": 195.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.3098,
+     32.5,
+     -114.7098,
+     32.95
+    ],
+    "first_date": "2017-01-04",
+    "last_date": "2017-01-30"
+   }
   },
   {
    "year": 2017,
@@ -2949,7 +4899,17 @@
    "anomaly_z": -0.76,
    "unc_low": 196.5,
    "unc_high": 255.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3737,
+     36.3882,
+     -119.7737,
+     36.8382
+    ],
+    "first_date": "2017-02-03",
+    "last_date": "2017-02-28"
+   }
   },
   {
    "year": 2017,
@@ -2964,7 +4924,17 @@
    "anomaly_z": 0.0,
    "unc_low": 542.4,
    "unc_high": 637.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.1515,
+     36.3482,
+     -119.5515,
+     36.7982
+    ],
+    "first_date": "2017-03-01",
+    "last_date": "2017-03-31"
+   }
   },
   {
    "year": 2017,
@@ -2979,7 +4949,17 @@
    "anomaly_z": 0.0,
    "unc_low": 539.5,
    "unc_high": 634.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3966,
+     39.2495,
+     -121.7966,
+     39.6995
+    ],
+    "first_date": "2017-04-02",
+    "last_date": "2017-04-30"
+   }
   },
   {
    "year": 2017,
@@ -2994,7 +4974,17 @@
    "anomaly_z": 0.46,
    "unc_low": 481.0,
    "unc_high": 571.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.7591,
+     32.5,
+     -115.1591,
+     32.95
+    ],
+    "first_date": "2017-05-01",
+    "last_date": "2017-05-30"
+   }
   },
   {
    "year": 2017,
@@ -3009,7 +4999,17 @@
    "anomaly_z": 0.3,
    "unc_low": 603.9,
    "unc_high": 704.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.3102,
+     32.5,
+     -114.7102,
+     32.95
+    ],
+    "first_date": "2017-06-03",
+    "last_date": "2017-06-30"
+   }
   },
   {
    "year": 2017,
@@ -3024,7 +5024,17 @@
    "anomaly_z": 2.43,
    "unc_low": 1956.4,
    "unc_high": 2133.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.7183,
+     35.8729,
+     -118.1183,
+     36.3229
+    ],
+    "first_date": "2017-07-01",
+    "last_date": "2017-07-23"
+   }
   },
   {
    "year": 2017,
@@ -3039,7 +5049,17 @@
    "anomaly_z": 0.55,
    "unc_low": 2611.9,
    "unc_high": 2816.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.8842,
+     41.5271,
+     -123.2842,
+     41.9771
+    ],
+    "first_date": "2017-08-01",
+    "last_date": "2017-08-31"
+   }
   },
   {
    "year": 2017,
@@ -3054,7 +5074,17 @@
    "anomaly_z": 2.94,
    "unc_low": 2789.5,
    "unc_high": 3000.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.9348,
+     41.5158,
+     -123.3348,
+     41.9658
+    ],
+    "first_date": "2017-09-01",
+    "last_date": "2017-09-24"
+   }
   },
   {
    "year": 2017,
@@ -3069,7 +5099,17 @@
    "anomaly_z": 2.29,
    "unc_low": 2118.8,
    "unc_high": 2303.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.7561,
+     38.1501,
+     -122.1561,
+     38.6001
+    ],
+    "first_date": "2017-10-09",
+    "last_date": "2017-10-18"
+   }
   },
   {
    "year": 2017,
@@ -3084,7 +5124,17 @@
    "anomaly_z": 0.37,
    "unc_low": 894.4,
    "unc_high": 1015.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3794,
+     36.4953,
+     -119.7794,
+     36.9453
+    ],
+    "first_date": "2017-11-01",
+    "last_date": "2017-11-30"
+   }
   },
   {
    "year": 2017,
@@ -3099,7 +5149,17 @@
    "anomaly_z": 4.41,
    "unc_low": 1434.8,
    "unc_high": 1587.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.5968,
+     34.2233,
+     -118.9968,
+     34.6733
+    ],
+    "first_date": "2017-12-05",
+    "last_date": "2017-12-25"
+   }
   },
   {
    "year": 2018,
@@ -3114,7 +5174,17 @@
    "anomaly_z": 0.8,
    "unc_low": 548.2,
    "unc_high": 643.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.5439,
+     35.4239,
+     -118.9439,
+     35.8739
+    ],
+    "first_date": "2018-01-09",
+    "last_date": "2018-01-27"
+   }
   },
   {
    "year": 2018,
@@ -3129,7 +5199,17 @@
    "anomaly_z": 1.7,
    "unc_low": 977.8,
    "unc_high": 1104.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3525,
+     39.3634,
+     -121.7525,
+     39.8134
+    ],
+    "first_date": "2018-02-01",
+    "last_date": "2018-02-27"
+   }
   },
   {
    "year": 2018,
@@ -3144,7 +5224,17 @@
    "anomaly_z": -0.44,
    "unc_low": 376.0,
    "unc_high": 456.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4254,
+     39.0721,
+     -121.8254,
+     39.5221
+    ],
+    "first_date": "2018-03-09",
+    "last_date": "2018-03-31"
+   }
   },
   {
    "year": 2018,
@@ -3159,7 +5249,17 @@
    "anomaly_z": -0.12,
    "unc_low": 508.8,
    "unc_high": 601.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.7461,
+     41.55,
+     -121.1461,
+     42.0
+    ],
+    "first_date": "2018-04-02",
+    "last_date": "2018-04-26"
+   }
   },
   {
    "year": 2018,
@@ -3174,7 +5274,17 @@
    "anomaly_z": -0.54,
    "unc_low": 349.4,
    "unc_high": 426.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.3081,
+     34.8053,
+     -118.7081,
+     35.2553
+    ],
+    "first_date": "2018-05-07",
+    "last_date": "2018-05-31"
+   }
   },
   {
    "year": 2018,
@@ -3189,7 +5299,17 @@
    "anomaly_z": -0.25,
    "unc_low": 481.0,
    "unc_high": 571.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2862,
+     32.5,
+     -114.6862,
+     32.95
+    ],
+    "first_date": "2018-06-02",
+    "last_date": "2018-06-30"
+   }
   },
   {
    "year": 2018,
@@ -3204,7 +5324,17 @@
    "anomaly_z": 2.87,
    "unc_low": 2185.4,
    "unc_high": 2372.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.1137,
+     37.4014,
+     -119.5137,
+     37.8514
+    ],
+    "first_date": "2018-07-14",
+    "last_date": "2018-07-31"
+   }
   },
   {
    "year": 2018,
@@ -3219,7 +5349,17 @@
    "anomaly_z": 1.58,
    "unc_low": 4714.5,
    "unc_high": 4987.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.0911,
+     39.1766,
+     -122.4911,
+     39.6266
+    ],
+    "first_date": "2018-08-01",
+    "last_date": "2018-08-31"
+   }
   },
   {
    "year": 2018,
@@ -3234,7 +5374,17 @@
    "anomaly_z": 0.65,
    "unc_low": 1424.1,
    "unc_high": 1575.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.7407,
+     40.7805,
+     -122.1407,
+     41.2305
+    ],
+    "first_date": "2018-09-01",
+    "last_date": "2018-09-30"
+   }
   },
   {
    "year": 2018,
@@ -3249,7 +5399,17 @@
    "anomaly_z": -0.27,
    "unc_low": 915.7,
    "unc_high": 1038.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.9153,
+     38.9832,
+     -121.3153,
+     39.4332
+    ],
+    "first_date": "2018-10-02",
+    "last_date": "2018-10-28"
+   }
   },
   {
    "year": 2018,
@@ -3264,7 +5424,17 @@
    "anomaly_z": 1.25,
    "unc_low": 1178.8,
    "unc_high": 1317.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.8099,
+     39.5408,
+     -121.2099,
+     39.9908
+    ],
+    "first_date": "2018-11-08",
+    "last_date": "2018-11-21"
+   }
   },
   {
    "year": 2018,
@@ -3279,7 +5449,17 @@
    "anomaly_z": 0.45,
    "unc_low": 560.6,
    "unc_high": 657.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.7077,
+     38.5938,
+     -120.1077,
+     39.0438
+    ],
+    "first_date": "2018-12-06",
+    "last_date": "2018-12-17"
+   }
   },
   {
    "year": 2019,
@@ -3294,7 +5474,17 @@
    "anomaly_z": 0.13,
    "unc_low": 364.6,
    "unc_high": 443.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.4552,
+     32.5,
+     -114.8552,
+     32.95
+    ],
+    "first_date": "2019-01-01",
+    "last_date": "2019-01-31"
+   }
   },
   {
    "year": 2019,
@@ -3309,7 +5499,17 @@
    "anomaly_z": -0.7,
    "unc_low": 212.4,
    "unc_high": 273.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3406,
+     36.5696,
+     -119.7406,
+     37.0196
+    ],
+    "first_date": "2019-02-02",
+    "last_date": "2019-02-28"
+   }
   },
   {
    "year": 2019,
@@ -3324,7 +5524,17 @@
    "anomaly_z": -0.3,
    "unc_low": 428.5,
    "unc_high": 513.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.5124,
+     35.5852,
+     -118.9124,
+     36.0352
+    ],
+    "first_date": "2019-03-02",
+    "last_date": "2019-03-31"
+   }
   },
   {
    "year": 2019,
@@ -3339,7 +5549,17 @@
    "anomaly_z": -0.01,
    "unc_low": 535.7,
    "unc_high": 630.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4005,
+     39.3569,
+     -121.8005,
+     39.8069
+    ],
+    "first_date": "2019-04-13",
+    "last_date": "2019-04-30"
+   }
   },
   {
    "year": 2019,
@@ -3354,7 +5574,17 @@
    "anomaly_z": -0.04,
    "unc_low": 414.1,
    "unc_high": 497.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4838,
+     39.4378,
+     -121.8838,
+     39.8878
+    ],
+    "first_date": "2019-05-01",
+    "last_date": "2019-05-31"
+   }
   },
   {
    "year": 2019,
@@ -3369,7 +5599,17 @@
    "anomaly_z": 0.0,
    "unc_low": 536.6,
    "unc_high": 631.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.225,
+     32.5,
+     -114.625,
+     32.95
+    ],
+    "first_date": "2019-06-01",
+    "last_date": "2019-06-29"
+   }
   },
   {
    "year": 2019,
@@ -3384,7 +5624,17 @@
    "anomaly_z": -0.49,
    "unc_low": 475.3,
    "unc_high": 564.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4236,
+     39.6631,
+     -121.8236,
+     40.1131
+    ],
+    "first_date": "2019-07-01",
+    "last_date": "2019-07-27"
+   }
   },
   {
    "year": 2019,
@@ -3399,7 +5649,17 @@
    "anomaly_z": -0.47,
    "unc_low": 540.5,
    "unc_high": 635.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.207,
+     37.6128,
+     -118.607,
+     38.0628
+    ],
+    "first_date": "2019-08-02",
+    "last_date": "2019-08-31"
+   }
   },
   {
    "year": 2019,
@@ -3414,7 +5674,17 @@
    "anomaly_z": 0.11,
    "unc_low": 1103.0,
    "unc_high": 1237.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.8864,
+     39.8604,
+     -120.2864,
+     40.3104
+    ],
+    "first_date": "2019-09-04",
+    "last_date": "2019-09-16"
+   }
   },
   {
    "year": 2019,
@@ -3429,7 +5699,17 @@
    "anomaly_z": 0.08,
    "unc_low": 1082.6,
    "unc_high": 1215.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.07,
+     38.4582,
+     -122.47,
+     38.9082
+    ],
+    "first_date": "2019-10-24",
+    "last_date": "2019-10-30"
+   }
   },
   {
    "year": 2019,
@@ -3444,7 +5724,17 @@
    "anomaly_z": 0.18,
    "unc_low": 835.4,
    "unc_high": 952.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4611,
+     39.0637,
+     -121.8611,
+     39.5137
+    ],
+    "first_date": "2019-11-01",
+    "last_date": "2019-11-24"
+   }
   },
   {
    "year": 2019,
@@ -3459,7 +5749,17 @@
    "anomaly_z": -0.44,
    "unc_low": 365.6,
    "unc_high": 444.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.3707,
+     32.5,
+     -114.7707,
+     32.95
+    ],
+    "first_date": "2019-12-05",
+    "last_date": "2019-12-29"
+   }
   },
   {
    "year": 2020,
@@ -3474,7 +5774,17 @@
    "anomaly_z": 0.5,
    "unc_low": 466.7,
    "unc_high": 555.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.286,
+     37.7159,
+     -119.686,
+     38.1659
+    ],
+    "first_date": "2020-01-06",
+    "last_date": "2020-01-31"
+   }
   },
   {
    "year": 2020,
@@ -3489,7 +5799,17 @@
    "anomaly_z": 2.53,
    "unc_low": 1244.9,
    "unc_high": 1387.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4799,
+     39.3868,
+     -121.8799,
+     39.8368
+    ],
+    "first_date": "2020-02-05",
+    "last_date": "2020-02-29"
+   }
   },
   {
    "year": 2020,
@@ -3504,7 +5824,17 @@
    "anomaly_z": 1.01,
    "unc_low": 925.4,
    "unc_high": 1048.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4824,
+     39.4133,
+     -121.8824,
+     39.8633
+    ],
+    "first_date": "2020-03-04",
+    "last_date": "2020-03-31"
+   }
   },
   {
    "year": 2020,
@@ -3519,7 +5849,17 @@
    "anomaly_z": 0.16,
    "unc_low": 579.8,
    "unc_high": 678.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.7706,
+     41.55,
+     -121.1706,
+     42.0
+    ],
+    "first_date": "2020-04-01",
+    "last_date": "2020-04-30"
+   }
   },
   {
    "year": 2020,
@@ -3534,7 +5874,17 @@
    "anomaly_z": -0.2,
    "unc_low": 393.2,
    "unc_high": 474.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.4904,
+     35.6767,
+     -118.8904,
+     36.1267
+    ],
+    "first_date": "2020-05-04",
+    "last_date": "2020-05-22"
+   }
   },
   {
    "year": 2020,
@@ -3549,7 +5899,17 @@
    "anomaly_z": 0.43,
    "unc_low": 631.8,
    "unc_high": 734.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.262,
+     32.5,
+     -114.662,
+     32.95
+    ],
+    "first_date": "2020-06-01",
+    "last_date": "2020-06-30"
+   }
   },
   {
    "year": 2020,
@@ -3564,7 +5924,17 @@
    "anomaly_z": 0.57,
    "unc_low": 1010.7,
    "unc_high": 1139.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.7733,
+     41.5069,
+     -121.1733,
+     41.9569
+    ],
+    "first_date": "2020-07-22",
+    "last_date": "2020-07-31"
+   }
   },
   {
    "year": 2020,
@@ -3579,7 +5949,17 @@
    "anomaly_z": 2.24,
    "unc_low": 6070.4,
    "unc_high": 6379.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.1003,
+     39.3831,
+     -122.5003,
+     39.8331
+    ],
+    "first_date": "2020-08-17",
+    "last_date": "2020-08-31"
+   }
   },
   {
    "year": 2020,
@@ -3594,7 +5974,20 @@
    "anomaly_z": 18.58,
    "unc_low": 12186.7,
    "unc_high": 12623.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.6074,
+     37.1687,
+     -119.0074,
+     37.6187
+    ],
+    "first_date": "2020-09-05",
+    "last_date": "2020-09-30",
+    "verified_before_date": "2020-08-14",
+    "verified_after_date": "2020-10-08",
+    "label": "Sep 2020 California Creek / August Complex scar"
+   }
   },
   {
    "year": 2020,
@@ -3609,7 +6002,17 @@
    "anomaly_z": 6.03,
    "unc_low": 3884.9,
    "unc_high": 4133.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.4338,
+     37.2059,
+     -118.8338,
+     37.6559
+    ],
+    "first_date": "2020-10-01",
+    "last_date": "2020-10-31"
+   }
   },
   {
    "year": 2020,
@@ -3624,7 +6027,17 @@
    "anomaly_z": 1.25,
    "unc_low": 1177.8,
    "unc_high": 1316.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.3716,
+     37.2535,
+     -118.7716,
+     37.7035
+    ],
+    "first_date": "2020-11-01",
+    "last_date": "2020-11-16"
+   }
   },
   {
    "year": 2020,
@@ -3639,7 +6052,17 @@
    "anomaly_z": 1.11,
    "unc_low": 706.0,
    "unc_high": 814.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4869,
+     39.5586,
+     -121.8869,
+     40.0086
+    ],
+    "first_date": "2020-12-01",
+    "last_date": "2020-12-31"
+   }
   },
   {
    "year": 2021,
@@ -3654,7 +6077,17 @@
    "anomaly_z": 1.16,
    "unc_low": 648.1,
    "unc_high": 751.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.8024,
+     36.3051,
+     -119.2024,
+     36.7551
+    ],
+    "first_date": "2021-01-06",
+    "last_date": "2021-01-31"
+   }
   },
   {
    "year": 2021,
@@ -3669,7 +6102,17 @@
    "anomaly_z": 0.97,
    "unc_low": 744.6,
    "unc_high": 855.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.9773,
+     36.3241,
+     -119.3773,
+     36.7741
+    ],
+    "first_date": "2021-02-03",
+    "last_date": "2021-02-28"
+   }
   },
   {
    "year": 2021,
@@ -3684,7 +6127,17 @@
    "anomaly_z": 1.12,
    "unc_low": 968.1,
    "unc_high": 1093.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4249,
+     39.1071,
+     -121.8249,
+     39.5571
+    ],
+    "first_date": "2021-03-01",
+    "last_date": "2021-03-31"
+   }
   },
   {
    "year": 2021,
@@ -3699,7 +6152,17 @@
    "anomaly_z": 0.9,
    "unc_low": 770.6,
    "unc_high": 883.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3087,
+     39.5418,
+     -121.7087,
+     39.9918
+    ],
+    "first_date": "2021-04-01",
+    "last_date": "2021-04-30"
+   }
   },
   {
    "year": 2021,
@@ -3714,7 +6177,17 @@
    "anomaly_z": 0.72,
    "unc_low": 514.6,
    "unc_high": 607.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -116.7112,
+     36.8426,
+     -116.1112,
+     37.2926
+    ],
+    "first_date": "2021-05-18",
+    "last_date": "2021-05-24"
+   }
   },
   {
    "year": 2021,
@@ -3729,7 +6202,17 @@
    "anomaly_z": 0.17,
    "unc_low": 574.1,
    "unc_high": 671.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2859,
+     32.5,
+     -114.6859,
+     32.95
+    ],
+    "first_date": "2021-06-04",
+    "last_date": "2021-06-30"
+   }
   },
   {
    "year": 2021,
@@ -3744,7 +6227,17 @@
    "anomaly_z": 2.77,
    "unc_low": 2133.5,
    "unc_high": 2318.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.5706,
+     39.8224,
+     -120.9706,
+     40.2724
+    ],
+    "first_date": "2021-07-15",
+    "last_date": "2021-07-31"
+   }
   },
   {
    "year": 2021,
@@ -3759,7 +6252,20 @@
    "anomaly_z": 3.87,
    "unc_low": 9416.9,
    "unc_high": 9801.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.3043,
+     40.8763,
+     -122.7043,
+     41.3263
+    ],
+    "first_date": "2021-08-01",
+    "last_date": "2021-08-31",
+    "verified_before_date": "2021-07-10",
+    "verified_after_date": "2021-09-15",
+    "label": "Aug 2021 Northern California fire cluster"
+   }
   },
   {
    "year": 2021,
@@ -3774,7 +6280,17 @@
    "anomaly_z": 7.28,
    "unc_low": 5384.2,
    "unc_high": 5675.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.6298,
+     41.3448,
+     -123.0298,
+     41.7948
+    ],
+    "first_date": "2021-09-01",
+    "last_date": "2021-09-27"
+   }
   },
   {
    "year": 2021,
@@ -3789,7 +6305,17 @@
    "anomaly_z": 0.27,
    "unc_low": 1170.0,
    "unc_high": 1308.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.0883,
+     36.3228,
+     -118.4883,
+     36.7728
+    ],
+    "first_date": "2021-10-01",
+    "last_date": "2021-10-24"
+   }
   },
   {
    "year": 2021,
@@ -3804,7 +6330,17 @@
    "anomaly_z": -0.28,
    "unc_low": 687.6,
    "unc_high": 794.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.5871,
+     36.873,
+     -118.9871,
+     37.323
+    ],
+    "first_date": "2021-11-02",
+    "last_date": "2021-11-30"
+   }
   },
   {
    "year": 2021,
@@ -3819,7 +6355,17 @@
    "anomaly_z": 0.11,
    "unc_low": 484.9,
    "unc_high": 575.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.7627,
+     38.276,
+     -122.1627,
+     38.726
+    ],
+    "first_date": "2021-12-01",
+    "last_date": "2021-12-31"
+   }
   },
   {
    "year": 2022,
@@ -3834,7 +6380,17 @@
    "anomaly_z": 0.95,
    "unc_low": 588.5,
    "unc_high": 687.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3409,
+     39.3653,
+     -121.7409,
+     39.8153
+    ],
+    "first_date": "2022-01-12",
+    "last_date": "2022-01-31"
+   }
   },
   {
    "year": 2022,
@@ -3849,7 +6405,17 @@
    "anomaly_z": 2.21,
    "unc_low": 1142.8,
    "unc_high": 1279.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4549,
+     39.3906,
+     -121.8549,
+     39.8406
+    ],
+    "first_date": "2022-02-01",
+    "last_date": "2022-02-28"
+   }
   },
   {
    "year": 2022,
@@ -3864,7 +6430,17 @@
    "anomaly_z": 0.9,
    "unc_low": 883.8,
    "unc_high": 1004.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4568,
+     39.3978,
+     -121.8568,
+     39.8478
+    ],
+    "first_date": "2022-03-01",
+    "last_date": "2022-03-31"
+   }
   },
   {
    "year": 2022,
@@ -3879,7 +6455,17 @@
    "anomaly_z": -0.59,
    "unc_low": 388.4,
    "unc_high": 469.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.6138,
+     33.637,
+     -118.0138,
+     34.087
+    ],
+    "first_date": "2022-04-01",
+    "last_date": "2022-04-30"
+   }
   },
   {
    "year": 2022,
@@ -3894,7 +6480,17 @@
    "anomaly_z": 0.3,
    "unc_low": 460.0,
    "unc_high": 548.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3607,
+     39.5366,
+     -121.7607,
+     39.9866
+    ],
+    "first_date": "2022-05-02",
+    "last_date": "2022-05-31"
+   }
   },
   {
    "year": 2022,
@@ -3909,7 +6505,17 @@
    "anomaly_z": -0.05,
    "unc_low": 525.1,
    "unc_high": 618.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2617,
+     32.5,
+     -114.6617,
+     32.95
+    ],
+    "first_date": "2022-06-02",
+    "last_date": "2022-06-30"
+   }
   },
   {
    "year": 2022,
@@ -3924,7 +6530,17 @@
    "anomaly_z": -0.53,
    "unc_low": 453.3,
    "unc_high": 540.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.1114,
+     41.55,
+     -122.5114,
+     42.0
+    ],
+    "first_date": "2022-07-29",
+    "last_date": "2022-07-31"
+   }
   },
   {
    "year": 2022,
@@ -3939,7 +6555,17 @@
    "anomaly_z": -0.46,
    "unc_low": 555.8,
    "unc_high": 652.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.8822,
+     40.6751,
+     -123.2822,
+     41.1251
+    ],
+    "first_date": "2022-08-05",
+    "last_date": "2022-08-31"
+   }
   },
   {
    "year": 2022,
@@ -3954,7 +6580,17 @@
    "anomaly_z": -0.01,
    "unc_low": 1034.0,
    "unc_high": 1164.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.9795,
+     38.8039,
+     -120.3795,
+     39.2539
+    ],
+    "first_date": "2022-09-07",
+    "last_date": "2022-09-18"
+   }
   },
   {
    "year": 2022,
@@ -3969,7 +6605,17 @@
    "anomaly_z": -0.87,
    "unc_low": 640.4,
    "unc_high": 743.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.9634,
+     38.8902,
+     -121.3634,
+     39.3402
+    ],
+    "first_date": "2022-10-01",
+    "last_date": "2022-10-31"
+   }
   },
   {
    "year": 2022,
@@ -3984,7 +6630,17 @@
    "anomaly_z": -0.23,
    "unc_low": 703.1,
    "unc_high": 810.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3574,
+     38.7789,
+     -121.7574,
+     39.2289
+    ],
+    "first_date": "2022-11-01",
+    "last_date": "2022-11-30"
+   }
   },
   {
    "year": 2022,
@@ -3999,7 +6655,17 @@
    "anomaly_z": -0.11,
    "unc_low": 437.1,
    "unc_high": 522.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.8654,
+     38.3366,
+     -122.2654,
+     38.7866
+    ],
+    "first_date": "2022-12-02",
+    "last_date": "2022-12-16"
+   }
   },
   {
    "year": 2023,
@@ -4014,7 +6680,17 @@
    "anomaly_z": -0.35,
    "unc_low": 233.1,
    "unc_high": 296.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.7754,
+     38.3367,
+     -122.1754,
+     38.7867
+    ],
+    "first_date": "2023-01-09",
+    "last_date": "2023-01-31"
+   }
   },
   {
    "year": 2023,
@@ -4029,7 +6705,17 @@
    "anomaly_z": 0.55,
    "unc_low": 609.6,
    "unc_high": 710.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.194,
+     39.4362,
+     -121.594,
+     39.8862
+    ],
+    "first_date": "2023-02-01",
+    "last_date": "2023-02-22"
+   }
   },
   {
    "year": 2023,
@@ -4044,7 +6730,17 @@
    "anomaly_z": -0.84,
    "unc_low": 226.5,
    "unc_high": 289.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.8626,
+     38.2572,
+     -122.2626,
+     38.7072
+    ],
+    "first_date": "2023-03-01",
+    "last_date": "2023-03-27"
+   }
   },
   {
    "year": 2023,
@@ -4059,7 +6755,17 @@
    "anomaly_z": 0.87,
    "unc_low": 763.9,
    "unc_high": 876.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.0326,
+     39.0552,
+     -121.4326,
+     39.5052
+    ],
+    "first_date": "2023-04-05",
+    "last_date": "2023-04-29"
+   }
   },
   {
    "year": 2023,
@@ -4074,7 +6780,17 @@
    "anomaly_z": 0.22,
    "unc_low": 448.5,
    "unc_high": 535.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.2587,
+     39.5487,
+     -121.6587,
+     39.9987
+    ],
+    "first_date": "2023-05-02",
+    "last_date": "2023-05-31"
+   }
   },
   {
    "year": 2023,
@@ -4089,7 +6805,17 @@
    "anomaly_z": 0.57,
    "unc_low": 663.6,
    "unc_high": 768.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2617,
+     32.5,
+     -114.6617,
+     32.95
+    ],
+    "first_date": "2023-06-01",
+    "last_date": "2023-06-30"
+   }
   },
   {
    "year": 2023,
@@ -4104,7 +6830,17 @@
    "anomaly_z": -0.46,
    "unc_low": 490.6,
    "unc_high": 581.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.5178,
+     35.0464,
+     -114.9178,
+     35.4964
+    ],
+    "first_date": "2023-07-28",
+    "last_date": "2023-07-31"
+   }
   },
   {
    "year": 2023,
@@ -4119,7 +6855,17 @@
    "anomaly_z": 0.14,
    "unc_low": 1778.4,
    "unc_high": 1947.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -124.1743,
+     41.55,
+     -123.5743,
+     42.0
+    ],
+    "first_date": "2023-08-15",
+    "last_date": "2023-08-31"
+   }
   },
   {
    "year": 2023,
@@ -4134,7 +6880,17 @@
    "anomaly_z": 0.4,
    "unc_low": 1273.1,
    "unc_high": 1416.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.989,
+     41.2479,
+     -123.389,
+     41.6979
+    ],
+    "first_date": "2023-09-01",
+    "last_date": "2023-09-23"
+   }
   },
   {
    "year": 2023,
@@ -4149,7 +6905,17 @@
    "anomaly_z": 0.64,
    "unc_low": 1343.2,
    "unc_high": 1490.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.2679,
+     37.9207,
+     -119.6679,
+     38.3707
+    ],
+    "first_date": "2023-10-02",
+    "last_date": "2023-10-31"
+   }
   },
   {
    "year": 2023,
@@ -4164,7 +6930,17 @@
    "anomaly_z": 0.79,
    "unc_low": 1030.1,
    "unc_high": 1159.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.5322,
+     39.2361,
+     -121.9322,
+     39.6861
+    ],
+    "first_date": "2023-11-01",
+    "last_date": "2023-11-30"
+   }
   },
   {
    "year": 2023,
@@ -4179,7 +6955,17 @@
    "anomaly_z": 0.78,
    "unc_low": 632.7,
    "unc_high": 735.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4255,
+     38.8404,
+     -121.8255,
+     39.2904
+    ],
+    "first_date": "2023-12-01",
+    "last_date": "2023-12-17"
+   }
   },
   {
    "year": 2024,
@@ -4194,7 +6980,17 @@
    "anomaly_z": 0.12,
    "unc_low": 362.7,
    "unc_high": 441.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3185,
+     37.6261,
+     -119.7185,
+     38.0761
+    ],
+    "first_date": "2024-01-02",
+    "last_date": "2024-01-30"
+   }
   },
   {
    "year": 2024,
@@ -4209,7 +7005,17 @@
    "anomaly_z": -0.53,
    "unc_low": 267.9,
    "unc_high": 336.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.6015,
+     32.5,
+     -115.0015,
+     32.95
+    ],
+    "first_date": "2024-02-02",
+    "last_date": "2024-02-23"
+   }
   },
   {
    "year": 2024,
@@ -4224,7 +7030,17 @@
    "anomaly_z": 0.27,
    "unc_low": 644.3,
    "unc_high": 747.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3344,
+     39.4176,
+     -121.7344,
+     39.8676
+    ],
+    "first_date": "2024-03-04",
+    "last_date": "2024-03-26"
+   }
   },
   {
    "year": 2024,
@@ -4239,7 +7055,17 @@
    "anomaly_z": 0.4,
    "unc_low": 642.4,
    "unc_high": 745.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4816,
+     38.9755,
+     -121.8816,
+     39.4255
+    ],
+    "first_date": "2024-04-01",
+    "last_date": "2024-04-30"
+   }
   },
   {
    "year": 2024,
@@ -4254,7 +7080,17 @@
    "anomaly_z": 1.09,
    "unc_low": 564.5,
    "unc_high": 661.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3126,
+     39.5521,
+     -121.7126,
+     40.0021
+    ],
+    "first_date": "2024-05-01",
+    "last_date": "2024-05-31"
+   }
   },
   {
    "year": 2024,
@@ -4269,7 +7105,17 @@
    "anomaly_z": 0.6,
    "unc_low": 670.3,
    "unc_high": 775.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2861,
+     32.5,
+     -114.6861,
+     32.95
+    ],
+    "first_date": "2024-06-01",
+    "last_date": "2024-06-30"
+   }
   },
   {
    "year": 2024,
@@ -4284,7 +7130,17 @@
    "anomaly_z": 0.54,
    "unc_low": 995.2,
    "unc_high": 1122.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.5307,
+     35.6987,
+     -117.9307,
+     36.1487
+    ],
+    "first_date": "2024-07-13",
+    "last_date": "2024-07-31"
+   }
   },
   {
    "year": 2024,
@@ -4299,7 +7155,17 @@
    "anomaly_z": -0.17,
    "unc_low": 1149.6,
    "unc_high": 1286.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -121.935,
+     40.0336,
+     -121.335,
+     40.4836
+    ],
+    "first_date": "2024-08-01",
+    "last_date": "2024-08-17"
+   }
   },
   {
    "year": 2024,
@@ -4314,7 +7180,17 @@
    "anomaly_z": -0.01,
    "unc_low": 1034.0,
    "unc_high": 1164.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.0129,
+     34.091,
+     -117.4129,
+     34.541
+    ],
+    "first_date": "2024-09-03",
+    "last_date": "2024-09-26"
+   }
   },
   {
    "year": 2024,
@@ -4329,7 +7205,17 @@
    "anomaly_z": 0.0,
    "unc_low": 1043.7,
    "unc_high": 1174.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.033,
+     36.6116,
+     -118.433,
+     37.0616
+    ],
+    "first_date": "2024-10-01",
+    "last_date": "2024-10-31"
+   }
   },
   {
    "year": 2024,
@@ -4344,7 +7230,17 @@
    "anomaly_z": 0.03,
    "unc_low": 787.1,
    "unc_high": 900.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.0202,
+     36.6054,
+     -118.4202,
+     37.0554
+    ],
+    "first_date": "2024-11-01",
+    "last_date": "2024-11-14"
+   }
   },
   {
    "year": 2024,
@@ -4359,7 +7255,17 @@
    "anomaly_z": 0.01,
    "unc_low": 464.8,
    "unc_high": 553.2,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.6225,
+     36.8834,
+     -119.0225,
+     37.3334
+    ],
+    "first_date": "2024-12-03",
+    "last_date": "2024-12-27"
+   }
   },
   {
    "year": 2025,
@@ -4374,7 +7280,17 @@
    "anomaly_z": 2.29,
    "unc_low": 960.3,
    "unc_high": 1085.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.8968,
+     33.9013,
+     -118.2968,
+     34.3513
+    ],
+    "first_date": "2025-01-01",
+    "last_date": "2025-01-14"
+   }
   },
   {
    "year": 2025,
@@ -4389,7 +7305,17 @@
    "anomaly_z": 0.0,
    "unc_low": 434.2,
    "unc_high": 519.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3617,
+     38.7854,
+     -121.7617,
+     39.2354
+    ],
+    "first_date": "2025-02-10",
+    "last_date": "2025-02-28"
+   }
   },
   {
    "year": 2025,
@@ -4404,7 +7330,17 @@
    "anomaly_z": -0.14,
    "unc_low": 490.6,
    "unc_high": 581.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3636,
+     38.8221,
+     -121.7636,
+     39.2721
+    ],
+    "first_date": "2025-03-01",
+    "last_date": "2025-03-29"
+   }
   },
   {
    "year": 2025,
@@ -4419,7 +7355,17 @@
    "anomaly_z": 0.41,
    "unc_low": 645.3,
    "unc_high": 748.7,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.2954,
+     39.4642,
+     -121.6954,
+     39.9142
+    ],
+    "first_date": "2025-04-02",
+    "last_date": "2025-04-30"
+   }
   },
   {
    "year": 2025,
@@ -4434,7 +7380,17 @@
    "anomaly_z": 0.23,
    "unc_low": 450.4,
    "unc_high": 537.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.1837,
+     39.4874,
+     -121.5837,
+     39.9374
+    ],
+    "first_date": "2025-05-01",
+    "last_date": "2025-05-31"
+   }
   },
   {
    "year": 2025,
@@ -4449,7 +7405,17 @@
    "anomaly_z": -0.21,
    "unc_low": 489.7,
    "unc_high": 580.3,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -115.2861,
+     32.5,
+     -114.6861,
+     32.95
+    ],
+    "first_date": "2025-06-02",
+    "last_date": "2025-06-30"
+   }
   },
   {
    "year": 2025,
@@ -4464,7 +7430,17 @@
    "anomaly_z": 0.44,
    "unc_low": 942.9,
    "unc_high": 1067.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -123.6774,
+     41.0888,
+     -123.0774,
+     41.5388
+    ],
+    "first_date": "2025-07-03",
+    "last_date": "2025-07-31"
+   }
   },
   {
    "year": 2025,
@@ -4479,7 +7455,17 @@
    "anomaly_z": -0.14,
    "unc_low": 1198.2,
    "unc_high": 1337.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.4057,
+     34.8828,
+     -119.8057,
+     35.3328
+    ],
+    "first_date": "2025-08-01",
+    "last_date": "2025-08-11"
+   }
   },
   {
    "year": 2025,
@@ -4494,7 +7480,17 @@
    "anomaly_z": -0.08,
    "unc_low": 989.4,
    "unc_high": 1116.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.4084,
+     36.7518,
+     -118.8084,
+     37.2018
+    ],
+    "first_date": "2025-09-01",
+    "last_date": "2025-09-17"
+   }
   },
   {
    "year": 2025,
@@ -4509,7 +7505,17 @@
    "anomaly_z": -0.54,
    "unc_low": 790.0,
    "unc_high": 904.0,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.3691,
+     39.2294,
+     -121.7691,
+     39.6794
+    ],
+    "first_date": "2025-10-05",
+    "last_date": "2025-10-31"
+   }
   },
   {
    "year": 2025,
@@ -4524,7 +7530,17 @@
    "anomaly_z": -0.58,
    "unc_low": 591.4,
    "unc_high": 690.6,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4592,
+     38.9904,
+     -121.8592,
+     39.4404
+    ],
+    "first_date": "2025-11-01",
+    "last_date": "2025-11-26"
+   }
   },
   {
    "year": 2025,
@@ -4539,7 +7555,17 @@
    "anomaly_z": 0.0,
    "unc_low": 461.9,
    "unc_high": 550.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -119.6215,
+     36.8542,
+     -119.0215,
+     37.3042
+    ],
+    "first_date": "2025-12-03",
+    "last_date": "2025-12-30"
+   }
   },
   {
    "year": 2026,
@@ -4554,7 +7580,17 @@
    "anomaly_z": 0.64,
    "unc_low": 503.1,
    "unc_high": 594.9,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -118.6134,
+     33.5951,
+     -118.0134,
+     34.0451
+    ],
+    "first_date": "2026-01-07",
+    "last_date": "2026-01-31"
+   }
   },
   {
    "year": 2026,
@@ -4569,7 +7605,17 @@
    "anomaly_z": 0.23,
    "unc_low": 506.9,
    "unc_high": 599.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4453,
+     39.4255,
+     -121.8453,
+     39.8755
+    ],
+    "first_date": "2026-02-02",
+    "last_date": "2026-02-18"
+   }
   },
   {
    "year": 2026,
@@ -4584,7 +7630,17 @@
    "anomaly_z": 0.46,
    "unc_low": 717.5,
    "unc_high": 826.5,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.4682,
+     38.9637,
+     -121.8682,
+     39.4137
+    ],
+    "first_date": "2026-03-02",
+    "last_date": "2026-03-29"
+   }
   },
   {
    "year": 2026,
@@ -4599,7 +7655,17 @@
    "anomaly_z": -0.47,
    "unc_low": 418.9,
    "unc_high": 503.1,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -122.0246,
+     39.1554,
+     -121.4246,
+     39.6054
+    ],
+    "first_date": "2026-04-02",
+    "last_date": "2026-04-30"
+   }
   },
   {
    "year": 2026,
@@ -4614,7 +7680,17 @@
    "anomaly_z": 0.61,
    "unc_low": 500.2,
    "unc_high": 591.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -120.3531,
+     33.7199,
+     -119.7531,
+     34.1699
+    ],
+    "first_date": "2026-05-15",
+    "last_date": "2026-05-20"
+   }
   },
   {
    "year": 2026,
@@ -4629,7 +7705,17 @@
    "anomaly_z": 0.05,
    "unc_low": 548.2,
    "unc_high": 643.8,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -114.7,
+     37.1932,
+     -114.1,
+     37.6432
+    ],
+    "first_date": "2026-06-17",
+    "last_date": "2026-06-28"
+   }
   },
   {
    "year": 2026,
@@ -4644,7 +7730,17 @@
    "anomaly_z": -0.17,
    "unc_low": 635.6,
    "unc_high": 738.4,
-   "source": "viirs_snpp"
+   "source": "viirs_snpp",
+   "peak_event": {
+    "bbox": [
+     -117.7585,
+     39.4269,
+     -117.1585,
+     39.8769
+    ],
+    "first_date": "2026-07-26",
+    "last_date": "2026-07-31"
+   }
   },
   {
    "year": 2026,
@@ -4659,7 +7755,17 @@
    "anomaly_z": 0.03,
    "unc_low": 1450.9,
    "unc_high": 1800.2,
-   "source": "viirs_noaa20"
+   "source": "viirs_noaa20",
+   "peak_event": {
+    "bbox": [
+     -122.0227,
+     36.0274,
+     -121.4227,
+     36.4774
+    ],
+    "first_date": "2026-08-09",
+    "last_date": "2026-08-31"
+   }
   },
   {
    "year": 2026,
@@ -4674,7 +7780,17 @@
    "anomaly_z": 0.13,
    "unc_low": 1054.0,
    "unc_high": 1318.4,
-   "source": "viirs_noaa20"
+   "source": "viirs_noaa20",
+   "peak_event": {
+    "bbox": [
+     -119.9373,
+     37.3845,
+     -119.3373,
+     37.8345
+    ],
+    "first_date": "2026-09-15",
+    "last_date": "2026-09-30"
+   }
   },
   {
    "year": 2026,
@@ -4689,7 +7805,17 @@
    "anomaly_z": 0.33,
    "unc_low": 1127.2,
    "unc_high": 1407.3,
-   "source": "viirs_noaa20"
+   "source": "viirs_noaa20",
+   "peak_event": {
+    "bbox": [
+     -122.4458,
+     38.9481,
+     -121.8458,
+     39.3981
+    ],
+    "first_date": "2026-10-06",
+    "last_date": "2026-10-31"
+   }
   },
   {
    "year": 2026,
@@ -4704,7 +7830,17 @@
    "anomaly_z": 3.68,
    "unc_low": 813.4,
    "unc_high": 1026.0,
-   "source": "viirs_noaa20"
+   "source": "viirs_noaa20",
+   "peak_event": {
+    "bbox": [
+     -122.4912,
+     38.9314,
+     -121.8912,
+     39.3814
+    ],
+    "first_date": "2026-11-01",
+    "last_date": "2026-11-13"
+   }
   }
  ]
 }
