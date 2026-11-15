@@ -13,6 +13,7 @@ import {
 import { rawValue } from '../../types/contracts.ts'
 import type { Calendar } from '../../types/contracts.ts'
 import { Segmented } from './Controls.tsx'
+import { InfoTip } from './InfoTip.tsx'
 import { MODE_LABEL, UNIT_LABEL, annualTotals, firstViirsMonth, fmtCount, fmtInt, monthTitle } from './model.ts'
 import type { Mode } from './model.ts'
 
@@ -192,12 +193,17 @@ export function TimeSeriesChart({ calendar, mode }: { calendar: Calendar; mode: 
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-2 text-[11px] text-muted">
-        {resolution === 'annual'
-          ? `${UNIT_LABEL} per year. Only years with all 12 months are plotted.`
-          : `${UNIT_LABEL} per month. The band is the harmonized uncertainty range.`}{' '}
-        After VIIRS begins the two series coincide wherever S-NPP itself is the source.
-      </p>
+      <div className="mt-2 flex items-center gap-1 text-[11px] text-muted">
+        {resolution === 'annual' ? `${UNIT_LABEL} per year` : `${UNIT_LABEL} per month`}
+        <InfoTip label="About the chart">
+          <p>
+            {resolution === 'annual'
+              ? 'Only years with all 12 months are plotted.'
+              : 'The band is the harmonized uncertainty range.'}
+          </p>
+          <p>The vertical line marks where VIIRS begins. After it the two series coincide wherever S-NPP itself is the source.</p>
+        </InfoTip>
+      </div>
     </div>
   )
 }
