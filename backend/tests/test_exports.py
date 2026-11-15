@@ -1,15 +1,91 @@
+import asyncio
 import csv
 import io
+from contextlib import contextmanager
+from pathlib import Path
 
 import duckdb
 import h3
+import pytest
 from fastapi.testclient import TestClient
+from shapely.geometry import shape
+from starlette.requests import ClientDisconnect
 
-from backend.app import main
-from backend.app.exports import CALENDAR_COLUMNS, POINT_COLUMNS
+from backend.app import exports, main
+from backend.app.area import AreaQuery
+from backend.app.exports import CALENDAR_COLUMNS, CSV_CHUNK_CHARS, POINT_COLUMNS, csv_rows
 from backend.tests.helpers import CELL, LAT, LON, body, square
 
 client = TestClient(main.app)
+
+
+def test_csv_chunks_preserve_records_without_buffering_the_archive():
+    consumed = 0
+    closed = False
+
+    def records():
+        nonlocal consumed, closed
+        try:
+            yield ("label", "present", "missing")
+            for _ in range(10_000):
+                consumed += 1
+                yield ('Río, "Negro"\nfire', True, None)
+        finally:
+            closed = True
+
+    stream = csv_rows(records())
+    assert next(stream) == "label,present,missing\r\n"
+    assert consumed == 0
+    chunk = next(stream)
+    assert CSV_CHUNK_CHARS <= len(chunk) < CSV_CHUNK_CHARS + 100
+    assert 1 < consumed < 10_000
+    assert list(csv.reader(io.StringIO(chunk))) == [
+        ['Río, "Negro"\nfire', "true", ""]
+    ] * consumed
+    stream.close()
+    assert closed
+
+
+def test_csv_chunks_flush_the_last_partial_chunk_and_empty_input():
+    assert list(csv_rows([])) == []
+    chunks = list(csv_rows([("flag", "value"), (False, None), (True, "0042")]))
+    assert len(chunks) == 2
+    assert list(csv.reader(io.StringIO("".join(chunks)))) == [
+        ["flag", "value"], ["false", ""], ["true", "0042"],
+    ]
+
+
+def test_disconnected_points_export_closes_query_and_removes_spill(monkeypatch):
+    opened = []
+    original = exports.table_connection
+
+    @contextmanager
+    def tracked_connection(path):
+        with original(path) as connection:
+            spill = Path(connection.execute("SELECT current_setting('temp_directory')").fetchone()[0])
+            opened.append((connection, spill))
+            assert spill.exists()
+            yield connection
+
+    monkeypatch.setattr(exports, "table_connection", tracked_connection)
+    query = AreaQuery(**body(start="2015-01", end="2015-01"))
+    response = exports.points_download(
+        query, shape(query.polygon), main.MOCKS / "rio_negro" / "points.sample.csv", True,
+    )
+
+    async def send(message):
+        if message["type"] == "http.response.body":
+            raise OSError("client disconnected")
+
+    async def receive():
+        return {"type": "http.disconnect"}
+
+    with pytest.raises(ClientDisconnect):
+        asyncio.run(response({"type": "http", "asgi": {"spec_version": "2.4"}}, receive, send))
+    connection, spill = opened[0]
+    assert not spill.exists()
+    with pytest.raises(duckdb.ConnectionException):
+        connection.execute("SELECT 1")
 
 
 def test_calendar_csv_matches_area_response(archive):

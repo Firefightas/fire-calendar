@@ -31,6 +31,11 @@ calibration remain `is_mock: true`. CSV provenance is in `X-Data-Source`
 (`MOCK DATA` or `processed`); download headers are exposed through CORS.
 JSON is explicitly read as UTF-8 on every platform.
 
+CSV downloads send the header immediately and batch subsequent complete records
+into about 64 Ki characters per chunk. DuckDB queries use one thread, a 128 MiB
+buffer budget and a private temporary spill directory, cleaned up when the query
+or download closes. This budget does not cap total process memory.
+
 ## Polygon and scientific behavior
 
 Polygons must be valid, nonempty closed GeoJSON polygons (holes supported), entirely
@@ -70,7 +75,8 @@ Weather remains a direct browser call to Open-Meteo.
 Create a Python web service from the repository. Keep the service root at the repository
 root, so `contracts/` and `data/processed/` remain available.
 
-- Build: `pip install -r backend/requirements.txt`
+- Current Render build: `uv sync --frozen && uv cache prune --ci`
+- Alternative pip build: `pip install -r backend/requirements.txt`
 - Start: `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
 - Health check: `/api/health`
 - Environment: `PYTHON_VERSION=3.11.18`, `FIRMS_MAP_KEY`, and a comma-separated
@@ -92,25 +98,36 @@ both CSV exports (including filenames and MOCK DATA provenance); invalid-query 4
 responses; and the localhost CORS preflight. Calendar CSV values matched the
 corresponding polygon response.
 
-Render now serves P3's real Rio Negro regional calendar/calibration. California
-and Romania remain on mocks. P1 has verified live NRT after configuring the key
-and deploying PR #11. Drawn-area queries still use the sample archive until P1
-uploads both Rio Negro Parquet files and deploys the early handover fix.
+On 15 November 2026, deployment `efb661b` passed real-data checks for both screened
+Rio Negro and California: regional JSON matches the committed files, drawn-area
+calendars return 313 real months and both CSV exports have processed provenance.
+Health lists only Romania under `using_mocks`. The Parquet tables are now tracked
+in Git and deployed with the matching calibration files. Sandbox terrain remains
+mock independently of calendar provenance.
+
+California's broad point exports exposed slow per-row streaming and high memory
+use. This branch batches CSV writes and limits DuckDB resources; deployment and
+live performance re-verification of that fix remain pending. See
+[REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md) for timings, sampled Render memory,
+current calibration metrics and the exact remaining step.
+
+P1 verified live NRT after configuring the key and deploying PR #11.
 Keep credentials out of Git and chat.
 
 P5 should configure VITE_API_URL=https://fire-calendar.onrender.com in the frontend
 deployment and coordinate its origin with CORS_ORIGINS (the current backend allows
 all origins). That frontend configuration belongs to P5.
 
-Real archive validation still depends on P2/P3's files; until then the demo
-deliberately serves labeled sample/mock data.
+Regions without real inputs continue to serve labeled sample/mock data.
 
 ## Diagnosing NRT failures
 
 A true firms_key_configured field in health means the environment variable is
-present, not that NASA has accepted the key. On 14 November 2026, the deployed
+present, not that NASA has accepted the key. During initial verification on
+14 November 2026, the deployed
 service reported a configured key, while one-day region, equivalent global bbox
-and seven-day requests returned generic 502 responses. Live NRT remains unverified.
+and seven-day requests returned generic 502 responses. P1 subsequently verified
+live NRT after the key whitespace fix.
 
 The proxy now returns safe per-source reasons for rejected keys, exhausted quota,
 timeouts, network failures, upstream HTTP errors, unavailable source/date data and
@@ -123,7 +140,6 @@ Leading/trailing whitespace is stripped from the configured key. After merging
 this diagnostics fix and redeploying Render, recheck the live NRT error before
 deciding whether key activation, quota, network access or parsing needs attention.
 
-Real Rio Negro inputs, the early NOAA handover fix, independent calendar/CSV
-verification and the remaining Render file-upload handoff are documented in
-[REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md). P1 will provide the gitignored
-Parquet files to Render; local integration is verified with P3's approved outputs.
+Real Rio Negro/California inputs, the early NOAA handover fix, calendar/CSV
+verification and the remaining performance deployment step are documented in
+[REAL_DATA_HANDOFF.md](REAL_DATA_HANDOFF.md).

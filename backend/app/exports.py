@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import csv
 import io
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from contextlib import ExitStack
 from pathlib import Path
 
 from fastapi.responses import StreamingResponse
 from shapely import intersects_xy
 from shapely.geometry import Polygon
-from starlette.background import BackgroundTask
+from starlette.concurrency import run_in_threadpool
+from starlette.types import Receive, Scope, Send
 
 from backend.app.area import AreaQuery, table_connection
 
@@ -22,16 +24,42 @@ CALENDAR_COLUMNS = (
     "year", "month", "modis_raw", "viirs_raw", "harmonized", "is_estimated",
     "is_nrt", "median_m", "iqr_m", "anomaly_z", "unc_low", "unc_high", "source",
 )
+CSV_CHUNK_CHARS = 64 * 1024
+
+
+class _PointsStreamingResponse(StreamingResponse):
+    def __init__(self, *args, cleanup: Callable[[], None], **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cleanup = cleanup
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        try:
+            await super().__call__(scope, receive, send)
+        finally:
+            # BackgroundTask is skipped when ASGI 2.4 raises ClientDisconnect.
+            await run_in_threadpool(self.cleanup)
 
 
 def csv_rows(rows: Iterable[Iterable]) -> Iterable[str]:
+    """Send the header promptly, then bounded chunks instead of one ASGI send per row."""
     buffer = io.StringIO(newline="")
     writer = csv.writer(buffer, lineterminator="\r\n")
-    for row in rows:
-        writer.writerow("true" if v is True else "false" if v is False else v for v in row)
-        yield buffer.getvalue()
-        buffer.seek(0)
-        buffer.truncate(0)
+    source = iter(rows)
+    try:
+        for index, row in enumerate(source):
+            writer.writerow("true" if v is True else "false" if v is False else v for v in row)
+            # A single oversized row is allowed; memory otherwise stays bounded
+            # independently of the archive size. Keep CSV records intact.
+            if index == 0 or buffer.tell() >= CSV_CHUNK_CHARS:
+                yield buffer.getvalue()
+                buffer.seek(0)
+                buffer.truncate(0)
+        if buffer.tell():
+            yield buffer.getvalue()
+    finally:
+        buffer.close()
+        if close := getattr(source, "close", None):
+            close()
 
 
 def headers(kind: str, query: AreaQuery, is_mock: bool) -> dict:
@@ -55,7 +83,8 @@ def _with_header(columns: tuple, rows: Iterable) -> Iterable:
 
 
 def points_download(query: AreaQuery, geometry: Polygon, path: Path, is_mock: bool) -> StreamingResponse:
-    connection = table_connection(path)
+    resources = ExitStack()
+    connection = resources.enter_context(table_connection(path))
     west, south, east, north = geometry.bounds
     try:
         # Bbox and date filtering happen in DuckDB, exact polygon + holes in
@@ -70,7 +99,7 @@ def points_download(query: AreaQuery, geometry: Polygon, path: Path, is_mock: bo
             ORDER BY CAST(date AS DATE), time, satellite, h3
         """, [query.start + "-01", query.end + "-01", west, east, south, north])
     except Exception:
-        connection.close()
+        resources.close()
         raise
 
     def rows():
@@ -88,9 +117,9 @@ def points_download(query: AreaQuery, geometry: Polygon, path: Path, is_mock: bo
                             values[-1] = values[-1].lower() == "true"
                         yield values
         finally:
-            connection.close()
+            resources.close()
 
-    return StreamingResponse(
+    return _PointsStreamingResponse(
         csv_rows(rows()), media_type="text/csv", headers=headers("hotspots", query, is_mock),
-        background=BackgroundTask(connection.close),
+        cleanup=resources.close,
     )
