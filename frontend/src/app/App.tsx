@@ -189,6 +189,8 @@ export default function App() {
                 calibration={calib}
                 areaName={areaCal ? `${AREA_LABEL} in ${region?.name ?? regionId}` : (region?.name ?? shown.region_id)}
                 isArea={Boolean(areaCal)}
+                region={region ?? null}
+                polygon={polygon}
                 southern={region?.hemisphere === 'south'}
                 stale={calendar.status === 'loading' || areaLoading}
                 actions={

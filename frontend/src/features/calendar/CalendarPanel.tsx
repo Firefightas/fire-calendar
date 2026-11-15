@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import type { Calendar, Calibration } from '../../types/contracts.ts'
+import type { Calendar, Calibration, Region } from '../../types/contracts.ts'
 import { AnomalyCards } from './AnomalyCards.tsx'
+import { BurnScarSlider } from './BurnScarSlider.tsx'
 import { CalendarHeatmap } from './CalendarHeatmap.tsx'
 import { CalendarTable } from './CalendarTable.tsx'
 import { CalibrationPanel } from './CalibrationPanel.tsx'
 import { ModeToggle, PaletteSwitcher, Segmented } from './Controls.tsx'
 import { TimeSeriesChart } from './TimeSeriesChart.tsx'
-import { MODE_LABEL, UNIT_LABEL, lastMonthProgress, monthKey } from './model.ts'
+import { todayIso } from './gibs.ts'
+import { MODE_LABEL, UNIT_LABEL, lastMonthProgress, monthKey, peakAnomaly } from './model.ts'
 import type { Mode } from './model.ts'
 import type { PaletteId } from './palettes.ts'
 
@@ -17,6 +19,10 @@ interface Props {
   areaName: string
   /** True when `calendar` is for a drawn area rather than the whole region. */
   isArea: boolean
+  /** The region on screen; the satellite imagery card needs its id and centre. */
+  region?: Region | null
+  /** The drawn area the calendar is for, or null for the whole region. */
+  polygon?: GeoJSON.Polygon | null
   /** Rows default to July→June fire seasons for southern-hemisphere regions. */
   southern: boolean
   /** Dim while a new calendar is loading, instead of flashing a skeleton. */
@@ -25,7 +31,17 @@ interface Props {
   actions?: React.ReactNode
 }
 
-export function CalendarPanel({ calendar, calibration, areaName, isArea, southern, stale, actions }: Props) {
+export function CalendarPanel({
+  calendar,
+  calibration,
+  areaName,
+  isArea,
+  region = null,
+  polygon = null,
+  southern,
+  stale,
+  actions,
+}: Props) {
   const [mode, setMode] = useState<Mode>('harmonized')
   const [palette, setPalette] = useState<PaletteId>('cividis')
   const [startMonth, setStartMonth] = useState<1 | 7>(1)
@@ -35,6 +51,11 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
   const selected = selectedKey ? (calendar.months.find((m) => monthKey(m) === selectedKey) ?? null) : null
   const years = new Set(calendar.months.map((m) => m.year)).size
   const lastProgress = lastMonthProgress(calendar, calibration)
+  // Imagery card: the clicked month, else the month with the highest anomaly.
+  const imageryMonth = selected ?? peakAnomaly(calendar.months)
+  const area = isArea ? polygon : null
+  const lastDataDate = calibration?.region_id === calendar.region_id ? calibration.diagnostics?.last_data_date : null
+  const maxImageryDate = typeof lastDataDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(lastDataDate) ? lastDataDate : todayIso()
 
   return (
     <div className={`space-y-4 transition-opacity ${stale ? 'opacity-50' : ''}`} aria-busy={stale}>
@@ -85,6 +106,18 @@ export function CalendarPanel({ calendar, calibration, areaName, isArea, souther
         />
         <CalendarTable calendar={calendar} />
       </section>
+
+      {region && imageryMonth && (
+        <BurnScarSlider
+          // Date steps and the divider start over for another month or area.
+          key={`${region.id}:${monthKey(imageryMonth)}:${area ? JSON.stringify(area.coordinates) : 'region'}`}
+          month={imageryMonth}
+          isDefault={!selected}
+          region={region}
+          polygon={area}
+          maxDate={maxImageryDate}
+        />
+      )}
 
       <section className="rounded-lg border border-hairline bg-surface p-4">
         <header className="mb-3">
