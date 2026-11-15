@@ -45,7 +45,7 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Readonl
   ]
   return (
     <div className="rounded-lg border border-hairline bg-raised p-3 text-xs shadow-xl shadow-black/50">
-      <div className="mb-1 text-[11px] tracking-wide text-muted uppercase">{p.title}</div>
+      <div className="mb-1 text-xs tracking-wide text-muted uppercase">{p.title}</div>
       {rows.map(([mode, v]) => (
         <div key={mode} className="flex items-center gap-2">
           <span className="h-0.5 w-3 rounded-full" style={{ background: COLOR[mode] }} />
@@ -193,7 +193,7 @@ export function TimeSeriesChart({ calendar, mode }: { calendar: Calendar; mode: 
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-2 flex items-center gap-1 text-[11px] text-muted">
+      <div className="mt-2 flex items-center gap-1 text-xs text-muted">
         {resolution === 'annual' ? `${UNIT_LABEL} per year` : `${UNIT_LABEL} per month`}
         <InfoTip label="About the chart">
           <p>

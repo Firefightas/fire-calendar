@@ -46,7 +46,7 @@ export function MonthDetails({ m, calendar, mode, progress }: DetailsProps) {
   return (
     <div className="space-y-2 text-xs">
       <div>
-        <div className="text-[11px] tracking-wide text-muted uppercase">{monthTitle(m)}</div>
+        <div className="text-xs tracking-wide text-muted uppercase">{monthTitle(m)}</div>
         <div className="text-lg leading-tight font-semibold text-ink">{fmtCount(valueOf(m, mode))}</div>
         <div className="text-ink-2">
           {UNIT_LABEL} · {MODE_LABEL[mode]}

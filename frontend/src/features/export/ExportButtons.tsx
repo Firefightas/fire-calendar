@@ -79,7 +79,7 @@ export function ExportButtons({ query, calendar, calendarIsArea }: Props) {
         <p
           key={n.text}
           role={n.kind === 'error' ? 'alert' : 'status'}
-          className={`text-[11px] ${n.kind === 'error' ? 'text-serious' : 'text-ink-2'}`}
+          className={`text-xs ${n.kind === 'error' ? 'text-serious' : 'text-ink-2'}`}
         >
           {n.text}
         </p>
