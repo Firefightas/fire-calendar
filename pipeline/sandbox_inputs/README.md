@@ -55,3 +55,36 @@ PR #24 history has 49,314 rows; the 1,027-cell base grid has 736 matches and
 291 absent-history defaults. All 74 matched zero-count cells keep their real
 recency. Output remains `is_mock: true` until terrain is replaced. See
 `pipeline/ingest/CALIFORNIA_STATUS.md` for input hashes and delivery details.
+
+## Real terrain grid (`terrain.py`, written by P3 on 15 Nov 2026 with both humans' approval)
+
+```bash
+uv run --with rasterio python -m pipeline.sandbox_inputs.terrain --region rio_negro
+uv run --with rasterio python -m pipeline.sandbox_inputs.terrain --region california
+```
+
+`rasterio` is not in `pyproject.toml` (root file, P1), so it is added for the run only; the tests do not need it. Each run takes about a minute (most of it waiting for Open-Meteo's rate limit) and writes `data/processed/<region>/sandbox_grid.json` plus `sandbox_grid.provenance.json`. It replaces the mock base grid: the output is `is_mock: false`, and `join_history.py` is called unchanged for the fire history.
+
+| Step | Source and rule |
+|---|---|
+| Cells | the 1,027 res-7 hexes within 18 rings of the region centre in `contracts/regions.json` (same footprint as the mock grid); `--center LAT LON` and `--rings` move or resize it |
+| Land cover | ESA WorldCover 10 m 2021 v200 (public S3 bucket), every 8th pixel = an 80 m systematic sample, about 800 samples per hex |
+| Hex class | **built-up (50) if it covers at least 5 % of the hex, else water (80) if at least 5 %, else the majority class** |
+| Elevation | Open-Meteo elevation API at the hex centre, 100 points per call, retry on HTTP 429 |
+| Slope | max over the neighbours that are inside the grid of `atan(abs(Δelevation) / centre distance)` |
+| Fire history | P3's `hex_fire_history.parquet` through `join_history` |
+
+Why the hex class is not a plain majority: a res-7 hex is about 5 km², far larger than a river or a village. With a plain majority Río Negro has 0 water hexes and 1 built-up hex, and California 3 and 2, so the sandbox would have no natural barriers and nothing to protect. At 5 % the two arms of the Río Negro around Choele Choel come out as two nearly continuous chains (32 and 27 hexes). The cost: a hex classed as river is wholly non-burnable although water covers only part of it, so barriers are somewhat wider than in reality. This deviates from the wording "majority class" in `contracts/sandbox_grid.schema.json` (description only; the schema validates) and is flagged to P1 in `PLAN.md`.
+
+Results of the runs of 15 Nov 2026 (all numbers from the provenance files):
+
+| | Río Negro | California |
+|---|---|---|
+| Centre | 39.30 S, 65.60 W (Choele Choel valley) | 37.20 N, 119.50 W (Sierra Nevada foothills east of Fresno) |
+| Forest / grassland / farm | 4 / 877 / 68 | 624 / 331 / 5 |
+| Village / river / none | 13 / 65 / 0 | 26 / 36 / 5 |
+| Elevation | 108–231 m | 84–3,097 m |
+| Steepest slope | 1.9° | 20.8° |
+| Hexes with fire history | 628 of 1,027 | 736 of 1,027 |
+
+Limits: land cover is the 2021 map, so recent burns show as whatever regrew or remained; "village" means any built-up hex, including the edge of a city; lakes and reservoirs are classed `river`; slope between hex centres 2.4 km apart smooths out everything smaller, so Río Negro is practically flat in the sandbox. Romania has no grid yet because it has no fire history.

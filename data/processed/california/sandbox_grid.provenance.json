@@ -1,0 +1,36 @@
+{
+  "landcover": "ESA WorldCover 10 m 2021 v200, tiles N36W120",
+  "landcover_rule": "built-up if >= 5% of the hex, else water if >= 5%, else majority class; 80 m systematic sample",
+  "elevation": "Open-Meteo elevation API at hex centres; slope = max over in-grid neighbours",
+  "history_input": "hex_fire_history.parquet",
+  "history_rows": 49314,
+  "center": [
+    37.2,
+    -119.5
+  ],
+  "rings": 18,
+  "cells": 1027,
+  "history_matched": 736,
+  "landcover_counts": {
+    "10": 624,
+    "30": 331,
+    "40": 5,
+    "50": 26,
+    "60": 5,
+    "80": 36
+  },
+  "asset_counts": {
+    "farm": 5,
+    "forest": 624,
+    "grassland": 331,
+    "none": 5,
+    "river": 36,
+    "village": 26
+  },
+  "elevation_m": [
+    84.0,
+    3097.0
+  ],
+  "max_slope_deg": 20.75,
+  "is_mock": false
+}
