@@ -123,6 +123,11 @@ Regions without real inputs continue to serve labeled sample/mock data.
 
 ## Diagnosing NRT failures
 
+The latest live recheck (15 November 2026, deployed `3636a0e`) passes seven-day
+regional and global-bbox requests for Rio Negro and California, including a fresh
+bbox request. See [NRT_LIVE_HANDOFF.md](NRT_LIVE_HANDOFF.md) for P6's input handoff,
+observed counts and the distinction between API verification and sandbox UI checks.
+
 A true firms_key_configured field in health means the environment variable is
 present, not that NASA has accepted the key. During initial verification on
 14 November 2026, the deployed
@@ -137,9 +142,10 @@ raw response bodies, credentials and upstream URLs are omitted. HTTP status and
 the frozen detail-string error shape remain unchanged. Failed or partial results
 are not cached. Header-only valid CSV is still a successful empty observation set.
 
-Leading/trailing whitespace is stripped from the configured key. After merging
-this diagnostics fix and redeploying Render, recheck the live NRT error before
-deciding whether key activation, quota, network access or parsing needs attention.
+Leading/trailing whitespace is stripped from the configured key. If NRT fails
+again, use the safe error category before deciding whether key activation, quota,
+network access or parsing needs attention. The current successful recheck does
+not establish the cause of P6's earlier rejection or guarantee future quota.
 
 Real Rio Negro/California inputs, the early NOAA handover fix, calendar/CSV
 verification and the completed performance deployment check are documented in
