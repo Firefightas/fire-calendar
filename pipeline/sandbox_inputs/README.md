@@ -87,4 +87,6 @@ Results of the runs of 15 Nov 2026 (all numbers from the provenance files):
 | Steepest slope | 1.9° | 20.8° |
 | Hexes with fire history | 628 of 1,027 | 736 of 1,027 |
 
-Limits: land cover is the 2021 map, so recent burns show as whatever regrew or remained; "village" means any built-up hex, including the edge of a city; lakes and reservoirs are classed `river`; slope between hex centres 2.4 km apart smooths out everything smaller, so Río Negro is practically flat in the sandbox. Romania has no grid yet because it has no fire history.
+Limits: land cover is the 2021 map, so recent burns show as whatever regrew or remained; "village" means any built-up hex, including the edge of a city; lakes and reservoirs are classed `river`; slope between hex centres 2.4 km apart smooths out everything smaller, so Río Negro is practically flat in the sandbox. Romania's grid was added later the same day (below).
+
+Romania (run by P3 on 15 Nov 2026, same command with `--region romania`, after its fire history existed): centre 45.90 N, 25.00 E (Făgăraș – southern Transylvania), forest / grassland / farm 459 / 399 / 93, village / river 51 / 25, elevation 338–2,431 m, steepest slope 19.9°, 730 of 1,027 hexes with fire history, `is_mock: false`.
