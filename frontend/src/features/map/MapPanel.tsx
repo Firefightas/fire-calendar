@@ -57,7 +57,7 @@ const NRT_RAMP: [Rgba, Rgba] = [
   [255, 214, 214, 230],
 ]
 const NRT_DOT: Rgba = [230, 103, 103, 255]
-const SURFACE: Rgba = [13, 13, 13, 255]
+const SURFACE: Rgba = [11, 18, 32, 255]
 const AREA_COLOR = '#86b6ef'
 const BOX_HALF_KM = 10
 
@@ -74,9 +74,9 @@ const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: 
 const nf = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 const TOOLTIP_STYLE = {
-  background: '#232322',
-  color: '#f0efec',
-  border: '1px solid rgba(255,255,255,0.1)',
+  background: '#17233d',
+  color: '#e8eef8',
+  border: '1px solid rgba(148,163,184,0.18)',
   borderRadius: '8px',
   padding: '8px 10px',
   fontSize: '12px',
@@ -195,7 +195,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
           id: 'regions-line',
           type: 'line',
           source: 'regions',
-          paint: { 'line-color': '#c3c2b7', 'line-width': 1.25, 'line-dasharray': [3, 2] },
+          paint: { 'line-color': '#b6c3d8', 'line-width': 1.25, 'line-dasharray': [3, 2] },
         })
         m.addSource('area', { type: 'geojson', data: EMPTY })
         m.addLayer({
@@ -363,7 +363,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
     const map = mapRef.current
     if (!map || !pointValid) return
     markerRef.current?.remove()
-    markerRef.current = new Marker({ color: '#f0efec' }).setLngLat([point.lon, point.lat]).addTo(map)
+    markerRef.current = new Marker({ color: '#e8eef8' }).setLngLat([point.lon, point.lat]).addTo(map)
     map.flyTo({ center: [point.lon, point.lat], zoom: Math.max(map.getZoom(), 9), duration: moveMs() })
   }
 

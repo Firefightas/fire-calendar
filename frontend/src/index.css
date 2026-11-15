@@ -1,28 +1,33 @@
 @import 'tailwindcss';
 
-/* Dark-only UI. Chrome and series tokens follow one validated set (CVD-checked on #1a1a19). */
+/* Dark-only UI, "Satellite navy" palette: slate-blue chrome, sky blue for actions, amber only for fire.
+   Data ramps (Cividis, Viridis, Inferno) live in features/calendar/palettes.ts and are unchanged. */
 @theme {
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  --color-page: #0d0d0d;
-  --color-surface: #1a1a19;
-  --color-raised: #232322;
-  --color-ink: #f0efec;
-  --color-ink-2: #c3c2b7;
-  --color-muted: #898781;
-  --color-grid: #2c2c2a;
-  --color-axis: #383835;
-  --color-hairline: rgba(255, 255, 255, 0.1);
+  --color-page: #0b1220;
+  --color-surface: #111a2e;
+  --color-raised: #17233d;
+  --color-ink: #e8eef8;
+  --color-ink-2: #b6c3d8;
+  --color-muted: #8494ad;
+  --color-grid: #1c2740;
+  --color-axis: #24324d;
+  --color-hairline: rgba(148, 163, 184, 0.18);
+
+  /* Actions (primary buttons, focus ring). */
+  --color-action: #38bdf8;
+  --color-action-ink: #06121f;
 
   /* Categorical: fixed by entity, never by rank. */
-  --color-series-harmonized: #3987e5;
-  --color-series-raw: #d95926;
+  --color-series-harmonized: #60a5fa;
+  --color-series-raw: #fb923c;
 
   /* Status: always paired with an icon or label. */
-  --color-good: #0ca30c;
-  --color-warning: #fab219;
-  --color-serious: #ec835a;
-  --color-critical: #d03b3b;
+  --color-good: #22c55e;
+  --color-warning: #f59e0b;
+  --color-serious: #fb923c;
+  --color-critical: #ef4444;
 }
 
 html,
@@ -44,7 +49,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid #86b6ef;
+  outline: 2px solid var(--color-action);
   outline-offset: 2px;
 }
 
