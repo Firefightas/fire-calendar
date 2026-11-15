@@ -80,6 +80,11 @@ One line per decision: what, and why. Newest at the bottom. Read before changing
 - Seasonal medians are read from a row other than the calendar's newest one (P5, 15 Nov). Why: the newest row can carry a month-to-date median.
 - Typed latitude/longitude are cleared when the region changes (P5, 15 Nov). Why: old coordinates from another region left the "20 km box" button unusable until retyped.
 
+- Burn scar slider imagery routing (P5, 15 Nov): the sensor is chosen per image date, not per month: MODIS Terra before 2015-11-24, VIIRS S-NPP until 2026-07-31, VIIRS NOAA-20 from 2026-08-01 (and for NOAA-sourced months). Why: GIBS serves no S-NPP corrected-reflectance imagery before 24 Nov 2015 (blank tiles), although the hotspot record uses S-NPP from 2012. The VIIRS SWIR layer ids are `…BandsM11-I2-I1` (the unhyphenated spelling is rejected by GIBS).
+- Slider box (P5, 15 Nov): target box padded 1.25×, at least 0.60° × 0.45°, then widened on one axis to a 16:9 patch of ground (cosine of latitude applied). Why: a 960×540 image of a box with another shape would be stretched.
+- Built-in flagship windows (P5, 15 Nov): box and first/last dates are the dominant hotspot cluster of the month in `points.parquet` (0.1° grid, cells connected to the densest one); the before/after dates were chosen by looking at the GIBS SWIR image of that box for each candidate day. The "Cloud-free verified dates" chip shows only for that box and only until the user steps a date; a drawn area keeps the dates but not the chip. A `peak_event` on the calendar row always wins over the built-in table.
+- Months without an event (P5, 15 Nov): images default to 20 days before the month and 10 days after it, framed on the region centre, and the card says so. Why: there are no fire dates or cluster to frame until P3 fills `peak_event`.
+
 ## P4 backend polygon calendars
 
 - Polygon monthly factors use P3's >=5 MODIS cell-days per ratio and >=3 fit-year ratios, restricted to Feb 2012-Dec 2020; sparse months inherit the regional factor/CV. Terra-only and NOAA factors stay regional. Why: stable small-area calibration without fitting held-out years.

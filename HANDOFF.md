@@ -19,13 +19,13 @@ Gotchas:
 ---
 
 ## P5 Frontend — Sun 15 Nov 2026 — Claude (Fable)
-Done: all P5 items in PLAN.md, including the Critical fire season window card (`seasonalProfile` in `features/calendar/model.ts`, `SeasonTile` in `AnomalyCards.tsx`) and the real Río Negro and California sandbox grids in the offline bundle. Sandbox launch verified in the production build for a region and a drawn area.
+Done: all P5 items in PLAN.md, including the before / after NASA GIBS imagery slider (`features/calendar/gibs.ts`, `BurnScarSlider.tsx`, rendered by `CalendarPanel.tsx` under the calendar), the critical fire season window card and the real Río Negro and California sandbox grids in the offline bundle.
 In progress (files + exact state): nothing half-written.
-Broken / known issues: none in P5 code. Romania (calendar, calibration, sandbox grid) is still mock and labelled.
+Broken / known issues: none in P5 code. The slider needs internet for the images (NASA GIBS, no key); offline it shows an error with a retry button. Months without `peak_event` and outside the 5 built-in flagship months are framed on the region centre with dates derived from the month. Romania is still mock and labelled.
 Next 3 steps:
-1. When Romania gets real files: `cd frontend && npm run sync-data`, commit `public/data/`, repeat the region checks (calendar, season card, map badge, sandbox launch).
-2. Checkpoint B: check the Vercel deployment once P1 has it up, including the offline fallback.
-3. Nothing else is queued; take the next request addressed to P5 in PLAN.md.
+1. When P3 adds `peak_event` to `calendar.json`: `cd frontend && npm run sync-data`, commit `public/data/`, check a few months in the slider (the row's event replaces the built-in table automatically).
+2. When Romania gets real files: sync, commit, repeat the region checks.
+3. Checkpoint B: check the Vercel deployment once P1 has it up, including the offline fallback.
 Gotchas: `gh` is not installed on this laptop. `npm run build` reads `frontend/.env.production`, so a local production build or `vite preview` talks to the Render backend; `npm run dev` still uses `http://localhost:8000`. After switching branches restart `npm run dev` (a stale dev server served the page unstyled). MapLibre 6 needs `setWorkerUrl` (already done in `MapPanel.tsx`). Every append to DECISIONS.md conflicts with other roles' appends: keep both sides.
 
 
