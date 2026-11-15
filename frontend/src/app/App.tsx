@@ -132,7 +132,7 @@ export default function App() {
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
                 r.id === regionId
                   ? 'border-ink-2 bg-raised text-ink'
-                  : 'border-hairline text-ink-2 hover:bg-raised'
+                  : 'border-hairline text-ink-2 hover:border-ink-2/40 hover:bg-raised hover:text-ink'
               }`}
             >
               {r.name}

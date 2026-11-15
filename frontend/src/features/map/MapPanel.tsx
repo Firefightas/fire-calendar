@@ -103,8 +103,8 @@ function tooltipText(layerId: string | undefined, object: unknown): string | nul
 }
 
 const toolButton = (active: boolean) =>
-  `rounded-md border px-2.5 py-1.5 text-xs shadow-md shadow-black/40 transition-colors ${
-    active ? 'border-ink bg-ink text-page' : 'border-hairline bg-raised text-ink hover:bg-axis'
+  `rounded-md border px-3 py-1.5 text-xs shadow-md shadow-black/40 transition-colors ${
+    active ? 'border-ink bg-ink text-page' : 'border-hairline bg-raised text-ink hover:border-ink-2/40 hover:bg-axis'
   }`
 
 export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Props) {
@@ -492,7 +492,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
               type="button"
               disabled={!ready || nrt.status === 'loading'}
               onClick={() => void fetchNrt()}
-              className="rounded border border-hairline px-1.5 py-0.5 text-ink hover:bg-axis disabled:opacity-50"
+              className="rounded-md border border-hairline px-2 py-0.5 text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:opacity-50"
             >
               {nrt.status === 'loading' ? 'Loading…' : 'Load for this view'}
             </button>
@@ -547,7 +547,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
           <button
             type="submit"
             disabled={!ready || !pointValid}
-            className="rounded-md border border-hairline px-3 py-1.5 text-ink hover:bg-raised disabled:opacity-50"
+            className="rounded-md border border-hairline px-3 py-1.5 text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:opacity-50"
           >
             Go to point
           </button>
@@ -555,7 +555,7 @@ export function MapPanel({ regions, region, polygon, onPolygonChange, grid }: Pr
             type="button"
             disabled={!ready || !pointValid}
             onClick={() => commitArea(boxAround(point.lat, point.lon, BOX_HALF_KM))}
-            className="rounded-md border border-hairline px-3 py-1.5 text-ink hover:bg-raised disabled:opacity-50"
+            className="rounded-md border border-hairline px-3 py-1.5 text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:opacity-50"
           >
             Use a {BOX_HALF_KM * 2} km box here as the area
           </button>

@@ -62,7 +62,7 @@ function DateStepper({ side, date, min, max, onStep }: StepperProps) {
         onClick={() => onStep(days)}
         disabled={target === date}
         aria-label={`${name} image: ${days > 0 ? 'forward' : 'back'} ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'}`}
-        className="rounded border border-hairline px-1.5 py-0.5 text-[11px] text-ink hover:bg-raised disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-md border border-hairline px-1.5 py-0.5 text-[11px] text-ink transition-colors hover:border-ink-2/40 hover:bg-raised disabled:cursor-not-allowed disabled:opacity-40"
       >
         {label}
       </button>
@@ -178,7 +178,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
           <button
             type="button"
             onClick={() => setShift({ before: 0, after: 0 })}
-            className="rounded border border-hairline px-2 py-0.5 text-[11px] text-ink hover:bg-raised"
+            className="rounded-md border border-hairline px-2 py-0.5 text-[11px] text-ink transition-colors hover:border-ink-2/40 hover:bg-raised"
           >
             Reset dates
           </button>
@@ -243,7 +243,7 @@ export function BurnScarSlider({ month, isDefault, region, polygon, maxDate }: P
                 type="button"
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={() => setAttempt((n) => n + 1)}
-                className="mt-2 rounded border border-hairline px-2 py-1 text-ink hover:bg-raised"
+                className="mt-2 rounded-md border border-hairline px-2 py-1 text-ink transition-colors hover:border-ink-2/40 hover:bg-raised"
               >
                 Try again
               </button>
