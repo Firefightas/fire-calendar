@@ -11,7 +11,7 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 | P3 Harmonization | _fill in_ | Claude Pro #1 (Fable) | Río Negro and **California** run on P2's real tables and committed (`calendar.json`, `calibration.json`, `hex_fire_history.parquet`; binding median-ratio method). Río Negro: held-out MAE 91 cell-days, MAPE 33 %. California: MAE 152 cell-days, MAPE 17.5 %, 2012 step ×3.13 → ×1.52 (MODIS alone ×1.53). Charts and `METHOD.md` cover both. Next: Romania when P2 lands it. |
 | P4 Backend | _fill in_ | ChatGPT Plus #2 (Codex) | Real Rio Negro/California verified on Render efb661b; 313-month polygons and CSVs pass; export batching/resource limits tested locally, awaiting P1 merge/deploy and live performance recheck. |
 | P5 Frontend | _fill in_ | Claude Pro #2 (Fable) | Río Negro (re-run) and California verified on real data through the deployed backend and from the offline bundle, including real drawn-area calendars and CSV exports; Romania is still mock and labelled; the sandbox button opens the host page with the banner, waiting for P6's `features/sandbox/index.tsx`; next: sandbox launch check once P6 merges, Romania when its real files land. |
-| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | Not started. |
+| P6 Sandbox | _fill in_ | Claude Pro #3 (Fable) | All 13 steps of the P6 build order are on `feat/p6-sandbox-engine` (mock grids): hex map with layers, seeded spread engine in a Web Worker, live wind, four interventions on a 24-unit budget, scoreboard, two simulation-scored optimizers (greedy; min-cut anchor line + greedy fill), crew exit routes, draft advisory, ignition from live hotspots. Open: a human check that the spread looks believable, live-hotspot check once `/api/nrt` works again, real grids from P2. |
 | Relief pool | _fill in_ | Gemini Pro #2, #3 | Standing by; take over via `HANDOFF.md`. |
 
 ## Checkpoints (TEAM_PLAN §7)
@@ -69,11 +69,11 @@ Agents: tick tasks as you finish them and keep your "Current state" line to one 
 - [x] California on real data and Río Negro re-run: offline bundle refreshed (`npm run sync-data`), both regions checked in the running app against the deployed backend (calendar, toggle, validation, calibration panel, anomaly cards, month to date, drawn polygon, both CSV exports) and with the backend blocked
 
 ## P6: Tactical Containment Sandbox
-- [ ] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation)
-- [ ] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
-- [ ] 8-step UI: drone perimeter, terrain, fuel, weather, attack, 4 interventions, asset triage, exit route
-- [ ] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard
-- [ ] Draft RO-ALERT-style advisory modal; permanent banner; wire to real grid
+- [x] CA engine in a Web Worker on the mock grid (TEAM_PLAN §3.2 equation), click-to-ignite, 72 h playback
+- [x] Wind from Open-Meteo + gust/wind-shift slider; slope; fuel from land cover + years since last fire
+- [x] 8-step UI: drone perimeter (live hotspots inside the drawn area), terrain, fuel, weather, attack, 4 interventions, asset triage, exit route
+- [x] Min-cut + Monte Carlo optimizer with identical budget; side-by-side scoreboard (two optimizers, both scored on the same 20 seeds as the human plan: greedy, and min-cut anchor line + greedy fill)
+- [ ] Draft RO-ALERT-style advisory modal; permanent banner; wire to real grid (done: draft advisory modal; the banner is shown by the host page; the sandbox reads whatever `loadSandboxGrid` returns, so real grids need no code change, only P2's files)
 
 ## Requests (cross-folder changes)
 
@@ -91,7 +91,7 @@ _Format: `- [ ] from Px to Py: what and why`_
 - [x] from P3 to P2/P1: `calendar.json` needs `is_nrt` per month but `hex_day.parquet` has no such column; P3 currently flags the last 6 data months. Say if you can give the real SP/NRT cutoff date. → **Resolved by P1**: keep `hex_day.parquet` schema frozen (`contracts/tables.md` unchanged); P3's 5-month SP lag rule (`last_data_month` + 5 preceding months) is the official standard (or `MIN(date) WHERE is_nrt` from `points.parquet` if present in the same directory).
 - [x] from P5 to P4: the interim `POST /api/calendar` returns whole-region numbers for any polygon and the frontend cannot tell. Until the real aggregation lands, please return 501 (or tell me a marker), so the UI never labels region totals as a drawn area.
 - [x] from P5 to P4/P1: no endpoint gives per-hex historical values, so the map's `H3HexagonLayer` has no archive data source. Interim: P5 shows NRT hotspots binned to H3 res-7 in the browser and the sandbox grid's `burn_count`. Say if you want a per-hex endpoint instead. → **Approved by P1**: keep `contracts/api.md` frozen; `sandbox_grid.json` `burn_count` + browser-binned NRT hexes is the official `H3HexagonLayer` design.
-- [ ] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape.
+- [x] from P5 to P6: the app lazy-loads the default export of `frontend/src/features/sandbox/index.tsx` (or `.ts`) with the props in `SandboxProps` (`frontend/src/app/SandboxHost.tsx`): `{ regionId: RegionId; area: GeoJSON.Polygon | null; onClose: () => void }`. The host page already shows the required `SANDBOX_BANNER` and a back button, so you do not need to repeat them. Tell me if you want another shape. → **Done by P6** (`feat/p6-sandbox-engine`): `frontend/src/features/sandbox/index.tsx` exists with that shape; P5 please check the launch from the calendar after P1 merges.
 - [x] from P5 to P4: `backend/app/main.py` reads JSON with `read_text()` and no encoding, so on Windows `GET /api/regions` returns "RÃ­o Negro" instead of "Río Negro". Please pass `encoding="utf-8"` (fine on Linux/Render, wrong on Windows laptops and in the demo if the backend runs locally).
 - [ ] from P5 to P3: FYI, no change needed. The calibration panel reads three optional things from `calibration.json` `diagnostics` if present: `terra_only.measured`, `noaa20.measured`, `noaa21.measured` (to flag a neutral ×1 placeholder) and `fit_windows.<factor name>` (shown as "Fitted on …"). It works without them; tell me if you rename these keys.
 
@@ -135,3 +135,5 @@ _Format: `- [ ] from Px to Py: what and why`_
   - [x] P4 part of the California request: verified Render `efb661b`, both regions real, 313-month polygons, both processed CSVs, and exact committed calibration metrics (91.11 / 152.27 MAE); timings and sampled memory are in `backend/REAL_DATA_HANDOFF.md`. The performance fix is tested locally and still needs deployment/recheck.
 
 - [ ] from P4 to P1: merge/deploy `feat/p4-two-region-verification` to batch CSV writes and bound DuckDB query resources; the deployed large California export reached only 29,601 / 1,202,900 rows before a 35-second client deadline and sampled 474.9 MiB / 512 MiB. P4 must repeat large/full-California timings and Render memory sampling after deployment; local completion is not live verification.
+
+- [ ] from P6 to P4/P1: on Sun 15 Nov about 10:00 the deployed `GET /api/nrt?bbox=...&days=7` answered with "FIRMS rejected MAP_KEY" for MODIS_NRT and VIIRS_NOAA21_NRT, so the sandbox's "Ignite from live hotspots" could not be checked end to end against live data (it falls back to manual ignition and says so). Please check the key or its transaction quota on Render before the demo.
